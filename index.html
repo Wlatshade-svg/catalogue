@@ -1248,6 +1248,25 @@ footer > div{ position:relative; z-index:1; }
   .hero-img{ transform:none !important; }
 }
 
+
+/* ── 3D system chips ─────────────────────────────────────────────*/
+.td-models{ display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:.25rem; }
+.td-chip{
+  font-size:.82rem; line-height:1; padding:.6rem 1rem; border-radius:999px;
+  color:rgba(232,228,222,.72);
+  border:1px solid var(--hair);
+  background:linear-gradient(140deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
+  transition:color .35s var(--e), border-color .35s var(--e), background .35s var(--e), transform .35s var(--e);
+}
+.td-chip:hover{ color:#fff; border-color:rgba(227,196,140,.4); transform:translateY(-1px); }
+.td-chip.active{
+  color:#fff; border-color:rgba(199,31,71,.65);
+  background:linear-gradient(140deg,rgba(157,28,59,.5),rgba(157,28,59,.16));
+  box-shadow:0 8px 24px -12px rgba(199,31,71,.9);
+}
+#btnOpen[disabled],#btnClose[disabled]{ cursor:default; }
+@media(max-width:640px){ .td-chip{ font-size:.76rem; padding:.5rem .8rem; } }
+
 </style>
 </head>
 <body class="grain bg-ink-900 text-bone min-h-screen">
@@ -1448,16 +1467,17 @@ footer > div{ position:relative; z-index:1; }
           <span data-i18n="td.h1">سیستەمەکان لە</span>
           <span class="italic-accent" data-i18n="td.h1_italic">٣٦٠°</span>
         </h2>
-        <p class="text-bone-soft mb-8 leading-relaxed reveal reveal-d2" data-i18n="td.p">مۆدێلی سێ ڕەهەندییەکە بسووڕێنە و دیزاینی پەرگۆلای بایۆکلیماتیک بە وردی ببینە — لە لووڤەرەکانەوە تا ستوونەکان. کلیک بکە و ڕایبکێشە بۆ سووڕاندنی.</p>
-        <div class="flex flex-wrap gap-3 reveal reveal-d3">
-          <span class="tag tag-brand">Bioclimatic</span>
+        <p class="text-bone-soft mb-8 leading-relaxed reveal reveal-d2" data-i18n="td.p">سیستەمێک هەڵبژێرە و مۆدێلە سێ ڕەهەندییەکەی بسووڕێنە — لە لووڤەرەکانەوە تا ستوونەکان. ڕایبکێشە بۆ سووڕاندن، و دوگمەکان بەکاربهێنە بۆ کردنەوە و داخستن.</p>
+        <div class="td-models reveal reveal-d3" id="tdModels"></div>
+        <div class="flex flex-wrap gap-3 mt-6 reveal reveal-d3">
+          <span class="tag tag-brand" id="tdTagBrand">Bioclimatic</span>
           <span class="tag" data-i18n="td.tag1">ئەلوومینیۆم</span>
-          <span class="tag" data-i18n="td.tag2">لووڤەری سووڕاو</span>
+          <span class="tag" id="tdTagFeature">لووڤەری سووڕاو</span>
         </div>
         <div class="mt-10 grid grid-cols-3 gap-4 reveal reveal-d4">
           <button class="text-xs tracking-wider2 py-3 border border-white/15 hover:border-brand hover:bg-brand/10 transition" id="btnAuto" data-i18n="td.btn1">سووڕانی خۆکار</button>
-          <button class="text-xs tracking-wider2 py-3 border border-white/15 hover:border-brand hover:bg-brand/10 transition" id="btnOpen" data-i18n="td.btn2">کردنەوەی لووڤەر</button>
-          <button class="text-xs tracking-wider2 py-3 border border-white/15 hover:border-brand hover:bg-brand/10 transition" id="btnClose" data-i18n="td.btn3">داخستن</button>
+          <button class="text-xs tracking-wider2 py-3 border border-white/15 hover:border-brand hover:bg-brand/10 transition" id="btnOpen">کردنەوەی لووڤەر</button>
+          <button class="text-xs tracking-wider2 py-3 border border-white/15 hover:border-brand hover:bg-brand/10 transition" id="btnClose">داخستنی لووڤەر</button>
         </div>
       </div>
       <div class="lg:col-span-7">
@@ -1774,9 +1794,9 @@ footer > div{ position:relative; z-index:1; }
 <script>
 // ===== TRANSLATIONS =====
 const T = {
-  ku: {"brand.name":"ووڵات شەید","brand.sub":"SHADE SYSTEMS","nav.systems":"سیستەمەکان","nav.showcase":"پڕۆژەکان","nav.materials":"مادەکان","nav.about":"دەربارە","nav.contact":"پەیوەندی","nav.cta":"داوای نرخ بکە","hero.kicker":"/ Architectural Shade · 2026","hero.line1":"سێبەری","hero.line2_italic":"دیزاینکراو ","hero.line2":"بۆ ژیانی نوێ.","hero.lede":"پسپۆڕین لە پەرگۆلای کارەبایی، سیستەمی بایۆکلیماتیک، جام و سکایلایت — لە کوردستانەوە بۆ هەموو شوێنێک کە دیزاین و کوالیتی بەهای خۆی هەیە.","hero.cta1":"سیستەمەکان ببینە","hero.cta2":"پەیوەندیمان پێ بکە","hero.scroll":"بخزێنە","hero.side":"EST · ARBIL · KURDISTAN","ticker.1":"پەرگۆلای کارەبایی","ticker.2":"سکایلایت","ticker.3":"جامی گیۆتین","ticker.4":"سێبەری پارکینگ","about.kicker":"PHILOSOPHY · فەلسەفە","about.h1":"دیزاین، کارایی،","about.h1_italic":"و ئاسانی.","about.p1":"ووڵات شەید پسپۆڕە لە دیزاین و دانانی سیستەمە مۆدێرنەکانی کەپر و سێبەر، بە بەکارهێنانی باشترین ماددە و ئامێرە ئەلیکترۆنییەکانی جیهان لە ئیتاڵیا و فەرەنسا.","about.p2":"هەر سیستەمێک بەپێی تایبەتمەندی شوێنی خۆی دیزاین دەکرێت — لە ماڵەوە بۆ ڤیلا، لە کافێ بۆ ڕێستۆرانت، لە پارکینگ بۆ مەلەوانگە. شێوازی نوێ، تەکنەلۆژیای بێهاوتا.","about.stat1":"ساڵ ئەزموون","about.stat2":"پڕۆژەی تەواوبوو","about.stat3":"سیستەمی جیاواز","about.stat4":"براندی جیهانی","td.kicker":"3D EXPLORER · سێ ڕەهەندی","td.h1":"سیستەمەکان لە","td.h1_italic":"٣٦٠°","td.p":"مۆدێلی سێ ڕەهەندییەکە بسووڕێنە و دیزاینی پەرگۆلای بایۆکلیماتیک بە وردی ببینە — لە لووڤەرەکانەوە تا ستوونەکان. کلیک بکە و ڕایبکێشە بۆ سووڕاندنی.","td.tag1":"ئەلوومینیۆم","td.tag2":"لووڤەری سووڕاو","td.btn1":"سووڕانی خۆکار","td.btn2":"کردنەوەی لووڤەر","td.btn3":"داخستن","td.live":"LIVE 3D","td.hint":"DRAG TO ROTATE · SCROLL TO ZOOM","grid.kicker":"CATALOGUE · کاتالۆگ","grid.h1":"هەموو","grid.h1_italic":"سیستەمەکان.","grid.p":"کلیک لەسەر هەر سیستەمێک بکە بۆ ئەوەی گەلێریی پڕۆژەکانی ببینیت لەگەڵ ووردەکارییە تەکنیکییەکان.","ed.kicker":"FEATURED PROJECTS · پڕۆژە دیارەکان","ed.p1.title":"سیستەمی بایۆکلیماتیک. <br/><span class=\"italic-accent\">پڕۆژەی ڤیلای ئاسایش.</span>","ed.p1.body":"ڤیلایەکی نوێ لە هەولێر — لووڤەرەکان بۆ هەر چوار وەرزەی ساڵ سودی لێ وەردەگیرێت. کۆنترۆڵی تەواو بە ڕیمۆت یان ئەپ، گەرمیی هاوین کەم و ڕووناکیی زستان زۆر.","ed.p1.cta":"گەلێریی تەواو ←","ed.p2.title":"گیۆتین جام پانۆراما. <br/><span class=\"italic-accent\">کافیلی، هەولێر.</span>","ed.p2.body":"سیستەمی جامی پانۆرامای ووڵات شەید بۆ کافێ کاڤاللی — تەواوی ڕووکارەکان بە جامی شەفاف و دەرگای ئۆتۆماتیکی، گەرمی هاوین لەناوبردنی تەواو.","ed.p2.cta":"گەلێریی تەواو ←","ed.p3.title":"سکایلایتی شیشە‌یی. <br/><span class=\"italic-accent\">پڕۆژەی ماڵە‌وەی تایبەت.</span>","ed.p3.body":"سەقفی شیشەیی بۆ ژورە دەرەکییەکان — ڕووناکی سروشتی بێ مەزەندە، چاودێری دیمەنی ئاسمان، گەرمیی زستان لە ناوەوە بە کلیک پارێزراو.","ed.p3.cta":"گەلێریی تەواو ←","mat.kicker":"PARTNERS · هاوبەشە جیهانییەکان","mat.h1":"باشترین مادە و","mat.h1_italic":"ئامێرە جیهانییەکان.","mat.p":"ووڵات شەید هاوبەشی براندە بەناوبانگترینەکانە. سۆمفیی فەرەنسی بۆ ماتۆڕی کارەبایی، مۆسێل بۆ ماتۆڕی توبولێری بەهێز، و سێرج فیرارییِ ئیتاڵی بۆ قوماشی دژە تیشکی خۆر.","mat.p1.title":"ماتۆڕی توبولەری سۆمفی","mat.p1.body":"کۆمەڵێک ماتۆڕی جیاواز بۆ هەموو بەکارهێنانێک: ناوەوە، دەرەوە، نیشتەجێبوون و بازرگانی. دانانی خێرا و گونجاو لەگەڵ ئامێرە باوەکان.","mat.p2.title":"ماتۆڕی توبولەری مۆسێل","mat.p2.body":"خێرایی بەرز لە کردنەوە و داخستندا، لەگەڵ سیستەمی خێراکردن و هێواشکردنی کۆنترۆڵکراو کە تەمەنی میکانیزمەکە درێژ دەکاتەوە.","mat.p3.title":"قوماشی سێرج فیراری","mat.p3.body":"قوماشی پێش‌ڕاکێشراو (Précontraint) بە بەرگرییەکی بەهێز دژی تیشکی بنەوشەیی، بەهێزکراو لە هەردوو ئاراستەدا.","cta.h1":"پڕۆژەی خۆت لەگەڵمان","cta.h1_italic":"دیزاین بکە.","cta.p":"بەخۆڕایی، تیمی پسپۆڕەکانمان سەردانی شوێنەکەت دەکەن — پێشنیاری دیزاین، پلانی سێ ڕەهەندی و وردەکاریی نرخ.","cta.btn1":"پەیوەندیمان پێ بکە","con.kicker":"CONTACT · پەیوەندی","con.h1":"با","con.h1_italic":"قسە بکەین.","con.label1":"ناونیشان · ADDRESS","con.label2":"تەلەفۆن · PHONE","con.label3":"سۆشیاڵ · SOCIAL","con.addr":"شەقامی شەست مەتری، نزیک بەنزینخانەی بینایی · هەولێر، کوردستان","form.name":"ناو · NAME","form.phone":"تەلەفۆن · PHONE","form.email":"ئیمەیڵ · EMAIL","form.system":"سیستەم · SYSTEM","form.opt0":"— هەڵبژێرە —","form.opt1":"پەرگۆلای بایۆکلیماتیک","form.opt2":"سکایلایت / جامی پانۆراما","form.opt3":"کاسێت / کەپری ڕێکی","form.opt4":"پارکینگ شەید","form.opt5":"دیکە","form.msg":"پەیام · MESSAGE","form.btn":"پەیامەکە بنێرە","ft.tag":"دیزاین و ئامێرە جیهانییەکان بۆ سێبەری مۆدێرن لە کوردستان.","ft.menu1":"سیستەمەکان","ft.menu2":"کۆمپانیا","ft.menu3":"پەیوەندی","ft.credit":"دیزاین و گەشەپێدان بۆ ووڵات شەید","modal.subhead":"SUB-CATALOGUE","cf.open":"بینینی پڕۆژەکان"},
-  en: {"brand.name":"WLAT SHADE","brand.sub":"SHADE SYSTEMS","nav.systems":"Systems","nav.showcase":"Projects","nav.materials":"Materials","nav.about":"About","nav.contact":"Contact","nav.cta":"Request Quote","hero.kicker":"/ Architectural Shade · 2026","hero.line1":"Designed","hero.line2_italic":"shade ","hero.line2":"for modern living.","hero.lede":"Specialists in electric pergolas, bioclimatic systems, panoramic glass and skylights — engineered in Kurdistan for spaces where design and quality matter.","hero.cta1":"Explore Systems","hero.cta2":"Get in touch","hero.scroll":"Scroll","hero.side":"EST · ARBIL · KURDISTAN","ticker.1":"Electric Pergola","ticker.2":"Skylight","ticker.3":"Guillotine Glass","ticker.4":"Parking Shade","about.kicker":"PHILOSOPHY","about.h1":"Design, function,","about.h1_italic":"and ease.","about.p1":"Wlat Shade is a specialist in modern shade and pergola systems, using the world's finest materials and electronic components from Italy and France.","about.p2":"Each system is custom-designed for its location — from villa to home, café to restaurant, parking lot to pool. Modern aesthetics, unrivaled technology.","about.stat1":"Years experience","about.stat2":"Projects completed","about.stat3":"Distinct systems","about.stat4":"Global partners","td.kicker":"3D EXPLORER","td.h1":"Systems in","td.h1_italic":"360°","td.p":"Spin our 3D model and explore the bioclimatic pergola in detail — from louvers to columns. Click and drag to rotate.","td.tag1":"Aluminium","td.tag2":"Rotating Louvers","td.btn1":"Auto-rotate","td.btn2":"Open Louvers","td.btn3":"Close Louvers","td.live":"LIVE 3D","td.hint":"DRAG TO ROTATE · SCROLL TO ZOOM","grid.kicker":"CATALOGUE","grid.h1":"All","grid.h1_italic":"systems.","grid.p":"Click any system to explore the project gallery and technical specifications.","ed.kicker":"FEATURED PROJECTS","ed.p1.title":"Bioclimatic system. <br/><span class=\"italic-accent\">Asayish villa project.</span>","ed.p1.body":"A new villa in Erbil — louvers tuned to all four seasons. Full remote or app control, reduced summer heat, plenty of winter light.","ed.p1.cta":"Full gallery →","ed.p2.title":"Panoramic Guillotine. <br/><span class=\"italic-accent\">Cavalli, Erbil.</span>","ed.p2.body":"Wlat Shade panoramic glass for Cavalli Café — full transparent facades and automated doors, complete summer heat reduction.","ed.p2.cta":"Full gallery →","ed.p3.title":"Glass skylight. <br/><span class=\"italic-accent\">Private residence project.</span>","ed.p3.body":"Glass skylights for outdoor rooms — boundless natural light, sky views, winter warmth protected with one click.","ed.p3.cta":"Full gallery →","mat.kicker":"GLOBAL PARTNERS","mat.h1":"The world's finest","mat.h1_italic":"materials & motors.","mat.p":"Wlat Shade partners with the most renowned brands. Somfy of France for electric motors, Mosel for high-power tubulars, and Italian Serge Ferrari for UV-resistant fabrics.","mat.p1.title":"Somfy Tubular Motor","mat.p1.body":"A range of motors for every application: indoor, outdoor, residential, commercial. Quick installation, compatible with mainstream devices.","mat.p2.title":"Mosel Tubular Motor","mat.p2.body":"High-speed capabilities accelerating the open/close mechanisms. Special controlled-acceleration features in the drive train.","mat.p3.title":"Serge Ferrari Fabric","mat.p3.body":"High-contrast fabric with strong UV resistance. Pre-tensioned technology, bidirectionally engineered.","cta.h1":"Design your project","cta.h1_italic":"with us.","cta.p":"Free of charge — our specialists visit your site, propose a design, prepare 3D plans and pricing.","cta.btn1":"Get in touch","con.kicker":"CONTACT","con.h1":"Let's","con.h1_italic":"talk.","con.label1":"ADDRESS","con.label2":"PHONE","con.label3":"SOCIAL","con.addr":"60-Meter Street, near Banaee Petrol Station · Erbil, Kurdistan","form.name":"NAME","form.phone":"PHONE","form.email":"EMAIL","form.system":"SYSTEM","form.opt0":"— Select —","form.opt1":"Bioclimatic Pergola","form.opt2":"Skylight / Panoramic","form.opt3":"Cassette / Awning","form.opt4":"Parking Shade","form.opt5":"Other","form.msg":"MESSAGE","form.btn":"Send Message","ft.tag":"Design and global components for modern shade in Kurdistan.","ft.menu1":"Systems","ft.menu2":"Company","ft.menu3":"Contact","ft.credit":"Designed and developed for Wlat Shade","modal.subhead":"SUB-CATALOGUE","cf.open":"View Projects"},
-  ar: {"brand.name":"ولات شيد","brand.sub":"SHADE SYSTEMS","nav.systems":"الأنظمة","nav.showcase":"المشاريع","nav.materials":"المواد","nav.about":"عنّا","nav.contact":"اتصل بنا","nav.cta":"اطلب عرض سعر","hero.kicker":"/ Architectural Shade · 2026","hero.line1":"ظلال","hero.line2_italic":"بتصميم ","hero.line2":"للحياة العصرية.","hero.lede":"متخصصون في البرغولات الكهربائية، الأنظمة البيومناخية، الزجاج البانورامي والسكايلايت — من كردستان إلى كل مكان يهتم بالتصميم والجودة.","hero.cta1":"استكشف الأنظمة","hero.cta2":"تواصل معنا","hero.scroll":"مرّر","hero.side":"EST · ERBIL · KURDISTAN","ticker.1":"البرغولا الكهربائية","ticker.2":"سكايلايت","ticker.3":"زجاج جيوتين","ticker.4":"ظل المواقف","about.kicker":"الفلسفة","about.h1":"تصميم، أداء،","about.h1_italic":"وسهولة.","about.p1":"ولات شيد متخصص في تصميم وتركيب أنظمة المظلات والبرغولات الحديثة، باستخدام أفضل المواد والمكونات الإلكترونية من إيطاليا وفرنسا.","about.p2":"كل نظام يُصمم خصيصاً لموقعه — من الفلل إلى المنازل، من المقاهي إلى المطاعم، من المواقف إلى المسابح. جماليات حديثة، تكنولوجيا لا تُضاهى.","about.stat1":"سنة خبرة","about.stat2":"مشروع منجز","about.stat3":"نظام مختلف","about.stat4":"شركاء عالميون","td.kicker":"المستكشف ثلاثي الأبعاد","td.h1":"الأنظمة في","td.h1_italic":"٣٦٠°","td.p":"حرّك النموذج ثلاثي الأبعاد واستكشف البرغولا البيومناخية بالتفصيل — من الشرائح إلى الأعمدة. اضغط واسحب للتدوير.","td.tag1":"ألومنيوم","td.tag2":"شرائح دوّارة","td.btn1":"تدوير تلقائي","td.btn2":"فتح الشرائح","td.btn3":"إغلاق الشرائح","td.live":"LIVE 3D","td.hint":"اسحب للتدوير · مرّر للتكبير","grid.kicker":"الكتالوج","grid.h1":"جميع","grid.h1_italic":"الأنظمة.","grid.p":"اضغط على أي نظام لاستكشاف معرض المشاريع والمواصفات التقنية.","ed.kicker":"مشاريع مميزة","ed.p1.title":"النظام البيومناخي. <br/><span class=\"italic-accent\">مشروع فيلا أسايش.</span>","ed.p1.body":"فيلا جديدة في أربيل — الشرائح مضبوطة لجميع فصول السنة. تحكم كامل عبر الريموت أو التطبيق، حرارة صيف أقل وضوء شتاء أكثر.","ed.p1.cta":"المعرض الكامل ←","ed.p2.title":"زجاج جيوتين بانورامي. <br/><span class=\"italic-accent\">كافالي، أربيل.</span>","ed.p2.body":"زجاج بانورامي من ولات شيد لكافيه كافالي — واجهات شفافة كاملة وأبواب آلية، تخفيض كامل لحرارة الصيف.","ed.p2.cta":"المعرض الكامل ←","ed.p3.title":"سكايلايت زجاجي. <br/><span class=\"italic-accent\">مشروع منزل خاص.</span>","ed.p3.body":"سكايلايت زجاجي للغرف الخارجية — ضوء طبيعي بلا حدود، إطلالة على السماء، دفء الشتاء محمي بنقرة واحدة.","ed.p3.cta":"المعرض الكامل ←","mat.kicker":"الشركاء العالميون","mat.h1":"أفضل المواد","mat.h1_italic":"والمحركات العالمية.","mat.p":"تعمل ولات شيد مع أشهر العلامات التجارية. سومفي الفرنسية للمحركات الكهربائية، موسيل للمحركات عالية القوة، و سيرج فيراري الإيطالية للأقمشة المقاومة للأشعة.","mat.p1.title":"محرك سومفي الأنبوبي","mat.p1.body":"مجموعة من المحركات لكل تطبيق: داخلي، خارجي، سكني، تجاري. تركيب سريع، متوافق مع الأجهزة الشائعة.","mat.p2.title":"محرك موسيل الأنبوبي","mat.p2.body":"قدرات سرعة عالية تُسرّع آليات الفتح والإغلاق. ميزات تسارع متحكم بها في ناقل الحركة.","mat.p3.title":"قماش سيرج فيراري","mat.p3.body":"قماش عالي التباين مع مقاومة قوية للأشعة فوق البنفسجية. تقنية مشدودة مسبقاً، مهندسة باتجاهين.","cta.h1":"صمّم مشروعك","cta.h1_italic":"معنا.","cta.p":"مجاناً — يزور المتخصصون لدينا موقعك، يقترحون تصميماً، ويعدّون مخططات ثلاثية الأبعاد وتسعيراً.","cta.btn1":"تواصل معنا","con.kicker":"اتصل بنا","con.h1":"دعنا","con.h1_italic":"نتحدث.","con.label1":"العنوان","con.label2":"الهاتف","con.label3":"السوشيال","con.addr":"شارع الستين متر، قرب محطة بيناي · أربيل، كردستان","form.name":"الاسم","form.phone":"الهاتف","form.email":"البريد","form.system":"النظام","form.opt0":"— اختر —","form.opt1":"البرغولا البيومناخية","form.opt2":"سكايلايت / بانوراما","form.opt3":"كاسيت / مظلة","form.opt4":"ظل مواقف","form.opt5":"أخرى","form.msg":"الرسالة","form.btn":"إرسال الرسالة","ft.tag":"تصميم ومكونات عالمية للظل العصري في كردستان.","ft.menu1":"الأنظمة","ft.menu2":"الشركة","ft.menu3":"اتصل بنا","ft.credit":"تصميم وتطوير لـولات شيد","modal.subhead":"كتالوج فرعي","cf.open":"فتح المعرض"}
+  ku: {"brand.name":"ووڵات شەید","brand.sub":"SHADE SYSTEMS","nav.systems":"سیستەمەکان","nav.showcase":"پڕۆژەکان","nav.materials":"مادەکان","nav.about":"دەربارە","nav.contact":"پەیوەندی","nav.cta":"داوای نرخ بکە","hero.kicker":"/ Architectural Shade · 2026","hero.line1":"سێبەری","hero.line2_italic":"دیزاینکراو ","hero.line2":"بۆ ژیانی نوێ.","hero.lede":"پسپۆڕین لە پەرگۆلای کارەبایی، سیستەمی بایۆکلیماتیک، جام و سکایلایت — لە کوردستانەوە بۆ هەموو شوێنێک کە دیزاین و کوالیتی بەهای خۆی هەیە.","hero.cta1":"سیستەمەکان ببینە","hero.cta2":"پەیوەندیمان پێ بکە","hero.scroll":"بخزێنە","hero.side":"EST · ARBIL · KURDISTAN","ticker.1":"پەرگۆلای کارەبایی","ticker.2":"سکایلایت","ticker.3":"جامی گیۆتین","ticker.4":"سێبەری پارکینگ","about.kicker":"PHILOSOPHY · فەلسەفە","about.h1":"دیزاین، کارایی،","about.h1_italic":"و ئاسانی.","about.p1":"ووڵات شەید پسپۆڕە لە دیزاین و دانانی سیستەمە مۆدێرنەکانی کەپر و سێبەر، بە بەکارهێنانی باشترین ماددە و ئامێرە ئەلیکترۆنییەکانی جیهان لە ئیتاڵیا و فەرەنسا.","about.p2":"هەر سیستەمێک بەپێی تایبەتمەندی شوێنی خۆی دیزاین دەکرێت — لە ماڵەوە بۆ ڤیلا، لە کافێ بۆ ڕێستۆرانت، لە پارکینگ بۆ مەلەوانگە. شێوازی نوێ، تەکنەلۆژیای بێهاوتا.","about.stat1":"ساڵ ئەزموون","about.stat2":"پڕۆژەی تەواوبوو","about.stat3":"سیستەمی جیاواز","about.stat4":"براندی جیهانی","td.kicker":"3D EXPLORER · سێ ڕەهەندی","td.h1":"سیستەمەکان لە","td.h1_italic":"٣٦٠°","td.p":"سیستەمێک هەڵبژێرە و مۆدێلە سێ ڕەهەندییەکەی بسووڕێنە — لە لووڤەرەکانەوە تا ستوونەکان. ڕایبکێشە بۆ سووڕاندن، و دوگمەکان بەکاربهێنە بۆ کردنەوە و داخستن.","td.tag1":"ئەلوومینیۆم","td.tag2":"لووڤەری سووڕاو","td.btn1":"سووڕانی خۆکار","td.btn2":"کردنەوەی لووڤەر","td.btn3":"داخستن","td.live":"LIVE 3D","td.hint":"DRAG TO ROTATE · SCROLL TO ZOOM","grid.kicker":"CATALOGUE · کاتالۆگ","grid.h1":"هەموو","grid.h1_italic":"سیستەمەکان.","grid.p":"کلیک لەسەر هەر سیستەمێک بکە بۆ ئەوەی گەلێریی پڕۆژەکانی ببینیت لەگەڵ ووردەکارییە تەکنیکییەکان.","ed.kicker":"FEATURED PROJECTS · پڕۆژە دیارەکان","ed.p1.title":"سیستەمی بایۆکلیماتیک. <br/><span class=\"italic-accent\">پڕۆژەی ڤیلای ئاسایش.</span>","ed.p1.body":"ڤیلایەکی نوێ لە هەولێر — لووڤەرەکان بۆ هەر چوار وەرزەی ساڵ سودی لێ وەردەگیرێت. کۆنترۆڵی تەواو بە ڕیمۆت یان ئەپ، گەرمیی هاوین کەم و ڕووناکیی زستان زۆر.","ed.p1.cta":"گەلێریی تەواو ←","ed.p2.title":"گیۆتین جام پانۆراما. <br/><span class=\"italic-accent\">کافیلی، هەولێر.</span>","ed.p2.body":"سیستەمی جامی پانۆرامای ووڵات شەید بۆ کافێ کاڤاللی — تەواوی ڕووکارەکان بە جامی شەفاف و دەرگای ئۆتۆماتیکی، گەرمی هاوین لەناوبردنی تەواو.","ed.p2.cta":"گەلێریی تەواو ←","ed.p3.title":"سکایلایتی شیشە‌یی. <br/><span class=\"italic-accent\">پڕۆژەی ماڵە‌وەی تایبەت.</span>","ed.p3.body":"سەقفی شیشەیی بۆ ژورە دەرەکییەکان — ڕووناکی سروشتی بێ مەزەندە، چاودێری دیمەنی ئاسمان، گەرمیی زستان لە ناوەوە بە کلیک پارێزراو.","ed.p3.cta":"گەلێریی تەواو ←","mat.kicker":"PARTNERS · هاوبەشە جیهانییەکان","mat.h1":"باشترین مادە و","mat.h1_italic":"ئامێرە جیهانییەکان.","mat.p":"ووڵات شەید هاوبەشی براندە بەناوبانگترینەکانە. سۆمفیی فەرەنسی بۆ ماتۆڕی کارەبایی، مۆسێل بۆ ماتۆڕی توبولێری بەهێز، و سێرج فیرارییِ ئیتاڵی بۆ قوماشی دژە تیشکی خۆر.","mat.p1.title":"ماتۆڕی توبولەری سۆمفی","mat.p1.body":"کۆمەڵێک ماتۆڕی جیاواز بۆ هەموو بەکارهێنانێک: ناوەوە، دەرەوە، نیشتەجێبوون و بازرگانی. دانانی خێرا و گونجاو لەگەڵ ئامێرە باوەکان.","mat.p2.title":"ماتۆڕی توبولەری مۆسێل","mat.p2.body":"خێرایی بەرز لە کردنەوە و داخستندا، لەگەڵ سیستەمی خێراکردن و هێواشکردنی کۆنترۆڵکراو کە تەمەنی میکانیزمەکە درێژ دەکاتەوە.","mat.p3.title":"قوماشی سێرج فیراری","mat.p3.body":"قوماشی پێش‌ڕاکێشراو (Précontraint) بە بەرگرییەکی بەهێز دژی تیشکی بنەوشەیی، بەهێزکراو لە هەردوو ئاراستەدا.","cta.h1":"پڕۆژەی خۆت لەگەڵمان","cta.h1_italic":"دیزاین بکە.","cta.p":"بەخۆڕایی، تیمی پسپۆڕەکانمان سەردانی شوێنەکەت دەکەن — پێشنیاری دیزاین، پلانی سێ ڕەهەندی و وردەکاریی نرخ.","cta.btn1":"پەیوەندیمان پێ بکە","con.kicker":"CONTACT · پەیوەندی","con.h1":"با","con.h1_italic":"قسە بکەین.","con.label1":"ناونیشان · ADDRESS","con.label2":"تەلەفۆن · PHONE","con.label3":"سۆشیاڵ · SOCIAL","con.addr":"شەقامی شەست مەتری، نزیک بەنزینخانەی بینایی · هەولێر، کوردستان","form.name":"ناو · NAME","form.phone":"تەلەفۆن · PHONE","form.email":"ئیمەیڵ · EMAIL","form.system":"سیستەم · SYSTEM","form.opt0":"— هەڵبژێرە —","form.opt1":"پەرگۆلای بایۆکلیماتیک","form.opt2":"سکایلایت / جامی پانۆراما","form.opt3":"کاسێت / کەپری ڕێکی","form.opt4":"پارکینگ شەید","form.opt5":"دیکە","form.msg":"پەیام · MESSAGE","form.btn":"پەیامەکە بنێرە","ft.tag":"دیزاین و ئامێرە جیهانییەکان بۆ سێبەری مۆدێرن لە کوردستان.","ft.menu1":"سیستەمەکان","ft.menu2":"کۆمپانیا","ft.menu3":"پەیوەندی","ft.credit":"دیزاین و گەشەپێدان بۆ ووڵات شەید","modal.subhead":"SUB-CATALOGUE","cf.open":"بینینی پڕۆژەکان"},
+  en: {"brand.name":"WLAT SHADE","brand.sub":"SHADE SYSTEMS","nav.systems":"Systems","nav.showcase":"Projects","nav.materials":"Materials","nav.about":"About","nav.contact":"Contact","nav.cta":"Request Quote","hero.kicker":"/ Architectural Shade · 2026","hero.line1":"Designed","hero.line2_italic":"shade ","hero.line2":"for modern living.","hero.lede":"Specialists in electric pergolas, bioclimatic systems, panoramic glass and skylights — engineered in Kurdistan for spaces where design and quality matter.","hero.cta1":"Explore Systems","hero.cta2":"Get in touch","hero.scroll":"Scroll","hero.side":"EST · ARBIL · KURDISTAN","ticker.1":"Electric Pergola","ticker.2":"Skylight","ticker.3":"Guillotine Glass","ticker.4":"Parking Shade","about.kicker":"PHILOSOPHY","about.h1":"Design, function,","about.h1_italic":"and ease.","about.p1":"Wlat Shade is a specialist in modern shade and pergola systems, using the world's finest materials and electronic components from Italy and France.","about.p2":"Each system is custom-designed for its location — from villa to home, café to restaurant, parking lot to pool. Modern aesthetics, unrivaled technology.","about.stat1":"Years experience","about.stat2":"Projects completed","about.stat3":"Distinct systems","about.stat4":"Global partners","td.kicker":"3D EXPLORER","td.h1":"Systems in","td.h1_italic":"360°","td.p":"Pick a system and spin its 3D model — from louvers to columns. Drag to rotate, and use the buttons to open and close it.","td.tag1":"Aluminium","td.tag2":"Rotating Louvers","td.btn1":"Auto-rotate","td.btn2":"Open Louvers","td.btn3":"Close Louvers","td.live":"LIVE 3D","td.hint":"DRAG TO ROTATE · SCROLL TO ZOOM","grid.kicker":"CATALOGUE","grid.h1":"All","grid.h1_italic":"systems.","grid.p":"Click any system to explore the project gallery and technical specifications.","ed.kicker":"FEATURED PROJECTS","ed.p1.title":"Bioclimatic system. <br/><span class=\"italic-accent\">Asayish villa project.</span>","ed.p1.body":"A new villa in Erbil — louvers tuned to all four seasons. Full remote or app control, reduced summer heat, plenty of winter light.","ed.p1.cta":"Full gallery →","ed.p2.title":"Panoramic Guillotine. <br/><span class=\"italic-accent\">Cavalli, Erbil.</span>","ed.p2.body":"Wlat Shade panoramic glass for Cavalli Café — full transparent facades and automated doors, complete summer heat reduction.","ed.p2.cta":"Full gallery →","ed.p3.title":"Glass skylight. <br/><span class=\"italic-accent\">Private residence project.</span>","ed.p3.body":"Glass skylights for outdoor rooms — boundless natural light, sky views, winter warmth protected with one click.","ed.p3.cta":"Full gallery →","mat.kicker":"GLOBAL PARTNERS","mat.h1":"The world's finest","mat.h1_italic":"materials & motors.","mat.p":"Wlat Shade partners with the most renowned brands. Somfy of France for electric motors, Mosel for high-power tubulars, and Italian Serge Ferrari for UV-resistant fabrics.","mat.p1.title":"Somfy Tubular Motor","mat.p1.body":"A range of motors for every application: indoor, outdoor, residential, commercial. Quick installation, compatible with mainstream devices.","mat.p2.title":"Mosel Tubular Motor","mat.p2.body":"High-speed capabilities accelerating the open/close mechanisms. Special controlled-acceleration features in the drive train.","mat.p3.title":"Serge Ferrari Fabric","mat.p3.body":"High-contrast fabric with strong UV resistance. Pre-tensioned technology, bidirectionally engineered.","cta.h1":"Design your project","cta.h1_italic":"with us.","cta.p":"Free of charge — our specialists visit your site, propose a design, prepare 3D plans and pricing.","cta.btn1":"Get in touch","con.kicker":"CONTACT","con.h1":"Let's","con.h1_italic":"talk.","con.label1":"ADDRESS","con.label2":"PHONE","con.label3":"SOCIAL","con.addr":"60-Meter Street, near Banaee Petrol Station · Erbil, Kurdistan","form.name":"NAME","form.phone":"PHONE","form.email":"EMAIL","form.system":"SYSTEM","form.opt0":"— Select —","form.opt1":"Bioclimatic Pergola","form.opt2":"Skylight / Panoramic","form.opt3":"Cassette / Awning","form.opt4":"Parking Shade","form.opt5":"Other","form.msg":"MESSAGE","form.btn":"Send Message","ft.tag":"Design and global components for modern shade in Kurdistan.","ft.menu1":"Systems","ft.menu2":"Company","ft.menu3":"Contact","ft.credit":"Designed and developed for Wlat Shade","modal.subhead":"SUB-CATALOGUE","cf.open":"View Projects"},
+  ar: {"brand.name":"ولات شيد","brand.sub":"SHADE SYSTEMS","nav.systems":"الأنظمة","nav.showcase":"المشاريع","nav.materials":"المواد","nav.about":"عنّا","nav.contact":"اتصل بنا","nav.cta":"اطلب عرض سعر","hero.kicker":"/ Architectural Shade · 2026","hero.line1":"ظلال","hero.line2_italic":"بتصميم ","hero.line2":"للحياة العصرية.","hero.lede":"متخصصون في البرغولات الكهربائية، الأنظمة البيومناخية، الزجاج البانورامي والسكايلايت — من كردستان إلى كل مكان يهتم بالتصميم والجودة.","hero.cta1":"استكشف الأنظمة","hero.cta2":"تواصل معنا","hero.scroll":"مرّر","hero.side":"EST · ERBIL · KURDISTAN","ticker.1":"البرغولا الكهربائية","ticker.2":"سكايلايت","ticker.3":"زجاج جيوتين","ticker.4":"ظل المواقف","about.kicker":"الفلسفة","about.h1":"تصميم، أداء،","about.h1_italic":"وسهولة.","about.p1":"ولات شيد متخصص في تصميم وتركيب أنظمة المظلات والبرغولات الحديثة، باستخدام أفضل المواد والمكونات الإلكترونية من إيطاليا وفرنسا.","about.p2":"كل نظام يُصمم خصيصاً لموقعه — من الفلل إلى المنازل، من المقاهي إلى المطاعم، من المواقف إلى المسابح. جماليات حديثة، تكنولوجيا لا تُضاهى.","about.stat1":"سنة خبرة","about.stat2":"مشروع منجز","about.stat3":"نظام مختلف","about.stat4":"شركاء عالميون","td.kicker":"المستكشف ثلاثي الأبعاد","td.h1":"الأنظمة في","td.h1_italic":"٣٦٠°","td.p":"اختر نظاماً وحرّك نموذجه ثلاثي الأبعاد — من الشرائح إلى الأعمدة. اسحب للتدوير، واستخدم الأزرار للفتح والإغلاق.","td.tag1":"ألومنيوم","td.tag2":"شرائح دوّارة","td.btn1":"تدوير تلقائي","td.btn2":"فتح الشرائح","td.btn3":"إغلاق الشرائح","td.live":"LIVE 3D","td.hint":"اسحب للتدوير · مرّر للتكبير","grid.kicker":"الكتالوج","grid.h1":"جميع","grid.h1_italic":"الأنظمة.","grid.p":"اضغط على أي نظام لاستكشاف معرض المشاريع والمواصفات التقنية.","ed.kicker":"مشاريع مميزة","ed.p1.title":"النظام البيومناخي. <br/><span class=\"italic-accent\">مشروع فيلا أسايش.</span>","ed.p1.body":"فيلا جديدة في أربيل — الشرائح مضبوطة لجميع فصول السنة. تحكم كامل عبر الريموت أو التطبيق، حرارة صيف أقل وضوء شتاء أكثر.","ed.p1.cta":"المعرض الكامل ←","ed.p2.title":"زجاج جيوتين بانورامي. <br/><span class=\"italic-accent\">كافالي، أربيل.</span>","ed.p2.body":"زجاج بانورامي من ولات شيد لكافيه كافالي — واجهات شفافة كاملة وأبواب آلية، تخفيض كامل لحرارة الصيف.","ed.p2.cta":"المعرض الكامل ←","ed.p3.title":"سكايلايت زجاجي. <br/><span class=\"italic-accent\">مشروع منزل خاص.</span>","ed.p3.body":"سكايلايت زجاجي للغرف الخارجية — ضوء طبيعي بلا حدود، إطلالة على السماء، دفء الشتاء محمي بنقرة واحدة.","ed.p3.cta":"المعرض الكامل ←","mat.kicker":"الشركاء العالميون","mat.h1":"أفضل المواد","mat.h1_italic":"والمحركات العالمية.","mat.p":"تعمل ولات شيد مع أشهر العلامات التجارية. سومفي الفرنسية للمحركات الكهربائية، موسيل للمحركات عالية القوة، و سيرج فيراري الإيطالية للأقمشة المقاومة للأشعة.","mat.p1.title":"محرك سومفي الأنبوبي","mat.p1.body":"مجموعة من المحركات لكل تطبيق: داخلي، خارجي، سكني، تجاري. تركيب سريع، متوافق مع الأجهزة الشائعة.","mat.p2.title":"محرك موسيل الأنبوبي","mat.p2.body":"قدرات سرعة عالية تُسرّع آليات الفتح والإغلاق. ميزات تسارع متحكم بها في ناقل الحركة.","mat.p3.title":"قماش سيرج فيراري","mat.p3.body":"قماش عالي التباين مع مقاومة قوية للأشعة فوق البنفسجية. تقنية مشدودة مسبقاً، مهندسة باتجاهين.","cta.h1":"صمّم مشروعك","cta.h1_italic":"معنا.","cta.p":"مجاناً — يزور المتخصصون لدينا موقعك، يقترحون تصميماً، ويعدّون مخططات ثلاثية الأبعاد وتسعيراً.","cta.btn1":"تواصل معنا","con.kicker":"اتصل بنا","con.h1":"دعنا","con.h1_italic":"نتحدث.","con.label1":"العنوان","con.label2":"الهاتف","con.label3":"السوشيال","con.addr":"شارع الستين متر، قرب محطة بيناي · أربيل، كردستان","form.name":"الاسم","form.phone":"الهاتف","form.email":"البريد","form.system":"النظام","form.opt0":"— اختر —","form.opt1":"البرغولا البيومناخية","form.opt2":"سكايلايت / بانوراما","form.opt3":"كاسيت / مظلة","form.opt4":"ظل مواقف","form.opt5":"أخرى","form.msg":"الرسالة","form.btn":"إرسال الرسالة","ft.tag":"تصميم ومكونات عالمية للظل العصري في كردستان.","ft.menu1":"الأنظمة","ft.menu2":"الشركة","ft.menu3":"اتصل بنا","ft.credit":"تصميم وتطوير لـولات شيد","modal.subhead":"كتالوج فرعي","cf.open":"فتح المعرض"}
 };
 
 // ===== PRODUCTS =====
@@ -1848,6 +1868,7 @@ function setLang(lang) {
   });
   document.querySelectorAll('.lang-pill').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
   renderProductGrid();
+  if (window.refreshThreeUI) window.refreshThreeUI();
 }
 document.querySelectorAll('.lang-pill').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
 
@@ -2449,21 +2470,504 @@ document.addEventListener('keydown', e => {
   pane.addEventListener('touchcancel', release);
 })();
 
-// ===== THREE.JS PERGOLA 3D - REALISTIC BIOCLIMATIC =====
-let scene, camera, renderer, pergolaGroup, louvers = [], louverPivots = [];
-let autoRotate = true;          // auto-rotate ON by default
-let isDragging = false, lastX = 0, lastY = 0;
-// Current actual rotation (what Three.js renders)
-let rotX = 0.38, rotY = -0.5;
-// Target rotation (what the user is aiming for)
-let targetX = 0.38, targetY = -0.5;
-// Velocity for momentum/inertia when user releases
-let velX = 0, velY = 0.004;    // start with slow auto-rotate velocity
-let louverAngle = 0;
-let louverTarget = 0;
-// Touch support
-let lastTouchX = 0, lastTouchY = 0;
+// ===== THREE.JS · MULTI-SYSTEM 3D EXPLORER =====
+// One shared scene, camera, lighting rig and floor. Each product family is a
+// builder that returns a Group plus an apply(t) function, where t runs 0 → 1
+// from "open / uncovered" to "closed / covered". Switching systems disposes
+// the previous geometry so only one model is ever resident.
 
+let scene, camera, renderer, modelGroup = null;
+let autoRotate = true;
+let isDragging = false, lastX = 0, lastY = 0;
+let rotX = 0.38, rotY = -0.5;
+let targetX = 0.38, targetY = -0.5;
+let velX = 0, velY = 0.004;
+let actionVal = 0, actionTarget = 0;
+let applyAction = null;
+let camZ = 8.5, camZTarget = 8.5;
+let sceneVisible = true;
+let MAT = {};
+let CURRENT = 'bio';
+const IS_TOUCH = window.matchMedia && window.matchMedia('(hover:none)').matches;
+
+// ── Labels ──────────────────────────────────────────────────────────
+const M3D = {
+  ku: {
+    bio:'بایۆکلیماتیک', pergola:'پەرگۆلای کارەبایی', awning:'کەپری ڕێکی',
+    parking:'سێبەری پارکینگ', skylight:'سکایلایت',
+    f_bio:'لووڤەری سووڕاو', f_pergola:'سەقفی کۆکراوە', f_awning:'کاسێت و باڵ',
+    f_parking:'سێبەری کانتلیڤەر', f_skylight:'جامی خلیسکاو',
+    o_bio:'کردنەوەی لووڤەر',   c_bio:'داخستنی لووڤەر',
+    o_pergola:'کۆکردنەوەی سەقف', c_pergola:'ڕاخستنی سەقف',
+    o_awning:'کۆکردنەوە',       c_awning:'درێژکردنەوە',
+    o_skylight:'کردنەوەی جام',  c_skylight:'داخستنی جام',
+    o_parking:'بێ جوڵە',        c_parking:'بێ جوڵە'
+  },
+  en: {
+    bio:'Bioclimatic', pergola:'Electric Pergola', awning:'Cassette Awning',
+    parking:'Parking Shade', skylight:'Skylight',
+    f_bio:'Rotating Louvers', f_pergola:'Folding Roof', f_awning:'Cassette & Arms',
+    f_parking:'Tensile Cantilever', f_skylight:'Sliding Glass',
+    o_bio:'Open Louvers',   c_bio:'Close Louvers',
+    o_pergola:'Retract Roof', c_pergola:'Extend Roof',
+    o_awning:'Retract',      c_awning:'Extend',
+    o_skylight:'Open Glass', c_skylight:'Close Glass',
+    o_parking:'Fixed',       c_parking:'Fixed'
+  },
+  ar: {
+    bio:'بيومناخية', pergola:'برغولا كهربائية', awning:'مظلة كاسيت',
+    parking:'مظلة مواقف', skylight:'سكاي لايت',
+    f_bio:'شرائح دوّارة', f_pergola:'سقف قابل للطي', f_awning:'كاسيت وأذرع',
+    f_parking:'كابولي مشدود', f_skylight:'زجاج منزلق',
+    o_bio:'فتح الشرائح',   c_bio:'إغلاق الشرائح',
+    o_pergola:'طيّ السقف', c_pergola:'فرد السقف',
+    o_awning:'طيّ',        c_awning:'فرد',
+    o_skylight:'فتح الزجاج', c_skylight:'إغلاق الزجاج',
+    o_parking:'ثابت',      c_parking:'ثابت'
+  }
+};
+const LATIN = { bio:'Bioclimatic', pergola:'Retractable', awning:'Cassette', parking:'Cantilever', skylight:'Skylight' };
+
+// ── Geometry helpers ────────────────────────────────────────────────
+function box(w, h, d, mat, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, y, z); m.rotation.set(rx, ry, rz);
+  m.castShadow = true; m.receiveShadow = true;
+  return m;
+}
+function tube(r, h, mat, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), mat);
+  m.position.set(x, y, z); m.rotation.set(rx, ry, rz);
+  m.castShadow = true; m.receiveShadow = true;
+  return m;
+}
+// A cylinder stretched between two arbitrary points — used for masts,
+// booms, tension ties and canopy ribs.
+function strut(a, b, r, mat) {
+  const dir = new THREE.Vector3().subVectors(b, a);
+  const len = dir.length();
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 10), mat);
+  m.position.copy(a).addScaledVector(dir, 0.5);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+  m.castShadow = true; m.receiveShadow = true;
+  return m;
+}
+
+// Square tensile membrane on eight ribs: four to the corners, four to the
+// edge mid-points. The fabric between ribs sags on a catenary, which is what
+// gives the scalloped edge on the real canopies.
+function squareRadius(phi, A) {
+  return A / Math.max(Math.abs(Math.cos(phi)), Math.abs(Math.sin(phi)));
+}
+function membraneEdge(phi, A, hubY, midY, corY, sag) {
+  const seg = Math.PI / 4;
+  const k = Math.floor(((phi % (Math.PI*2)) + Math.PI*2) % (Math.PI*2) / seg);
+  const s = ((((phi % seg) + seg) % seg) / seg);
+  const yA = (k % 2 === 0) ? midY : corY;
+  const yB = (k % 2 === 0) ? corY : midY;
+  const bow = Math.sin(Math.PI * s);
+  return {
+    r: squareRadius(phi, A) * (1 - 0.05 * bow),
+    y: yA + (yB - yA) * s - sag * bow
+  };
+}
+function membraneMesh(A, hubY, midY, corY, sag, mat) {
+  const NPHI = 96, NU = 7;
+  const pos = [], idx = [];
+  for (let i = 0; i <= NPHI; i++) {
+    const phi = i / NPHI * Math.PI * 2;
+    const e = membraneEdge(phi, A, hubY, midY, corY, sag);
+    for (let j = 0; j <= NU; j++) {
+      const u = j / NU;
+      pos.push(u * e.r * Math.cos(phi), hubY + u * (e.y - hubY), u * e.r * Math.sin(phi));
+    }
+  }
+  const row = NU + 1;
+  for (let i = 0; i < NPHI; i++) {
+    for (let j = 0; j < NU; j++) {
+      const a = i*row + j, b = (i+1)*row + j;
+      idx.push(a, b, a+1, b, b+1, a+1);
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+  const m = new THREE.Mesh(geo, mat);
+  m.castShadow = true; m.receiveShadow = true;
+  return m;
+}
+
+function disposeGroup(g) {
+  if (!g) return;
+  g.traverse(o => {
+    if (o.geometry) o.geometry.dispose();
+    if (o.material) {
+      if (Array.isArray(o.material)) o.material.forEach(m => m.dispose && m.dispose());
+    }
+  });
+  scene.remove(g);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 1 · BIOCLIMATIC PERGOLA — rotating aluminium louvers
+// ═══════════════════════════════════════════════════════════════════
+function buildBio() {
+  const g = new THREE.Group();
+  const PW = 4.4, PD = 3.2, PH = 2.8, COL_W = 0.14;
+  const TOP_Y = PH/2, BOT_Y = -PH/2;
+  const HW = PW/2 - COL_W/2, HD = PD/2 - COL_W/2;
+
+  [[-HW,HD],[HW,HD],[-HW,-HD],[HW,-HD]].forEach(([cx,cz]) => {
+    g.add(box(COL_W, PH, COL_W, MAT.alum, cx, 0, cz));
+    g.add(box(0.22, 0.06, 0.22, MAT.beam, cx, BOT_Y+0.03, cz));
+    g.add(box(0.22, 0.06, 0.22, MAT.beam, cx, TOP_Y-0.03, cz));
+  });
+
+  const gutH = 0.22, gutW = 0.09, thk = 0.025;
+  [-HD, HD].forEach(gz => {
+    g.add(box(PW, gutH, thk, MAT.channel, 0, TOP_Y-gutH/2, gz));
+    g.add(box(PW, thk, gutW, MAT.beam, 0, TOP_Y-thk/2, gz));
+    g.add(box(PW, thk, gutW, MAT.beam, 0, TOP_Y-gutH+thk/2, gz));
+  });
+  [-HW, HW].forEach(gx => g.add(box(thk, 0.12, PD, MAT.beam, gx, TOP_Y-0.06, 0)));
+
+  const N = 18, SL = PW-0.04, SW = 0.175, ST = 0.018;
+  const LY = TOP_Y - gutH + 0.04;
+  const pitch = (PD-0.08)/(N-1), startZ = -PD/2 + 0.04;
+  const pivots = [];
+  for (let i=0;i<N;i++){
+    const p = new THREE.Group();
+    p.position.set(0, LY, startZ + i*pitch);
+    g.add(p); pivots.push(p);
+    const s = new THREE.Mesh(new THREE.BoxGeometry(SL, ST, SW), MAT.slat);
+    s.position.set(0, 0, SW/2);
+    s.castShadow = true; s.receiveShadow = true;
+    p.add(s);
+  }
+  return { group:g, apply(t){ pivots.forEach(p => p.rotation.x = t * Math.PI * 0.44); } };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 2 · ELECTRIC PERGOLA — motorised folding fabric roof
+// ═══════════════════════════════════════════════════════════════════
+function buildPergola() {
+  const g = new THREE.Group();
+  const PW = 4.4, PD = 3.6, PH = 2.8, COL_W = 0.15;
+  const TOP_Y = PH/2, BOT_Y = -PH/2;
+  const HW = PW/2 - COL_W/2, HD = PD/2 - COL_W/2;
+
+  [[-HW,HD],[HW,HD],[-HW,-HD],[HW,-HD]].forEach(([cx,cz]) => {
+    g.add(box(COL_W, PH, COL_W, MAT.alum, cx, 0, cz));
+    g.add(box(0.24, 0.06, 0.24, MAT.beam, cx, BOT_Y+0.03, cz));
+  });
+  // Side rails carrying the roof trolleys
+  [-HW, HW].forEach(gx => {
+    g.add(box(0.10, 0.20, PD, MAT.beam, gx, TOP_Y-0.10, 0));
+    g.add(box(0.05, 0.05, PD-0.1, MAT.channel, gx, TOP_Y-0.20, 0));
+  });
+  // Front & back headers
+  [-HD, HD].forEach(gz => g.add(box(PW, 0.16, 0.10, MAT.channel, 0, TOP_Y-0.08, gz)));
+
+  // Folding fabric — N battens; extended they tile the roof, retracted they
+  // concertina against the back header.
+  const N = 12;
+  const railY = TOP_Y - 0.24;
+  const zBack = -PD/2 + 0.18, zFront = PD/2 - 0.16;
+  const span = zFront - zBack;
+  const bars = [], panels = [];
+  for (let i=0;i<N;i++){
+    const bar = new THREE.Group();
+    g.add(bar); bars.push(bar);
+    // batten
+    bar.add(box(PW-0.22, 0.05, 0.05, MAT.beam, 0, 0, 0));
+    // fabric bay behind this batten
+    const p = new THREE.Group();
+    const cloth = new THREE.Mesh(new THREE.BoxGeometry(PW-0.26, 0.012, 1), MAT.fabric);
+    cloth.position.z = -0.5;
+    cloth.castShadow = true; cloth.receiveShadow = true;
+    p.add(cloth);
+    bar.add(p); panels.push(p);
+  }
+  // Leading rail
+  const lead = box(PW-0.16, 0.11, 0.11, MAT.alum, 0, 0, 0);
+  g.add(lead);
+
+  return {
+    group: g,
+    apply(t){
+      // t = 1 → fully extended (shade), t = 0 → concertinaed at the back
+      const usable = 0.30 + 0.70 * t;               // fraction of the span covered
+      const frontZ = zBack + span * usable;
+      const bay = (frontZ - zBack) / (N - 1);
+      for (let i=0;i<N;i++){
+        const z = zBack + bay * i;
+        bars[i].position.set(0, railY, z);
+        // folds rise as the fabric gathers
+        const fold = (1 - t) * 0.13 * (i % 2 ? 1 : -1);
+        bars[i].position.y = railY + fold;
+        panels[i].scale.z = Math.max(0.02, bay);
+        panels[i].rotation.x = fold * 1.6;
+      }
+      lead.position.set(0, railY, frontZ + bay * 0.5);
+    }
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 3 · CASSETTE AWNING — wall mounted, two folding arms
+// ═══════════════════════════════════════════════════════════════════
+function buildAwning() {
+  const g = new THREE.Group();
+  const W = 4.0, wallZ = -1.5, boxY = 1.0;
+
+  // Wall
+  const wall = box(W + 2.2, 3.6, 0.18, MAT.wall, 0, 0.2, wallZ - 0.12);
+  wall.castShadow = false;
+  g.add(wall);
+  // Cassette housing
+  g.add(box(W, 0.30, 0.36, MAT.alum, 0, boxY, wallZ + 0.18));
+  g.add(box(W + 0.06, 0.05, 0.40, MAT.beam, 0, boxY + 0.16, wallZ + 0.18));
+  // Wall brackets
+  [-W/2 + 0.35, W/2 - 0.35].forEach(x =>
+    g.add(box(0.10, 0.34, 0.14, MAT.beam, x, boxY, wallZ + 0.02)));
+
+  // Fabric: solid sand cloth with stitched seams, sitting on top of the arms
+  const fabGroup = new THREE.Group();
+  g.add(fabGroup);
+  const cloth = new THREE.Mesh(new THREE.BoxGeometry(W, 0.012, 1), MAT.fabric);
+  cloth.position.z = 0.5;
+  cloth.castShadow = true; cloth.receiveShadow = true;
+  fabGroup.add(cloth);
+  for (let i = 1; i < 4; i++) {
+    const seam = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.016, 1), MAT.seam);
+    seam.position.set(-W/2 + W * i / 4, 0, 0.5);
+    fabGroup.add(seam);
+  }
+
+  // Two folding arms (2-link, solved with inverse kinematics)
+  // Folding arms. They articulate in the horizontal plane — that is how a
+  // real cassette awning folds, so retracting tucks them in along the wall
+  // instead of leaving them dangling. The whole arm plane is then tilted
+  // down by the awning's pitch, which keeps every link under the cloth.
+  const L1 = 1.15, L2 = 1.15;
+  const armY = boxY - 0.24;
+  const arms = [];
+  [[-W/2 + 0.45, -1], [W/2 - 0.45, 1]].forEach(([x, side]) => {
+    const pivot = new THREE.Group();               // carries the pitch
+    pivot.position.set(x, armY, wallZ + 0.34);
+    g.add(pivot);
+    const shoulder = new THREE.Group();            // folds about Y
+    pivot.add(shoulder);
+    shoulder.add(box(0.075, 0.075, L1, MAT.alum, 0, 0, L1/2));
+    const elbow = new THREE.Group();
+    elbow.position.set(0, 0, L1);
+    shoulder.add(elbow);
+    elbow.add(box(0.065, 0.065, L2, MAT.beam, 0, 0, L2/2));
+    arms.push({ pivot, shoulder, elbow, side });
+  });
+
+  // Front bar
+  const front = box(W + 0.10, 0.10, 0.10, MAT.alum, 0, 0, 0);
+  g.add(front);
+  const valance = box(W + 0.06, 0.20, 0.012, MAT.fabric, 0, 0, 0);
+  g.add(valance);
+
+  const originZ = wallZ + 0.34;
+  const clothY = boxY - 0.06;         // where the cloth leaves the cassette
+
+  return {
+    group: g,
+    apply(t){
+      // t = 1 → fully extended
+      const reach = 0.30 + 1.95 * t;
+      const drop  = 0.05 + 0.42 * t;
+      let d = Math.sqrt(drop*drop + reach*reach);
+      d = Math.max(0.10, Math.min(L1 + L2 - 0.02, d));
+      const pitch = Math.atan2(drop, reach);
+      let c2 = (d*d - L1*L1 - L2*L2) / (2*L1*L2);
+      c2 = Math.max(-1, Math.min(1, c2));
+      const th = Math.acos(c2);
+      arms.forEach(a => {
+        const p2 = a.side * th;                       // elbows fold inward
+        a.pivot.rotation.x = pitch;
+        a.shoulder.rotation.y = -Math.atan2(L2 * Math.sin(p2), L1 + L2 * Math.cos(p2));
+        a.elbow.rotation.y = p2;
+      });
+
+      const endY = armY - d * Math.sin(pitch), endZ = originZ + d * Math.cos(pitch);
+      front.position.set(0, endY, endZ);
+      valance.position.set(0, endY - 0.12, endZ + 0.03);
+
+      // Cloth spans cassette lip → just above the front bar
+      const dz = endZ - originZ, dy = (endY + 0.09) - clothY;
+      fabGroup.position.set(0, clothY, originZ);
+      fabGroup.rotation.x = Math.atan2(-dy, dz);
+      fabGroup.scale.z = Math.max(0.05, Math.sqrt(dz*dz + dy*dy));
+    }
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 4 · CANTILEVER PARKING CANOPY — mast, top boom, tension tie and a
+//     square tensile membrane on eight ribs (the real Wlat Shade build)
+// ═══════════════════════════════════════════════════════════════════
+function buildParking() {
+  const g = new THREE.Group();
+  const BOT = -1.5;
+
+  const A    = 2.15;              // canopy half-width
+  const cx   = 0.45;              // canopy is cantilevered clear of the mast
+  const hubY = BOT + 3.00;        // centre hub
+  const midY = hubY - 0.60;       // edge-mid rib tips
+  const corY = hubY - 0.95;       // corner rib tips
+  const sag  = 0.30;
+
+  // Membrane
+  const skin = membraneMesh(A, hubY, midY, corY, sag, MAT.fabric);
+  skin.position.x = cx;
+  g.add(skin);
+
+  // Hub plate + eight radiating ribs
+  const hub = new THREE.Vector3(cx, hubY, 0);
+  const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.07, 16), MAT.alum);
+  plate.position.copy(hub); plate.castShadow = true;
+  g.add(plate);
+  for (let k = 0; k < 8; k++) {
+    const phi = k * Math.PI / 4;
+    const e = membraneEdge(phi, A, hubY, midY, corY, sag);
+    const tip = new THREE.Vector3(cx + e.r * Math.cos(phi), e.y, e.r * Math.sin(phi));
+    g.add(strut(hub, tip, 0.038, MAT.alum));
+  }
+
+  // Mast on the near edge
+  const mastX = cx - A - 0.12;
+  const mastTop = BOT + 3.95;
+  g.add(box(0.72, 0.10, 0.72, MAT.beam, mastX, BOT + 0.05, 0));
+  g.add(box(0.22, mastTop - BOT, 0.22, MAT.alum, mastX, (BOT + mastTop) / 2, 0));
+
+  // Top boom, then the long tension tie down to the far edge
+  const boomA = new THREE.Vector3(mastX, mastTop, 0);
+  const boomB = new THREE.Vector3(mastX + 0.95, mastTop, 0);
+  g.add(strut(boomA, boomB, 0.055, MAT.alum));
+  const farTip = new THREE.Vector3(cx + A - 0.10, midY + 0.04, 0);
+  g.add(strut(boomB, farTip, 0.048, MAT.alum));
+  // Hanger from the boom down onto the hub
+  g.add(strut(boomB.clone().lerp(farTip, 0.30), hub.clone().setY(hubY + 0.05), 0.038, MAT.alum));
+
+  // Lower arm from the mast, running under the membrane to the hub
+  g.add(strut(new THREE.Vector3(mastX, midY - 0.22, 0), hub.clone().setY(hubY - 0.10), 0.06, MAT.alum));
+  g.add(strut(new THREE.Vector3(mastX, midY - 1.05, 0),
+              new THREE.Vector3(mastX + 0.95, midY - 0.34, 0), 0.045, MAT.channel));
+
+  // Parking bay markings
+  [-1.6, 1.6].forEach(z => {
+    const line = box(4.6, 0.006, 0.09, MAT.line, cx, BOT + 0.004, z);
+    line.castShadow = false;
+    g.add(line);
+  });
+
+  return { group: g, apply(){}, still: true };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 5 · SKYLIGHT — aluminium frame with sliding glass panels
+// ═══════════════════════════════════════════════════════════════════
+function buildSkylight() {
+  const g = new THREE.Group();
+  const PW = 4.4, PD = 3.4, PH = 2.7, COL = 0.14;
+  const TOP = PH/2, BOT = -PH/2;
+  const HW = PW/2 - COL/2, HD = PD/2 - COL/2;
+
+  [[-HW,HD],[HW,HD],[-HW,-HD],[HW,-HD]].forEach(([cx,cz]) => {
+    g.add(box(COL, PH, COL, MAT.alum, cx, 0, cz));
+    g.add(box(0.22, 0.06, 0.22, MAT.beam, cx, BOT+0.03, cz));
+  });
+  // Perimeter frame, front edge lower so the roof drains
+  const tilt = 0.10;
+  [-HD, HD].forEach(gz => g.add(box(PW, 0.14, 0.10, MAT.beam, 0, TOP - 0.07 + (gz>0 ? -0.16 : 0.16), gz)));
+  [-HW, HW].forEach(gx => g.add(box(0.10, 0.14, PD, MAT.beam, gx, TOP - 0.07, 0, tilt, 0, 0)));
+
+  // Three glass leaves that stack toward the back
+  const leaves = [];
+  const bay = (PD - 0.2) / 3;
+  for (let i=0;i<3;i++){
+    const leaf = new THREE.Group();
+    leaf.rotation.x = tilt;
+    g.add(leaf); leaves.push(leaf);
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(PW-0.24, 0.02, bay*0.96), MAT.glass);
+    glass.receiveShadow = true;
+    leaf.add(glass);
+    // mullions around each leaf
+    leaf.add(box(PW-0.20, 0.05, 0.06, MAT.channel, 0, 0.02, -bay/2));
+    leaf.add(box(PW-0.20, 0.05, 0.06, MAT.channel, 0, 0.02,  bay/2));
+    [-1,1].forEach(s => leaf.add(box(0.06, 0.05, bay, MAT.channel, s*(PW-0.24)/2, 0.02, 0)));
+  }
+  const zBack = -PD/2 + 0.12 + bay/2;
+
+  return {
+    group: g,
+    apply(t){
+      // t = 1 → closed (leaves spread and cover), t = 0 → stacked at the back
+      for (let i=0;i<3;i++){
+        const spread = bay * i * t + bay * 0.06 * i * (1-t);
+        const z = zBack + spread;
+        leaves[i].position.set(0, TOP - 0.10 - z*Math.tan(tilt) + (1-t) * i * 0.045, z);
+      }
+    }
+  };
+}
+
+const BUILDERS = { bio:buildBio, pergola:buildPergola, awning:buildAwning, parking:buildParking, skylight:buildSkylight };
+const CAM_Z    = { bio:8.5, pergola:9.0, awning:8.2, parking:11.5, skylight:8.8 };
+const ORDER    = ['bio','pergola','awning','parking','skylight'];
+
+// ── Switch model ────────────────────────────────────────────────────
+function setModel(id) {
+  if (!BUILDERS[id] || !scene) return;
+  CURRENT = id;
+  disposeGroup(modelGroup);
+  const built = BUILDERS[id]();
+  modelGroup = built.group;
+  applyAction = built.apply;
+  scene.add(modelGroup);
+  camZTarget = CAM_Z[id] || 8.5;
+  actionTarget = built.still ? 0 : 1;
+  actionVal = actionTarget;
+  applyAction(actionVal);
+  const btnOpen = document.getElementById('btnOpen');
+  const btnClose = document.getElementById('btnClose');
+  [btnOpen, btnClose].forEach(b => {
+    if (!b) return;
+    b.disabled = !!built.still;
+    b.style.opacity = built.still ? 0.35 : 1;
+    b.style.pointerEvents = built.still ? 'none' : '';
+  });
+  refreshThreeUI();
+}
+
+// ── UI labels & chips ───────────────────────────────────────────────
+function refreshThreeUI() {
+  const L = M3D[typeof LANG !== 'undefined' ? LANG : 'ku'] || M3D.ku;
+  const chips = document.getElementById('tdModels');
+  if (chips) {
+    chips.innerHTML = ORDER.map(id =>
+      '<button class="td-chip' + (id === CURRENT ? ' active' : '') +
+      '" data-model="' + id + '">' + L[id] + '</button>').join('');
+    chips.querySelectorAll('.td-chip').forEach(b =>
+      b.addEventListener('click', () => setModel(b.dataset.model)));
+  }
+  const brand = document.getElementById('tdTagBrand');
+  if (brand) brand.textContent = LATIN[CURRENT];
+  const feat = document.getElementById('tdTagFeature');
+  if (feat) feat.textContent = L['f_' + CURRENT];
+  const bo = document.getElementById('btnOpen'), bc = document.getElementById('btnClose');
+  if (bo) bo.textContent = L['o_' + CURRENT];
+  if (bc) bc.textContent = L['c_' + CURRENT];
+}
+window.refreshThreeUI = refreshThreeUI;
+
+// ── Init ────────────────────────────────────────────────────────────
 function initThree() {
   const canvas = document.getElementById('pergola-3d');
   if (!canvas || !window.THREE) return;
@@ -2471,19 +2975,16 @@ function initThree() {
   const W = canvas.clientWidth  || canvas.parentElement.clientWidth  || 600;
   const H = canvas.clientHeight || canvas.parentElement.clientHeight || 450;
 
-  // ── Scene ──────────────────────────────────────────────────────
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x080808);
-  scene.fog = new THREE.FogExp2(0x080808, 0.055);
+  scene.fog = new THREE.FogExp2(0x080808, 0.05);
 
-  // ── Camera ─────────────────────────────────────────────────────
   camera = new THREE.PerspectiveCamera(42, W / H, 0.05, 60);
-  camera.position.set(0, 2.5, 8.5);
+  camera.position.set(0, 2.5, camZ);
   camera.lookAt(0, 0, 0);
 
-  // ── Renderer ───────────────────────────────────────────────────
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: !IS_TOUCH, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, IS_TOUCH ? 1.5 : 2));
   renderer.setSize(W, H, false);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -2491,258 +2992,120 @@ function initThree() {
   renderer.toneMappingExposure = 1.1;
   renderer.outputEncoding = THREE.sRGBEncoding;
 
-  // ── Lights ─────────────────────────────────────────────────────
-  // Soft ambient
   scene.add(new THREE.AmbientLight(0xd4c8bb, 0.55));
-  // Key sun – warm
   const sun = new THREE.DirectionalLight(0xfff5e0, 2.2);
   sun.position.set(6, 10, 5);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
-  sun.shadow.camera.near = 0.5;
-  sun.shadow.camera.far = 30;
-  sun.shadow.camera.left = -6; sun.shadow.camera.right = 6;
-  sun.shadow.camera.top  =  6; sun.shadow.camera.bottom = -6;
+  sun.shadow.mapSize.set(IS_TOUCH ? 1024 : 2048, IS_TOUCH ? 1024 : 2048);
+  sun.shadow.camera.near = 0.5; sun.shadow.camera.far = 30;
+  sun.shadow.camera.left = -7; sun.shadow.camera.right = 7;
+  sun.shadow.camera.top  =  7; sun.shadow.camera.bottom = -7;
   sun.shadow.bias = -0.0008;
   scene.add(sun);
-  // Rim – brand red
   const rim = new THREE.DirectionalLight(0x9D1C3B, 1.0);
-  rim.position.set(-6, 4, -5);
-  scene.add(rim);
-  // Fill – cool blue
+  rim.position.set(-6, 4, -5); scene.add(rim);
   const fill = new THREE.DirectionalLight(0x8cb4d2, 0.45);
-  fill.position.set(0, 2, -8);
-  scene.add(fill);
+  fill.position.set(0, 2, -8); scene.add(fill);
 
-  // ── Materials ──────────────────────────────────────────────────
-  // Dark anodised aluminium profile (columns & beams)
-  const matAlum = new THREE.MeshStandardMaterial({
-    color: 0x1c1c1c, roughness: 0.28, metalness: 0.88,
-    envMapIntensity: 1.2
-  });
-  // Slightly lighter top-beam
-  const matBeam = new THREE.MeshStandardMaterial({
-    color: 0x252525, roughness: 0.32, metalness: 0.82
-  });
-  // Louver slats – brushed aluminium look
-  const matSlat = new THREE.MeshStandardMaterial({
-    color: 0x2e2e2e, roughness: 0.22, metalness: 0.92
-  });
-  // Floor
-  const matFloor = new THREE.MeshStandardMaterial({
-    color: 0x111111, roughness: 0.85, metalness: 0.05
-  });
-  // Gutter / channel accent – slightly warmer
-  const matChannel = new THREE.MeshStandardMaterial({
-    color: 0x303030, roughness: 0.4, metalness: 0.75
-  });
+  MAT = {
+    alum:    new THREE.MeshStandardMaterial({ color:0x1c1c1c, roughness:0.28, metalness:0.88 }),
+    beam:    new THREE.MeshStandardMaterial({ color:0x252525, roughness:0.32, metalness:0.82 }),
+    slat:    new THREE.MeshStandardMaterial({ color:0x2e2e2e, roughness:0.22, metalness:0.92 }),
+    channel: new THREE.MeshStandardMaterial({ color:0x303030, roughness:0.40, metalness:0.75 }),
+    floor:   new THREE.MeshStandardMaterial({ color:0x111111, roughness:0.85, metalness:0.05 }),
+    wall:    new THREE.MeshStandardMaterial({ color:0x17161a, roughness:0.95, metalness:0.02 }),
+    fabric:  new THREE.MeshStandardMaterial({ color:0xBFB6A6, roughness:0.94, metalness:0.02, side:THREE.DoubleSide }),
+    fabricAlt:new THREE.MeshStandardMaterial({ color:0x8E1C39, roughness:0.94, metalness:0.02, side:THREE.DoubleSide }),
+    seam:    new THREE.MeshStandardMaterial({ color:0x9C927F, roughness:0.95, metalness:0.02 }),
+    shell:   new THREE.MeshStandardMaterial({ color:0xB9BCC2, roughness:0.55, metalness:0.35, side:THREE.DoubleSide }),
+    line:    new THREE.MeshStandardMaterial({ color:0x8a8a8a, roughness:0.9, metalness:0.0 }),
+    glass:   new THREE.MeshStandardMaterial({ color:0x9FC4D8, roughness:0.08, metalness:0.1,
+                                              transparent:true, opacity:0.26, side:THREE.DoubleSide })
+  };
 
-  // ── Helper: box ────────────────────────────────────────────────
-  function box(w, h, d, mat, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-    m.position.set(x, y, z);
-    m.rotation.set(rx, ry, rz);
-    m.castShadow = true;
-    m.receiveShadow = true;
-    return m;
-  }
-
-  // ── Pergola group ──────────────────────────────────────────────
-  pergolaGroup = new THREE.Group();
-  scene.add(pergolaGroup);
-
-  // Dimensions
-  const PW = 4.4;   // total width  (X)
-  const PD = 3.2;   // total depth  (Z)
-  const PH = 2.8;   // column height
-  const COL_W = 0.14;
-
-  const TOP_Y  = PH / 2;           // top of columns
-  const MID_Y  = 0;                 // column centre
-  const BOT_Y  = -PH / 2;          // column base
-  const HLF_W  = PW / 2 - COL_W / 2;
-  const HLF_D  = PD / 2 - COL_W / 2;
-
-  // ── 4 SQUARE COLUMNS ───────────────────────────────────────────
-  const colPositions = [
-    [-HLF_W, MID_Y,  HLF_D],
-    [ HLF_W, MID_Y,  HLF_D],
-    [-HLF_W, MID_Y, -HLF_D],
-    [ HLF_W, MID_Y, -HLF_D],
-  ];
-  colPositions.forEach(([cx, cy, cz]) => {
-    // Main column shaft
-    const col = box(COL_W, PH, COL_W, matAlum, cx, cy, cz);
-    pergolaGroup.add(col);
-    // Column base plate
-    const base = box(0.22, 0.06, 0.22, matBeam, cx, BOT_Y + 0.03, cz);
-    pergolaGroup.add(base);
-    // Column cap plate
-    const cap = box(0.22, 0.06, 0.22, matBeam, cx, TOP_Y - 0.03, cz);
-    pergolaGroup.add(cap);
-  });
-
-  // ── GUTTER BEAMS along X (front & back) ────────────────────────
-  // These are the main structural beams that carry the louver track
-  // Each is an H-profile approximated by 3 boxes
-  const gutH = 0.22, gutW = 0.09, gutThk = 0.025;
-  [-HLF_D, HLF_D].forEach(gz => {
-    // Web (vertical centre)
-    pergolaGroup.add(box(PW, gutH, gutThk, matChannel, 0, TOP_Y - gutH/2, gz));
-    // Top flange
-    pergolaGroup.add(box(PW, gutThk, gutW, matBeam, 0, TOP_Y - gutThk/2, gz));
-    // Bottom flange (louver track)
-    pergolaGroup.add(box(PW, gutThk, gutW, matBeam, 0, TOP_Y - gutH + gutThk/2, gz));
-  });
-
-  // ── SIDE RAFTERS along Z ───────────────────────────────────────
-  [-HLF_W, HLF_W].forEach(gx => {
-    pergolaGroup.add(box(gutThk, 0.12, PD, matBeam, gx, TOP_Y - 0.06, 0));
-  });
-
-  // ── LOUVER SLATS ───────────────────────────────────────────────
-  // Each slat pivots around its own long axis (X-axis)
-  // Pivot is at the centre height of the slat row
-  const SLAT_COUNT = 18;
-  const SLAT_L = PW - 0.04;   // slat length spans between gutters
-  const SLAT_W = 0.175;        // slat chord (visible width when flat)
-  const SLAT_T = 0.018;        // slat thickness
-  const LOUVER_Y = TOP_Y - gutH + 0.04; // rest height of slats
-
-  // Pitch between slats
-  const pitch = (PD - 0.08) / (SLAT_COUNT - 1);
-  const startZ = -PD / 2 + 0.04;
-
-  louvers = [];
-  louverPivots = [];
-
-  for (let i = 0; i < SLAT_COUNT; i++) {
-    const z = startZ + i * pitch;
-
-    // Pivot group (rotation applied here around X axis)
-    const pivot = new THREE.Group();
-    pivot.position.set(0, LOUVER_Y, z);
-    pergolaGroup.add(pivot);
-    louverPivots.push(pivot);
-
-    // The slat mesh is offset so its hinge edge is at the pivot
-    const slatGeo = new THREE.BoxGeometry(SLAT_L, SLAT_T, SLAT_W);
-    const slat = new THREE.Mesh(slatGeo, matSlat);
-    // Offset so that rotation happens at the hinge (leading edge)
-    slat.position.set(0, 0, SLAT_W / 2);
-    slat.castShadow = true;
-    slat.receiveShadow = true;
-    pivot.add(slat);
-    louvers.push(pivot); // we rotate the pivot
-  }
-
-  // ── FLOOR ──────────────────────────────────────────────────────
-  const floorMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(12, 10), matFloor
-  );
+  const floorMesh = new THREE.Mesh(new THREE.PlaneGeometry(16, 14), MAT.floor);
   floorMesh.rotation.x = -Math.PI / 2;
-  floorMesh.position.y = BOT_Y - 0.001;
+  floorMesh.position.y = -1.5;
   floorMesh.receiveShadow = true;
   scene.add(floorMesh);
-
-  // Subtle grid lines on floor using EdgesGeometry isn't supported
-  // Use a faint GridHelper instead
-  const grid = new THREE.GridHelper(12, 24, 0x1a1a1a, 0x1a1a1a);
-  grid.position.y = BOT_Y;
-  grid.material.opacity = 0.45;
-  grid.material.transparent = true;
+  const grid = new THREE.GridHelper(16, 32, 0x1a1a1a, 0x1a1a1a);
+  grid.position.y = -1.499;
+  grid.material.opacity = 0.45; grid.material.transparent = true;
   scene.add(grid);
 
-  // ── CONTROLS ──────────────────────────────────────────────────
+  setModel('bio');
+
   function onResize() {
-    const W2 = canvas.clientWidth  || 600;
-    const H2 = canvas.clientHeight || 450;
+    const W2 = canvas.clientWidth || 600, H2 = canvas.clientHeight || 450;
     renderer.setSize(W2, H2, false);
     camera.aspect = W2 / H2;
     camera.updateProjectionMatrix();
   }
   window.addEventListener('resize', onResize);
 
-  // ── POINTER / TOUCH CONTROLS WITH DAMPING ────────────────────
-  const DAMPING = 0.88;    // inertia factor (0=no inertia, 1=infinite)
-  const ROT_SPD = 0.006;   // rotation speed per pixel
-
-  function onDragStart(x, y) {
-    isDragging = true;
-    autoRotate = false;
-    velX = 0; velY = 0;
-    lastX = x; lastY = y;
+  // Stop rendering while the canvas is off-screen — this is most of the
+  // battery and scroll cost on phones.
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(es => { sceneVisible = es[0].isIntersecting; },
+      { threshold: 0.02 }).observe(canvas);
   }
-  function onDragMove(x, y) {
+
+  const DAMPING = 0.88, ROT_SPD = 0.006;
+  function onDragStart(x, y){ isDragging = true; autoRotate = false; velX = velY = 0; lastX = x; lastY = y; }
+  function onDragMove(x, y){
     if (!isDragging) return;
-    const dx = x - lastX;
-    const dy = y - lastY;
-    velY = dx * ROT_SPD;
-    velX = dy * ROT_SPD * 0.5;
-    targetY += velY;
-    targetX += velX;
+    velY = (x - lastX) * ROT_SPD;
+    velX = (y - lastY) * ROT_SPD * 0.5;
+    targetY += velY; targetX += velX;
     targetX = Math.max(-0.55, Math.min(1.0, targetX));
     lastX = x; lastY = y;
   }
-  function onDragEnd() {
+  function onDragEnd(){
     isDragging = false;
-    // Resume auto-rotate slowly after 1.5s of no touch
     clearTimeout(window._autoResumeTimer);
     window._autoResumeTimer = setTimeout(() => { autoRotate = true; }, 1500);
   }
-
-  // Mouse
   canvas.addEventListener('pointerdown', e => { onDragStart(e.clientX, e.clientY); canvas.setPointerCapture(e.pointerId); });
-  canvas.addEventListener('pointerup',   () => onDragEnd());
-  canvas.addEventListener('pointercancel', () => onDragEnd());
+  canvas.addEventListener('pointerup', onDragEnd);
+  canvas.addEventListener('pointercancel', onDragEnd);
   canvas.addEventListener('pointermove', e => { if (isDragging) onDragMove(e.clientX, e.clientY); });
-
-  // Wheel zoom
   canvas.addEventListener('wheel', e => {
     e.preventDefault();
-    camera.position.z = Math.max(4.5, Math.min(14, camera.position.z + e.deltaY * 0.007));
-  }, { passive: false });
+    camZTarget = Math.max(4.5, Math.min(15, camZTarget + e.deltaY * 0.007));
+  }, { passive:false });
 
-  // ── BUTTONS ───────────────────────────────────────────────────
   document.getElementById('btnAuto').addEventListener('click', () => {
-    autoRotate = !autoRotate;
-    velX = 0; velY = autoRotate ? 0.004 : 0;
+    autoRotate = !autoRotate; velX = 0; velY = autoRotate ? 0.004 : 0;
   });
-  document.getElementById('btnOpen').addEventListener('click',  () => { louverTarget = 0; });
-  document.getElementById('btnClose').addEventListener('click', () => { louverTarget = Math.PI * 0.44; });
+  document.getElementById('btnOpen').addEventListener('click',  () => { actionTarget = 0; });
+  document.getElementById('btnClose').addEventListener('click', () => { actionTarget = 1; });
 
-  // ── RENDER LOOP WITH LERP ─────────────────────────────────────
-  const LERP = 0.09;   // smoothing factor: lower = smoother/slower
+  const LERP = 0.09;
   function animate() {
     requestAnimationFrame(animate);
+    if (!sceneVisible) return;
 
-    if (autoRotate) {
-      // Gentle continuous rotation
-      targetY += 0.004;
-    } else if (!isDragging) {
-      // Inertia decay after release
-      velY *= DAMPING;
-      velX *= DAMPING;
-      targetY += velY;
-      targetX += velX;
+    if (autoRotate) targetY += 0.004;
+    else if (!isDragging) {
+      velY *= DAMPING; velX *= DAMPING;
+      targetY += velY; targetX += velX;
       targetX = Math.max(-0.55, Math.min(1.0, targetX));
     }
-
-    // Smooth interpolation toward target (no jank)
     rotX += (targetX - rotX) * LERP;
     rotY += (targetY - rotY) * LERP;
+    if (modelGroup) { modelGroup.rotation.x = rotX; modelGroup.rotation.y = rotY; }
 
-    pergolaGroup.rotation.x = rotX;
-    pergolaGroup.rotation.y = rotY;
+    camZ += (camZTarget - camZ) * 0.08;
+    camera.position.z = camZ;
 
-    // Smooth louver transition
-    louverAngle += (louverTarget - louverAngle) * 0.07;
-    louverPivots.forEach(p => { p.rotation.x = louverAngle; });
+    actionVal += (actionTarget - actionVal) * 0.07;
+    if (applyAction) applyAction(actionVal);
 
     renderer.render(scene, camera);
   }
   animate();
 }
+
 
 // Init translations on load (default Kurdish already set)
 setLang('ku');
