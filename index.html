@@ -1815,6 +1815,11 @@ a.link-uline.block{ display:block; width:fit-content; }
 }
 
 </style>
+<script>
+// Stop the browser from restoring the previous scroll position on reload —
+// the loader hides it, so the page would appear to open mid-way down.
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+</script>
 </head>
 <body class="grain bg-ink-900 text-bone min-h-screen">
 
@@ -2687,6 +2692,7 @@ document.querySelectorAll('.lang-pill').forEach(b => b.addEventListener('click',
 
 // ===== LOADER · Branded Logo Fill =====
 window.addEventListener('load', () => {
+  if (!location.hash) window.scrollTo(0, 0);
   const loader = document.getElementById('loader');
   const txt    = document.getElementById('loaderPct');
   let pct = 0;
@@ -2708,6 +2714,9 @@ window.addEventListener('load', () => {
       clearInterval(tick); clearInterval(ramp);
       loader.classList.add('is-complete');
       setTimeout(() => {
+        // Late-loading images can shift layout while the loader is up, so
+        // land on the hero one more time before revealing the page.
+        if (!location.hash) window.scrollTo(0, 0);
         loader.classList.add('hidden');
         const heroImg = document.getElementById('heroImg');
         if (heroImg) heroImg.classList.add('loaded');
