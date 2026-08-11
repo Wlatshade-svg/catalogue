@@ -8,7 +8,7 @@
 <link rel="icon" href="images/logo-icon.png" type="image/png" />
 <link rel="apple-touch-icon" href="images/logo-icon.png" />
 <link rel="preload" as="image" href="images/logo-white.png">
-<link rel="preload" as="image" href="images/hero.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="images/hero.webp" type="image/webp" fetchpriority="high">
 <meta name="description" content="پسپۆڕ لە پەرگۆلای کارەبایی، سیستەمی بایۆکلیماتیک، جامی پانۆراما و سکایلایت لە کوردستان." />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -2042,7 +2042,13 @@ a.link-uline.block{ display:block; width:fit-content; }
 <!-- HERO -->
 <section id="top" class="relative h-[100svh] min-h-[700px] overflow-hidden">
   <div class="absolute inset-0">
-    <img id="heroImg" src="images/hero.jpg" alt="" class="hero-img w-full h-full object-cover" />
+    <!-- WebP first, JPEG for anything that cannot read it. Same 1024x1536
+         pixels either way — only the compression differs. <picture> is inline
+         by default, so it has to be told to fill the box the img sizes against. -->
+    <picture class="block w-full h-full">
+      <source srcset="images/hero.webp" type="image/webp" />
+      <img id="heroImg" src="images/hero.jpg" alt="" class="hero-img w-full h-full object-cover" />
+    </picture>
     <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black"></div>
     <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/40"></div>
     <div class="louvre" aria-hidden="true"></div>
