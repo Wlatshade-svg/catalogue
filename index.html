@@ -207,7 +207,7 @@ html[lang="ku"] .font-display, html[lang="ar"] .font-display { font-family:"Zain
 .gl-logo{height:1.5rem;width:auto;object-fit:contain;opacity:.85;}
 
 /* the single continuous scroll area */
-.gl-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(157,28,59,.5) transparent;}
+.gl-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(157,28,59,.5) transparent;}
 .gl-scroll::-webkit-scrollbar{width:7px;}
 .gl-scroll::-webkit-scrollbar-track{background:transparent;}
 .gl-scroll::-webkit-scrollbar-thumb{background:rgba(157,28,59,.5);border-radius:4px;}
@@ -3159,9 +3159,15 @@ function buildPhotos() {
   var cue = '<span class="gl-zoom-cue" aria-hidden="true">' +
     '<svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M6 1.5H2.5a1 1 0 0 0-1 1V6M8 12.5h3.5a1 1 0 0 0 1-1V8M12.5 1.5 8 6M12.5 1.5H9M12.5 1.5V5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
   '</span>';
+  // Loaded eagerly on purpose. Bioclimatic and Pergola show a tab strip, which
+  // puts this pane behind `display:none` while Overview is on screen — and a
+  // lazy image inside a hidden element never starts downloading. That is why
+  // those two products used to sit on blank frames after switching to
+  // Projects. Eager images fetch regardless of CSS visibility, so the set for
+  // the open product is on its way the moment the card is opened.
   function fig(src, i, cls){
     return '<figure class="gl-photo' + (cls ? ' ' + cls : '') + '" data-i="'+i+'">' +
-      '<img src="'+src+'" alt="'+glAltName+' — '+(i+1)+'" loading="'+(i<3?'eager':'lazy')+'" />' +
+      '<img src="'+src+'" alt="'+glAltName+' — '+(i+1)+'" decoding="async" />' +
       cue + '</figure>';
   }
   // The first shot leads at full width; the rest tile two-up so a long set
@@ -3248,7 +3254,8 @@ function goTo(n, slide){
 function openLightbox(n){
   glLightbox.classList.add('open');
   glLbOpen = true;
-  document.body.style.overflow = 'hidden';
+  // The body is already pinned by openGallery — the lightbox only ever opens
+  // from inside the sheet.
   goTo(n);
   glPrev.style.display = glImages.length < 2 ? 'none' : '';
   glNext.style.display = glImages.length < 2 ? 'none' : '';
@@ -3380,6 +3387,29 @@ function backToGrid(){
 })();
 
 // ── Open gallery (defaults to the grid view) ─────────────────────
+// ── Body scroll lock ─────────────────────────────────────────────
+// `overflow:hidden` on <body> is ignored by iOS Safari, so a swipe inside the
+// product sheet used to scroll the page underneath it — most noticeably on the
+// Overview pane, which is short enough that the gesture reaches the page
+// straight away. Pinning the body and restoring the offset on close is the
+// only lock iOS honours.
+let glLockedY = 0;
+function glLockBody(){
+  glLockedY = window.scrollY || document.documentElement.scrollTop || 0;
+  const b = document.body.style;
+  b.position = 'fixed';
+  b.top      = (-glLockedY) + 'px';
+  b.left     = '0';
+  b.right    = '0';
+  b.width    = '100%';
+  b.overflow = 'hidden';
+}
+function glUnlockBody(){
+  const b = document.body.style;
+  b.position = ''; b.top = ''; b.left = ''; b.right = ''; b.width = ''; b.overflow = '';
+  window.scrollTo(0, glLockedY);
+}
+
 function openGallery(id) {
   const p = PRODUCTS.find(x => x.id === id);
   if (!p) return;
@@ -3437,7 +3467,7 @@ function openGallery(id) {
   glScroll.scrollTop = 0;
 
   glOverlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
+  glLockBody();
 }
 
 
@@ -3486,7 +3516,7 @@ function glSyncTabs(id){
 function closeGallery() {
   glOverlay.classList.remove('open');
   backToGrid();
-  document.body.style.overflow = '';
+  glUnlockBody();
 }
 // backward-compat aliases
 function openModal(id) { openGallery(id); }
