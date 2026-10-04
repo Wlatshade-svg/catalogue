@@ -1570,6 +1570,83 @@ footer > div{ position:relative; z-index:1; }
   .pg-detail .pg-steps{ grid-template-columns:repeat(2,1fr); }
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   TECHNICAL DRAWINGS & HARDWARE  ·  from the WLAT SHADE asset kit
+═══════════════════════════════════════════════════════════════════ */
+/* Home · blueprint strip — scrolls sideways, snaps card by card */
+.bp-sec{ position:relative; padding:clamp(4rem,9vw,7rem) 0 clamp(3rem,7vw,5rem); overflow:hidden; }
+.bp-head{ max-width:1500px; margin:0 auto clamp(2rem,4vw,3rem); padding:0 clamp(1.5rem,3vw,2.5rem);
+  display:grid; gap:1.2rem; }
+@media(min-width:1024px){ .bp-head{ grid-template-columns:5fr 7fr; align-items:end; } }
+.bp-head p{ color:rgba(232,228,222,.7); line-height:1.8; max-width:40rem; }
+.bp-row{
+  display:flex; gap:clamp(.8rem,1.6vw,1.2rem); overflow-x:auto; scroll-snap-type:x mandatory;
+  padding:0 clamp(1.5rem,3vw,2.5rem) 1.2rem; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+}
+.bp-row::-webkit-scrollbar{ display:none; }
+.bp-card{
+  flex:none; width:min(82vw,420px); scroll-snap-align:center; cursor:pointer; text-align:start;
+  border-radius:18px; overflow:hidden; border:1px solid var(--hair); padding:0;
+  background:#14294B; color:inherit; font:inherit;
+  transition:transform .6s var(--e), border-color .6s var(--e), box-shadow .6s var(--e);
+}
+.bp-card:hover{ transform:translateY(-4px); border-color:rgba(227,196,140,.3); box-shadow:0 40px 80px -46px rgba(0,0,0,1); }
+.bp-card .bp-img{ aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.bp-card .bp-img.light{ background:#F7F6F3; }
+.bp-card img{ width:100%; height:100%; object-fit:contain; }
+.bp-card .bp-cap{ display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  padding:1rem 1.15rem 1.1rem; background:rgba(10,9,12,.9); border-top:1px solid var(--hair); }
+.bp-card .bp-cap b{ display:block; font-size:.98rem; font-weight:700; }
+.bp-card .bp-cap span{ display:block; font-size:.74rem; color:rgba(180,184,192,.75); margin-top:.2rem; }
+.bp-card .bp-cap i{ flex:none; font-style:normal; font-size:.7rem; letter-spacing:.14em; color:var(--sun); white-space:nowrap; }
+
+/* Home · motors & control */
+.hw-wrap{ margin-top:clamp(3.5rem,7vw,5.5rem); }
+.hw-grid{ display:grid; gap:.75rem; grid-template-columns:1fr; }
+@media(min-width:760px){ .hw-grid{ grid-template-columns:repeat(3,1fr); } }
+.hw-card{
+  position:relative; overflow:hidden; border-radius:18px; border:1px solid var(--hair);
+  background:linear-gradient(155deg,rgba(255,255,255,.05),rgba(255,255,255,.011));
+  display:flex; flex-direction:column;
+}
+.hw-shot{
+  height:190px; display:flex; align-items:center; justify-content:center; padding:1.4rem;
+  background:radial-gradient(60% 70% at 50% 55%,rgba(227,196,140,.16),rgba(227,196,140,0) 70%);
+}
+.hw-shot img{ max-width:100%; max-height:100%; object-fit:contain; filter:drop-shadow(0 18px 24px rgba(0,0,0,.6)); }
+.hw-body{ padding:0 1.4rem 1.5rem; }
+.hw-k{ font-size:.64rem; letter-spacing:.22em; color:rgba(227,196,140,.75); margin-bottom:.4rem; direction:ltr; unicode-bidi:isolate; }
+.hw-t{ font-size:1.1rem; font-weight:700; margin-bottom:.9rem; }
+.hw-body .pg-row{ padding:.6rem 0; font-size:.88rem; }
+.hw-body .pg-row b{ font-size:1rem; }
+.hw-remotes{ display:grid; gap:.6rem; grid-template-columns:repeat(2,1fr); margin-top:.75rem; }
+@media(min-width:760px){ .hw-remotes{ grid-template-columns:repeat(4,1fr); } }
+.hw-rem{ border-radius:14px; border:1px solid var(--hair); padding:1rem 1.1rem; background:rgba(255,255,255,.02); }
+.hw-rem b{ display:block; font-family:"Instrument Serif",serif; font-style:italic; font-weight:400;
+  font-size:1.9rem; line-height:1; color:var(--sun); }
+.hw-rem span{ display:block; font-size:.78rem; font-weight:700; margin-top:.45rem; }
+.hw-rem p{ font-size:.76rem; line-height:1.6; color:rgba(180,184,192,.75); margin-top:.3rem; }
+
+/* Product sheet · drawings, data and motor for each system */
+.tk-figs{ display:grid; gap:.7rem; grid-template-columns:1fr; margin-top:.4rem; }
+@media(min-width:760px){ .tk-figs{ grid-template-columns:1fr 1fr; } }
+.tk-fig{ margin:0; cursor:zoom-in; border-radius:12px; overflow:hidden; border:1px solid var(--hair); background:#14294B; }
+.tk-fig.light{ background:#F7F6F3; }
+.tk-fig.wide{ grid-column:1/-1; }
+.tk-fig img{ display:block; width:100%; height:auto; }
+.tk-fig figcaption{ font-size:.8rem; line-height:1.55; padding:.65rem .85rem; color:rgba(232,228,222,.82);
+  background:rgba(10,9,12,.92); border-top:1px solid var(--hair); }
+.tk-parts{ display:grid; gap:.35rem .9rem; grid-template-columns:1fr 1fr; margin-top:.9rem; font-size:.84rem; color:rgba(232,228,222,.8); }
+.tk-parts em{ font-style:normal; display:inline-flex; align-items:center; justify-content:center; width:1.45rem; height:1.45rem;
+  margin-inline-end:.45rem; border-radius:50%; background:var(--brand); color:#fff; font-size:.7rem; font-weight:700; }
+.tk-note{ font-size:.82rem; color:rgba(180,184,192,.68); line-height:1.6; margin-top:.9rem; }
+.tk-motor{ display:flex; gap:1rem; align-items:center; margin-top:.4rem; }
+.tk-motor img{ flex:none; width:38%; max-height:120px; object-fit:contain; filter:drop-shadow(0 12px 18px rgba(0,0,0,.6)); }
+.tk-motor ul{ list-style:none; padding:0; margin:0; font-size:.84rem; line-height:1.9; color:rgba(232,228,222,.82); }
+.tk-motor li::before{ content:"—"; color:var(--sun); margin-inline-end:.45rem; }
+#glTech > .pg-card + .pg-card{ margin-top:.7rem; }
+#glTech:not(:empty){ margin-bottom:.7rem; }
+
 /* ── Isometric fabric diagram ────────────────────────────────────*/
 .pg-iso-wrap{ margin-top:1.2rem; }
 .pg-iso{
@@ -2256,6 +2333,25 @@ a.link-uline.block{ display:block; width:fit-content; }
 </section>
 <div class="max-w-[1500px] mx-auto px-6 lg:px-10"><div class="slat-rule reveal"></div></div>
 
+<!-- BLUEPRINTS — every card opens that system's Details tab -->
+<section id="drawings" class="bp-sec">
+  <div class="bp-head">
+    <div>
+      <div class="flex items-center gap-4 mb-8 reveal">
+        <span class="sec-num">— ✎</span>
+        <span class="text-xs tracking-wider2 text-ink-100" id="bpKicker">ENGINEERING · نەخشە و وردەکاری</span>
+      </div>
+      <h2 class="display-h1 text-4xl md:text-5xl reveal reveal-d1">
+        <span id="bpH1">هەر پڕۆژەیەک</span><br/>
+        <span class="italic-accent" id="bpH1i">بە نەخشە دەست پێدەکات.</span>
+      </h2>
+    </div>
+    <p class="reveal reveal-d2" id="bpLede">پێش ئەوەی یەک پارچە ببڕین، هەموو پێوانە و پێکهاتەکان لەسەر نەخشە دیاری دەکەین. لێرەدا بەشێک لە نەخشە تەکنیکییەکانمان دەبینیت — لەسەر هەر یەکێکیان دابگرە بۆ بینینی وردەکاریی سیستەمەکە.</p>
+  </div>
+  <div class="bp-row reveal reveal-d2" id="bpRow"></div>
+</section>
+<div class="max-w-[1500px] mx-auto px-6 lg:px-10"><div class="slat-rule reveal"></div></div>
+
 <!-- MATERIALS / PARTNERS -->
 <section id="materials" class="relative py-24 lg:py-32 px-6 lg:px-10">
   <div class="max-w-[1500px] mx-auto">
@@ -2295,6 +2391,15 @@ a.link-uline.block{ display:block; width:fit-content; }
         <h4 class="font-display text-xl mb-4" data-i18n="mat.p3.title">قوماشی سێرج فیراری</h4>
         <p class="text-bone-soft text-sm leading-relaxed" data-i18n="mat.p3.body">قوماشی پێش‌ڕاکێشراو (Précontraint) بە بەرگرییەکی بەهێز دژی تیشکی بنەوشەیی، بەهێزکراو لە هەردوو ئاراستەدا.</p>
       </div>
+    </div>
+
+    <!-- MOTORS & CONTROL — filled from HW below so it follows the language -->
+    <div class="hw-wrap" id="hardware">
+      <div class="flex items-center gap-4 mb-8 reveal">
+        <span class="text-xs tracking-wider2 text-ink-100" id="hwKicker">MOTION &amp; CONTROL · ماتۆڕ و کۆنترۆڵ</span>
+      </div>
+      <div class="hw-grid reveal reveal-d1" id="hwGrid"></div>
+      <div class="hw-remotes reveal reveal-d2" id="hwRemotes"></div>
     </div>
   </div>
 </section>
@@ -2508,6 +2613,9 @@ a.link-uline.block{ display:block; width:fit-content; }
 
       <div class="gl-pane" data-pane="spec" hidden>
         <div class="pg-detail" id="glDetail">
+<div id="glTech"></div>
+<!-- Electric pergola only: fabric, weather, sizes, warranty, colours, options -->
+<div id="pgOnly">
 <!-- fabric + weather -->
     <div class="pg-grid">
       <div class="pg-card reveal">
@@ -2727,6 +2835,8 @@ a.link-uline.block{ display:block; width:fit-content; }
       <p style="font-size:.85rem;color:rgba(180,184,192,.62);margin-top:1.3rem;line-height:1.6" data-i18n="pg.op.note">هەموو ئەم زیادکراوانە دەکرێت لە سەرەتاوە دابنرێن، یان دواتر زیاد بکرێن بەبێ دەستکاریکردنی پێکهاتەی سەرەکی.</p>
     </div>
 
+</div><!-- /pgOnly -->
+
     <!-- process -->
     <div class="pg-flow">
       <div class="flex items-center gap-4 mb-8 reveal">
@@ -2853,6 +2963,7 @@ function setLang(lang) {
   });
   document.querySelectorAll('.lang-pill').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
   renderProductGrid();
+  if (typeof renderHomeTech === 'function') renderHomeTech();
   if (window.refreshThreeUI) window.refreshThreeUI();
 }
 document.querySelectorAll('.lang-pill').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
@@ -3416,6 +3527,7 @@ function openLightbox(n){
 function backToGrid(){
   glLightbox.classList.remove('open', 'zoomed');
   glLbOpen = false;
+  if (glDrawSaved) { glImages = glDrawSaved; glDrawSaved = null; }
   vzReset(false);
 }
 
@@ -3562,7 +3674,7 @@ function glUnlockBody(){
   window.scrollTo(0, glLockedY);
 }
 
-function openGallery(id) {
+function openGallery(id, pane) {
   const p = PRODUCTS.find(x => x.id === id);
   if (!p) return;
 
@@ -3618,6 +3730,7 @@ function openGallery(id) {
   backToGrid();
   glScroll.scrollTop = 0;
 
+  if (pane && !glTabs.hidden) glShowPane(pane);
   glOverlay.classList.add('open');
   glLockBody();
 }
@@ -3625,7 +3738,7 @@ function openGallery(id) {
 
 // ── Product-sheet tabs ──────────────────────────────────────────
 // The deep-dive pane only exists for products it actually describes.
-const DETAIL_FOR = ['pergola','bioclimatic'];
+const DETAIL_FOR = ['pergola','bioclimatic','panoramic-glass','skylight','cassette','dome-parking'];
 const glTabs = document.getElementById('glTabs');
 
 function glShowPane(name){
@@ -3655,6 +3768,7 @@ function glSyncTabs(id){
   // With no deep-dive there is nothing to switch between, so the tab strip
   // disappears and both remaining panes are simply stacked.
   glTabs.hidden = !hasDetail;
+  renderTech(id);
   if (hasDetail) {
     glShowPane('over');
   } else {
@@ -3663,6 +3777,240 @@ function glSyncTabs(id){
     });
   }
 }
+
+// ── Technical drawings, data and motors per system ──────────────
+// From the WLAT SHADE asset kit. Every string is {ku,en,ar}; L() picks the
+// current language and falls back to Kurdish.
+function L(o){ return o == null ? '' : (typeof o === 'string' ? o : (o[LANG] || o.ku)); }
+
+const MOTORS = {
+  mosel:{
+    img:'images/tech/mosel-motor.webp', k:'MOSEL · 140 Nm',
+    t:{ku:'ماتۆڕی تووبی مۆسێل',en:'MOSEL tubular motor',ar:'محرك موسيل الأنبوبي'},
+    pts:[{ku:'230V — کارەبای ئاسایی ماڵان',en:'230 V — standard mains',ar:'230 فولت — كهرباء منزلية عادية'},
+         {ku:'IP44 — دژە ئاو و تۆز',en:'IP44 — water & dust resistant',ar:'IP44 — مقاوم للماء والغبار'},
+         {ku:'بێدەنگ — دابڕینی دەنگ',en:'Quiet — sound isolation',ar:'هادئ — عزل الصوت'},
+         {ku:'بڕوانامەی CE و TUV',en:'CE & TÜV certified',ar:'شهادة CE و TÜV'}]
+  },
+  cuppon:{
+    img:'images/tech/cuppon-motor.webp', k:'CUPPON · 120 Nm',
+    t:{ku:'ماتۆڕی بایۆکلیماتیکی کوپۆن',en:'Cuppon bioclimatic motor',ar:'محرك كوبون للبرغولا البيومناخية'},
+    pts:[{ku:'هێزی خولانەوە 120 Nm',en:'120 Nm torque',ar:'عزم دوران 120 نيوتن·م'},
+         {ku:'پانێڵەکان تا 120° دەسووڕێنێت',en:'Rotates the blades up to 120°',ar:'يدوّر الشرائح حتى 120°'},
+         {ku:'ڕیمۆتی 16 کەناڵی دیجیتاڵ',en:'16-channel digital remote',ar:'جهاز تحكم رقمي 16 قناة'}]
+  },
+  sensor:{
+    img:'images/tech/mosel-sensor.webp', k:'MOSEL · DD118B',
+    t:{ku:'سێنسەری با و خۆر',en:'Wind & sun sensor',ar:'حساس الرياح والشمس'},
+    pts:[{ku:'بێ تەل — 433 MHz، 20 کەناڵ',en:'Wireless — 433 MHz, 20 channels',ar:'لاسلكي — 433 ميغاهرتز، 20 قناة'},
+         {ku:'لە بای بەهێزدا خۆکارانە دادەخات',en:'Retracts automatically in strong wind',ar:'يغلق تلقائياً عند الرياح القوية'}]
+  }
+};
+
+const TECH = {
+  bioclimatic:{
+    figs:[
+      {src:'images/tech/bio-profiles.webp',light:1,cap:{ku:'پێکهاتەی پرۆفایلەکان — هەر پارچەیەک ژمارەی خۆی هەیە',en:'Exploded profile assembly — every part numbered',ar:'تفكيك المقاطع — كل قطعة مرقّمة'}},
+      {src:'images/tech/bio-gutter.webp',light:1,cap:{ku:'ئاوی باران لە پانێڵەکانەوە دەچێتە جۆگە و بە ناو ستووندا دادەبەزێت',en:'Rain runs off the blades into the gutter and down inside the post',ar:'تنساب مياه الأمطار من الشرائح إلى المزراب ثم داخل العمود'}},
+      {src:'images/tech/bio-blade.webp',light:1,cap:{ku:'پانێڵی عەزلکراو — دەکرێت ماددەی عەزلی تێدا بێت و دوو چین بێت',en:'Insulated blades — can be filled with insulation, double-layered',ar:'شرائح معزولة — يمكن حشوها بمادة عازلة وبطبقتين'}},
+      {src:'images/tech/bio-led.webp',light:1,cap:{ku:'ڕووناکی LED — سپی یان RGB، بە ڕیمۆت',en:'LED lighting — white or RGB, by remote',ar:'إضاءة LED — بيضاء أو RGB، بجهاز التحكم'}}
+    ],
+    rows:[
+      [{ku:'ماتۆڕ',en:'Motor',ar:'المحرك'},'Cuppon 120 Nm'],
+      [{ku:'سووڕانی پانێڵ',en:'Blade rotation',ar:'دوران الشرائح'},'0° — 120°'],
+      [{ku:'ڕووناکی',en:'Lighting',ar:'الإضاءة'},'LED · RGB'],
+      [{ku:'ئاوەڕۆ',en:'Drainage',ar:'التصريف'},{ku:'شاراوە بە ناو ستووندا',en:'Hidden, inside the posts',ar:'مخفي داخل الأعمدة'}]
+    ],
+    motors:['cuppon']
+  },
+  pergola:{
+    figs:[
+      {src:'images/tech/pergola-wall-iso.webp',cap:{ku:'جۆری دیواری بەبێ قاچ — نموونە بە پێوانەی 8.00 × 3.10 م',en:'Wall-mounted, no posts — example at 8.00 × 3.10 m',ar:'تثبيت على الجدار بلا أعمدة — مثال بمقاس 8.00 × 3.10 م'}},
+      {src:'images/tech/pergola-wall-section.webp',cap:{ku:'مەقتەع — لاری 20 سم بۆ ڕژانی ئاو',en:'Section — 20 cm fall for drainage',ar:'مقطع — ميل 20 سم لتصريف المياه'}}
+    ],
+    motors:['mosel','sensor']
+  },
+  'panoramic-glass':{
+    figs:[
+      {src:'images/tech/glass-elevation.webp',wide:1,cap:{ku:'ڕووکاری پێشەوە — خانەکانی گیۆتین (G) و دەرگا (D) لەژێر سەقفی ساندویچ',en:'Front elevation — guillotine bays (G) and doors (D) under a sandwich roof',ar:'الواجهة الأمامية — وحدات الجيلوتين (G) والأبواب (D) تحت سقف ساندويتش'}},
+      {src:'images/tech/glass-tiers.webp',cap:{ku:'دابەشبوونی تەبەقە: (بەرزی − 130 − 65) ÷ ژمارەی تەبەقە',en:'Tier split: (height − 130 − 65) ÷ tiers',ar:'تقسيم الطبقات: (الارتفاع − 130 − 65) ÷ عدد الطبقات'}},
+      {src:'images/tech/glass-components.webp',light:1,cap:{ku:'پێکهاتە ناوەکییەکان — زنجیر و دیشلی',en:'Internal components — chain & sprocket drive',ar:'المكونات الداخلية — نظام سلسلة وترس'}},
+      {src:'images/tech/glass-facade.webp',cap:{ku:'پەرگۆلا + گیۆتین — ڕووکارێکی 10.75 م',en:'Pergola + guillotine — a 10.75 m façade',ar:'برغولا + جيلوتين — واجهة بطول 10.75 م'}},
+      {src:'images/tech/glass-facade-plan.webp',cap:{ku:'پلانی سەرەوە — پەرگۆلا (P) و سەقفی سابت (F)',en:'Plan — pergola (P) and fixed roof (F)',ar:'المسقط — برغولا (P) وسقف ثابت (F)'}}
+    ],
+    rows:[
+      [{ku:'جام',en:'Glass',ar:'الزجاج'},{ku:'دەبڵ سکۆریت 24 mm',en:'24 mm double tempered',ar:'مزدوج مقسّى 24 مم'}],
+      [{ku:'سیستەمی جوڵان',en:'Drive',ar:'نظام الحركة'},{ku:'زنجیر و دیشلی',en:'Chain & sprocket',ar:'سلسلة وترس'}],
+      [{ku:'سندوقی سەرەوە',en:'Top box',ar:'الصندوق العلوي'},'130 mm'],
+      [{ku:'چوارچێوەی خوارەوە',en:'Bottom frame',ar:'الإطار السفلي'},'65 mm'],
+      [{ku:'نموونە: 3000 mm / 3 تەبەقە',en:'Example: 3000 mm / 3 tiers',ar:'مثال: 3000 مم / 3 طبقات'},'≈ 935 mm'],
+      [{ku:'ستاندارد',en:'Standards',ar:'المعايير'},'EN 12150 · 1279 · 12020-2']
+    ],
+    motors:['mosel']
+  },
+  skylight:{
+    figs:[
+      {src:'images/tech/skylight-motor.webp',wide:1,light:1,cap:{ku:'سکایلایتی کارەبایی — جامەکان بەسەر ڕێڵدا کۆدەبنەوە، لاری 8%',en:'Motorised skylight — panes stack along the rail, 8% fall',ar:'سقف زجاجي كهربائي — تنزلق الألواح على السكة، ميل 8%'}},
+      {src:'images/tech/skylight-fixed.webp',wide:1,light:1,cap:{ku:'سکایلایتی سابت — جامی دەبڵ، گاسکێتی EPDM و جۆگەی شاراوە',en:'Fixed skylight — double glazing, EPDM gaskets, hidden channel',ar:'سقف زجاجي ثابت — زجاج مزدوج، حشوات EPDM ومجرى مخفي'}}
+    ],
+    rows:[
+      [{ku:'کارەبایی — جام',en:'Motorised — glass',ar:'كهربائي — الزجاج'},'6 + 16 + 6'],
+      [{ku:'کارەبایی — ماتۆڕ',en:'Motorised — motor',ar:'كهربائي — المحرك'},'24 V RF'],
+      [{ku:'لاری',en:'Fall',ar:'الميل'},'5% — 10%'],
+      [{ku:'پرۆفایل',en:'Profile',ar:'المقطع'},'AA 6063'],
+      [{ku:'سابت — جام',en:'Fixed — glass',ar:'ثابت — الزجاج'},'6 + 16 + 6/6 PVB'],
+      [{ku:'ستاندارد',en:'Standards',ar:'المعايير'},'EN 12150 · 1279 · 14449']
+    ]
+  },
+  cassette:{
+    figs:[
+      {src:'images/tech/awning-parts.webp',wide:1,cap:{ku:'پێکهاتەکانی کەپری ڕێک',en:'Folding-arm awning components',ar:'مكونات المظلة ذات الأذرع'},
+       parts:[{ku:'دیوارگر',en:'Wall bracket',ar:'حامل الجدار'},{ku:'ماتۆڕ و گێربۆکس',en:'Motor & gearbox',ar:'المحرك وعلبة التروس'},
+              {ku:'دەستەکان',en:'Arms',ar:'الأذرع'},{ku:'قوماش',en:'Fabric',ar:'القماش'},{ku:'تیری پێشەوە',en:'Front bar',ar:'العارضة الأمامية'},
+              {ku:'ڕێکخەری لاری (15°—30°)',en:'Pitch adjuster (15°–30°)',ar:'ضابط الميل (15°–30°)'},{ku:'ئانیشکەکان',en:'Elbows',ar:'المفاصل'},
+              {ku:'پاککردنەوە',en:'Easy cleaning',ar:'سهولة التنظيف'},{ku:'دروومان',en:'Stitching',ar:'الخياطة'},{ku:'دەستی پێشەوە',en:'Forearm',ar:'الذراع الأمامية'}]},
+      {src:'images/tech/awning-size.webp',cap:{ku:'پان (WIDTH) و کردنەوە (PROJECTION)',en:'Width and projection',ar:'العرض والبروز'}}
+    ],
+    rows:[
+      [{ku:'دەستی سەرەکی',en:'Main arm',ar:'الذراع الرئيسية'},'60 × 30 × 1.3 mm'],
+      [{ku:'دەستی پێشەوە',en:'Forearm',ar:'الذراع الأمامية'},'50 × 28 × 1.3 mm'],
+      [{ku:'بۆری',en:'Roller tube',ar:'الأنبوب'},'Ø 78 mm'],
+      [{ku:'قوماش',en:'Fabric',ar:'القماش'},'300 g/m² · UPF 50+'],
+      [{ku:'لاری',en:'Pitch',ar:'الميل'},'15° — 30°']
+    ],
+    motors:['mosel','sensor']
+  },
+  'dome-parking':{
+    figs:[
+      {src:'images/tech/dome-front.webp',cap:{ku:'ڕووکاری پێشەوە — قوماش بە بۆمی پۆلاوە هەڵواسراوە',en:'Front — fabric hung from a steel boom',ar:'الواجهة — القماش معلّق بذراع فولاذية'}},
+      {src:'images/tech/dome-plan.webp',cap:{ku:'پلان — بنکەی چوارگۆشە، 8 توڵ',en:'Plan — square base, 8 ribs',ar:'المسقط — قاعدة مربعة، 8 أضلاع'}},
+      {src:'images/tech/dome-side.webp',wide:1,cap:{ku:'لاتەنیشت — ستوون و تەنافی پۆلا، بێ ستوونی ناوەڕاست',en:'Side — king post and tie rod, no centre column',ar:'الجانب — عمود رئيسي وشدّاد، بلا عمود في المنتصف'}}
+    ],
+    rows:[
+      [{ku:'قوماش',en:'Fabric',ar:'القماش'},'PVDF · 650 — 900 g/m²'],
+      [{ku:'ستراکچەر',en:'Structure',ar:'الهيكل'},{ku:'پۆلای گالڤانایز + بۆیاخی فڕنی',en:'Galvanised steel, oven-baked paint',ar:'فولاذ مجلفن، طلاء حراري'}],
+      [{ku:'بنکە',en:'Base',ar:'القاعدة'},{ku:'پۆلا + برغووی کیمیایی',en:'Steel + chemical anchors',ar:'فولاذ + براغي كيميائية'}],
+      [{ku:'شێوە',en:'Shape',ar:'الشكل'},{ku:'نیمچە هەڕەمی',en:'Semi-pyramid',ar:'شبه هرمي'}]
+    ]
+  }
+};
+
+var glDrawSaved = null;   // project photos, parked while drawings are in the lightbox
+function glOpenDrawings(list, i){
+  if (!glDrawSaved) glDrawSaved = glImages;
+  glImages = list;
+  openLightbox(i);
+}
+
+function renderTech(id){
+  var box = document.getElementById('glTech');
+  var d = TECH[id];
+  document.getElementById('pgOnly').hidden = (id !== 'pergola');
+  if (!d) { box.innerHTML = ''; return; }
+  var H = {
+    figs:{ku:'نەخشە تەکنیکییەکان',en:'Technical drawings',ar:'الرسومات الفنية'},
+    data:{ku:'زانیاری تەکنیکی',en:'Technical data',ar:'البيانات الفنية'},
+    motor:{ku:'ماتۆڕ و کۆنترۆڵ',en:'Motor & control',ar:'المحرك والتحكم'},
+    tip:{ku:'لەسەر هەر نەخشەیەک دابگرە بۆ گەورەکردن.',en:'Tap any drawing to enlarge it.',ar:'انقر على أي رسم لتكبيره.'}
+  };
+  var html = '<div class="pg-card"><div class="pg-card-k">DRAWINGS · BLUEPRINT</div>' +
+    '<div class="pg-card-t">' + L(H.figs) + '</div><div class="tk-figs">' +
+    d.figs.map(function(f, i){
+      return '<figure class="tk-fig' + (f.light ? ' light' : '') + (f.wide ? ' wide' : '') + '" data-i="' + i + '">' +
+        '<img src="' + f.src + '" alt="' + L(f.cap) + '" loading="lazy" decoding="async" />' +
+        '<figcaption>' + L(f.cap) + '</figcaption></figure>';
+    }).join('') + '</div>';
+  d.figs.forEach(function(f){
+    if (f.parts) html += '<div class="tk-parts">' + f.parts.map(function(p, k){
+      return '<div><em>' + (k + 1) + '</em>' + L(p) + '</div>'; }).join('') + '</div>';
+  });
+  html += '<p class="tk-note">' + L(H.tip) + '</p></div>';
+  if (d.rows) html += '<div class="pg-card"><div class="pg-card-k">TECHNICAL DATA</div>' +
+    '<div class="pg-card-t">' + L(H.data) + '</div><div class="pg-rows">' +
+    d.rows.map(function(r){ return '<div class="pg-row"><span>' + L(r[0]) + '</span><b>' + L(r[1]) + '</b></div>'; }).join('') +
+    '</div></div>';
+  (d.motors || []).forEach(function(m){
+    var M = MOTORS[m];
+    html += '<div class="pg-card"><div class="pg-card-k">' + M.k + '</div><div class="pg-card-t">' + L(M.t) + '</div>' +
+      '<div class="tk-motor"><img src="' + M.img + '" alt="' + L(M.t) + '" loading="lazy" />' +
+      '<ul>' + M.pts.map(function(p){ return '<li>' + L(p) + '</li>'; }).join('') + '</ul></div></div>';
+  });
+  box.innerHTML = html;
+  var srcs = d.figs.map(function(f){ return f.src; });
+  box.querySelectorAll('.tk-fig').forEach(function(f){
+    f.addEventListener('click', function(){ glOpenDrawings(srcs, +f.dataset.i); });
+  });
+}
+
+// ── Home · blueprint strip and motors, redrawn on language change ──
+const BP_CARDS = [
+  {id:'dome-parking',src:'images/tech/dome-front.webp',d:{ku:'کەپری گومبەز — ڕووکار',en:'Dome car-park shade — elevation',ar:'مظلة القبة — الواجهة'}},
+  {id:'panoramic-glass',src:'images/tech/glass-facade.webp',d:{ku:'پەرگۆلا + گیۆتین — 10.75 م',en:'Pergola + guillotine — 10.75 m',ar:'برغولا + جيلوتين — 10.75 م'}},
+  {id:'pergola',src:'images/tech/pergola-wall-iso.webp',d:{ku:'پەرگۆلای دیواری بەبێ قاچ',en:'Wall-mounted pergola, no posts',ar:'برغولا جدارية بلا أعمدة'}},
+  {id:'bioclimatic',src:'images/tech/bio-profiles.webp',light:1,d:{ku:'بایۆکلیماتیک — پێکهاتەی پرۆفایل',en:'Bioclimatic — profile assembly',ar:'بيومناخي — تجميع المقاطع'}},
+  {id:'panoramic-glass',src:'images/tech/glass-tiers.webp',d:{ku:'گیۆتین — دابەشبوونی تەبەقە',en:'Guillotine — tier build-up',ar:'جيلوتين — تقسيم الطبقات'}},
+  {id:'cassette',src:'images/tech/awning-size.webp',d:{ku:'کەپری ڕێک — پان و کردنەوە',en:'Awning — width & projection',ar:'المظلة — العرض والبروز'}},
+  {id:'skylight',src:'images/tech/skylight-motor.webp',light:1,d:{ku:'سکایلایتی کارەبایی — مەقتەع',en:'Motorised skylight — section',ar:'سقف زجاجي كهربائي — مقطع'}}
+];
+
+const HW_REMOTES = [
+  {n:'1',t:{ku:'1 کەناڵ',en:'1 channel',ar:'قناة واحدة'},p:{ku:'یەک ئامێر یان یەک گرووپ',en:'One device or one group',ar:'جهاز واحد أو مجموعة واحدة'}},
+  {n:'5',t:{ku:'5 کەناڵ',en:'5 channels',ar:'5 قنوات'},p:{ku:'پێنج ئامێر یان ژووری جیاواز',en:'Five devices or rooms',ar:'خمسة أجهزة أو غرف'}},
+  {n:'9',t:{ku:'9 کەناڵ',en:'9 channels',ar:'9 قنوات'},p:{ku:'بۆ ماڵی گەورە و فەرمانگە',en:'For large homes and offices',ar:'للمنازل الكبيرة والمكاتب'}},
+  {n:'16',t:{ku:'16 کەناڵی دیجیتاڵ',en:'16-ch digital',ar:'16 قناة رقمية'},p:{ku:'شاشەی بچووک بۆ پیشاندانی کەناڵ',en:'Small screen shows the channel',ar:'شاشة صغيرة تعرض القناة'}}
+];
+
+function renderHomeTech(){
+  var T2 = {
+    bpKicker:{ku:'ENGINEERING · نەخشە و وردەکاری',en:'ENGINEERING · DRAWINGS',ar:'ENGINEERING · الرسومات'},
+    bpH1:{ku:'هەر پڕۆژەیەک',en:'Every project',ar:'كل مشروع'},
+    bpH1i:{ku:'بە نەخشە دەست پێدەکات.',en:'starts on paper.',ar:'يبدأ بمخطط.'},
+    bpLede:{ku:'پێش ئەوەی یەک پارچە ببڕین، هەموو پێوانە و پێکهاتەکان لەسەر نەخشە دیاری دەکەین. لێرەدا بەشێک لە نەخشە تەکنیکییەکانمان دەبینیت — لەسەر هەر یەکێکیان دابگرە بۆ بینینی وردەکاریی سیستەمەکە.',
+            en:'Before a single profile is cut, every dimension and component is fixed on a drawing. Here are some of ours — tap one to open that system’s details.',
+            ar:'قبل قصّ أي قطعة، نحدد كل المقاسات والمكونات على المخطط. هذه بعض رسوماتنا الفنية — انقر على أي منها لعرض تفاصيل النظام.'},
+    hwKicker:{ku:'MOTION & CONTROL · ماتۆڕ و کۆنترۆڵ',en:'MOTION & CONTROL',ar:'MOTION & CONTROL · المحركات والتحكم'}
+  };
+  Object.keys(T2).forEach(function(k){ var el = document.getElementById(k); if (el) el.textContent = L(T2[k]); });
+
+  var more = {ku:'وردەکاری ←',en:'Details →',ar:'التفاصيل ←'};
+  var row = document.getElementById('bpRow');
+  row.innerHTML = BP_CARDS.map(function(c, i){
+    var p = PRODUCTS.find(function(x){ return x.id === c.id; });
+    return '<button class="bp-card" data-i="' + i + '"><div class="bp-img' + (c.light ? ' light' : '') + '">' +
+      '<img src="' + c.src + '" alt="' + L(c.d) + '" loading="lazy" decoding="async" /></div>' +
+      '<div class="bp-cap"><div><b>' + (p ? p.name[LANG] : '') + '</b><span>' + L(c.d) + '</span></div><i>' + L(more) + '</i></div></button>';
+  }).join('');
+  row.querySelectorAll('.bp-card').forEach(function(b){
+    b.addEventListener('click', function(){ openGallery(BP_CARDS[+b.dataset.i].id, 'spec'); });
+  });
+
+  var specs = {
+    mosel:[[{ku:'هێز',en:'Torque',ar:'العزم'},'140 Nm'],[{ku:'خێرایی',en:'Speed',ar:'السرعة'},'7 — 9 RPM'],
+           [{ku:'بەرزکردنەوە',en:'Lifting',ar:'قدرة الرفع'},'140 — 227 kg'],[{ku:'پاراستن',en:'Protection',ar:'الحماية'},'IP44'],
+           [{ku:'بۆری',en:'Tube',ar:'الأنبوب'},'≥ 70 mm'],[{ku:'بڕوانامە',en:'Certified',ar:'الشهادات'},'CE · TÜV']],
+    sensor:[[{ku:'ڕادیۆ',en:'Radio',ar:'التردد'},'433 MHz'],[{ku:'کەناڵ',en:'Channels',ar:'القنوات'},'20'],
+            [{ku:'ڤۆڵتیە',en:'Power',ar:'الجهد'},'3.7 VDC'],[{ku:'بڕوانامە',en:'Certified',ar:'الشهادات'},'CE']],
+    cuppon:[[{ku:'هێز',en:'Torque',ar:'العزم'},'120 Nm'],[{ku:'سووڕانی پانێڵ',en:'Blade rotation',ar:'دوران الشرائح'},'0° — 120°'],
+            [{ku:'بەکاردێت بۆ',en:'Used on',ar:'يُستخدم في'},{ku:'بایۆکلیماتیک',en:'Bioclimatic',ar:'البيومناخي'}]]
+  };
+  var use = {
+    mosel:{ku:'پەرگۆلا، گیۆتین و کەپری ڕێک',en:'Pergolas, guillotine glass and awnings',ar:'البرغولا والجيلوتين والمظلات'},
+    sensor:{ku:'کەپر و پەرگۆلا لە بای بەهێزدا دادەخات',en:'Retracts awnings and pergolas in strong wind',ar:'يغلق المظلات والبرغولا عند الرياح القوية'},
+    cuppon:{ku:'پانێڵە سووڕاوەکانی سەقفی بایۆکلیماتیک',en:'Drives the rotating bioclimatic blades',ar:'يحرّك شرائح السقف البيومناخي'}
+  };
+  document.getElementById('hwGrid').innerHTML = ['mosel','sensor','cuppon'].map(function(m){
+    var M = MOTORS[m];
+    return '<div class="hw-card"><div class="hw-shot"><img src="' + M.img + '" alt="' + L(M.t) + '" loading="lazy" /></div>' +
+      '<div class="hw-body"><div class="hw-k">' + M.k + '</div><div class="hw-t">' + L(M.t) + '</div>' +
+      '<p class="text-bone-soft text-sm leading-relaxed" style="margin-bottom:.6rem">' + L(use[m]) + '</p>' +
+      '<div class="pg-rows">' + specs[m].map(function(r){ return '<div class="pg-row"><span>' + L(r[0]) + '</span><b>' + L(r[1]) + '</b></div>'; }).join('') +
+      '</div></div></div>';
+  }).join('');
+  document.getElementById('hwRemotes').innerHTML = HW_REMOTES.map(function(r){
+    return '<div class="hw-rem"><b>' + r.n + '</b><span>' + L(r.t) + '</span><p>' + L(r.p) + '</p></div>';
+  }).join('');
+}
+renderHomeTech();
 
 // ── Close ────────────────────────────────────────────────────────
 function closeGallery() {
