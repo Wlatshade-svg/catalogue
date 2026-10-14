@@ -679,7 +679,7 @@ function giyotinCalc(inp) {
     return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
   }
   const hl = (tr, ku, col, row, extra = "") => `<div class="c hl" style="grid-column:${col};grid-row:${row};${extra}">${tr}${ku ? `<span class="ku">${ku}</span>` : ""}</div>`;
-  const hv = (val, col, row, cls = "") => `<div class="c hv ${cls}" style="grid-column:${col};grid-row:${row}">${esc(val)}</div>`;
+  const hv = (val, col, row, cls = "", c = "") => `<div class="c hv ${cls}" style="grid-column:${col};grid-row:${row}"${c ? ` data-c="${c}"` : ""}>${esc(val)}</div>`;
 
   function header(U, G, page2) {
     const hideZero = (v, f) => (v === 0 ? "" : f(v));
@@ -689,23 +689,23 @@ function giyotinCalc(inp) {
     // F-G
     const fg = [["GENİŞLİK", "پانی", fmt0(U.G4)], ["YÜKSEKLİK", "بەرزی", fmt0(U.G5)], ["BÖLME", "بەش", fmtGen(U.G6)],
                 ["MEKANİZMA", "میکانیزم", U.G7], ["TİP", "جۆر", U.G8], ["RAL", "ڕەنگ", U.G9]];
-    fg.forEach(([t, k, v], i) => { h += hl(t, k, "5/6", `${i + 1}/${i + 2}`) + hv(v, "6/7", `${i + 1}/${i + 2}`); });
+    fg.forEach(([t, k, v], i) => { h += hl(t, k, "5/6", `${i + 1}/${i + 2}`) + hv(v, "6/7", `${i + 1}/${i + 2}`, "", `G${i + 4}`); });
     // I-J
-    h += hl("MOTOR", "مەکینە", "8/9", "1/3") + hv(U.J4, "9/10", "1/3");
+    h += hl("MOTOR", "مەکینە", "8/9", "1/3") + hv(U.J4, "9/10", "1/3", "", "J4");
     const ij = [["KUMANDA", "ڕیمۆت", U.J6], ["AYDINLATMA", "ڕووناکی", U.J7], ["SENSÖR", "سێنسەر", U.J8], ["ADET", "ژمارە", fmtGen(U.J9)]];
-    ij.forEach(([t, k, v], i) => { h += hl(t, k, "8/9", `${i + 3}/${i + 4}`) + hv(v, "9/10", `${i + 3}/${i + 4}`); });
+    ij.forEach(([t, k, v], i) => { h += hl(t, k, "8/9", `${i + 3}/${i + 4}`) + hv(v, "9/10", `${i + 3}/${i + 4}`, "", `J${i + 6}`); });
     // L-N : شووشە
-    h += `<div class="c camt" style="grid-column:11/14;grid-row:1/2">${esc(U.L4.trim())}<span class="ku">شووشە</span></div>`;
+    h += `<div class="c camt" style="grid-column:11/14;grid-row:1/2"><span data-c="L4">${esc(U.L4.trim())}</span><span class="ku">شووشە</span></div>`;
     const m5 = page2 && U.M5 === 0 ? "" : fmt0(U.M5), m6 = page2 && U.M6 === 0 ? "" : fmt0(U.M6);
-    h += hl("UZUNLUK", "درێژی", "11/12", "2/3") + hv(m5, "12/13", "2/3") + hv(hideZero(U.N5, fmt0), "13/14", "2/3");
-    h += hl("EN", "پانی", "11/12", "3/4") + hv(m6, "12/13", "3/4") + hv(hideZero(U.N6, fmt0), "13/14", "3/4");
-    h += hl("ADET", "ژمارە", "11/12", "4/5") + hv(fmtGen(U.M7), "12/13", "4/5") + hv(hideZero(U.N7, fmtGen), "13/14", "4/5");
-    h += hl("m²", "", "11/12", "5/6") + hv(fmt2(U.M8), "12/14", "5/6", "ctr");
-    if (!page2) h += hl("TUTAMAKLI BAZA:", "بازەی دەسکدار", "11/12", "6/7") + hv(U.M9, "12/14", "6/7", "ctr");
+    h += hl("UZUNLUK", "درێژی", "11/12", "2/3") + hv(m5, "12/13", "2/3", "", "M5") + hv(hideZero(U.N5, fmt0), "13/14", "2/3", "", "N5");
+    h += hl("EN", "پانی", "11/12", "3/4") + hv(m6, "12/13", "3/4", "", "M6") + hv(hideZero(U.N6, fmt0), "13/14", "3/4", "", "N6");
+    h += hl("ADET", "ژمارە", "11/12", "4/5") + hv(fmtGen(U.M7), "12/13", "4/5", "", "M7") + hv(hideZero(U.N7, fmtGen), "13/14", "4/5", "", "N7");
+    h += hl("m²", "", "11/12", "5/6") + hv(fmt2(U.M8), "12/14", "5/6", "ctr", "M8");
+    if (!page2) h += hl("TUTAMAKLI BAZA:", "بازەی دەسکدار", "11/12", "6/7") + hv(U.M9, "12/14", "6/7", "ctr", "M9");
     // P-T
     h += hl("MÜŞTERİ", "کڕیار", "15/16", "1/4") + `<div class="c must" style="grid-column:16/20;grid-row:1/4">${esc(S.D2 || "")}</div>`;
     h += hl("TARİH", "بەروار", "15/16", "4/5") + hv(stamp(), "16/20", "4/5");
-    h += hl("m²", "", "15/16", "5/6") + hv(`${fmt2(U.Q8)} m²`, "16/20", "5/6");
+    h += hl("m²", "", "15/16", "5/6") + hv(`${fmt2(U.Q8)} m²`, "16/20", "5/6", "", "Q8");
     h += hl("İLGİLİ:", "بەرپرس", "15/16", "6/7") + hv(S.D1 || "", "16/20", "6/7");
     return h + `</div>`;
   }
@@ -728,7 +728,7 @@ function giyotinCalc(inp) {
         const span = only === "tip3" ? "15/18" : `${SPAN[i][0]}/${SPAN[i][1]}`;
         const blank = only === "tip3" && S.B8 !== 3;
         h += `<div class="card${blank ? " blank" : ""}" style="grid-column:${span}">${nameCell(nm)}<div class="cd">${code}</div>` +
-             `<div class="ol">${esc(fmt0(U[ol]))}</div><div class="mq">${esc(fmtGen(U[mq]))}</div>` +
+             `<div class="ol" data-c="${ol}">${esc(fmt0(U[ol]))}</div><div class="mq" data-c="${mq}">${esc(fmtGen(U[mq]))}</div>` +
              (blank ? "" : `<img src="${IMG}p${img}.webp" alt="">`) + `</div>`;
       });
       h += `</div>`;
@@ -748,7 +748,7 @@ function giyotinCalc(inp) {
         const v = U[mq];
         const txt = f === "mt" ? `${fmt2(v)} MT` : f === "0" ? fmt0(v) : fmtGen(v);
         h += `<div class="card" style="grid-column:${SPAN[i][0]}/${SPAN[i][1]}">${nameCell(nm)}<div class="cd">${esc(code)}</div>` +
-             `<div class="mq"><span>${esc(txt)}</span>${unit ? `<em>${unit}</em>` : ""}</div>` +
+             `<div class="mq"><span data-c="${mq}">${esc(txt)}</span>${unit ? `<em>${unit}</em>` : ""}</div>` +
              `<img src="${IMG}p${img}.webp" alt=""></div>`;
       });
       h += `</div>`;
