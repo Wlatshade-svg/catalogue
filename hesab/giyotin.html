@@ -866,10 +866,6 @@ function giyotinCalc(inp) {
     setTimeout(() => { document.title = prev; }, 1000);
   };
   let pdfBusy = false;
-  // مۆبایل و تابلێت: پرینتی وێبگەڕ لای خۆیەوە پەڕە ستوونی دەکات، بۆیە PDF ەکە دەکەینەوە
-  // (پەڕەکانی ئاسۆیین) و لەوێوە پرینت دەکرێت.
-  const isTouch = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
-    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   async function withPdf(btn, fn) {
     if (pdfBusy) return;
     pdfBusy = true;
@@ -885,33 +881,8 @@ function giyotinCalc(inp) {
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
-  // دوگمەی پرینت: هەمیشە ئاسۆیی، چونکە پەڕەکانی PDF ەکە خۆیان ئاسۆیین
-  $("printBtn").addEventListener("click", () => {
-    const win = isTouch ? window.open("", "_blank") : null; // دەبێت لەناو کلیکەکەدا بکرێتەوە
-    withPdf($("printBtn"), async (blob) => {
-      const url = URL.createObjectURL(blob);
-      if (isTouch) {
-        if (win) win.location.href = url; else saveBlob(blob);
-        return;
-      }
-      const fr = document.createElement("iframe");
-      fr.setAttribute("aria-hidden", "true");
-      fr.style.cssText = "position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0";
-      fr.src = url;
-      fr.onload = () => {
-        setTimeout(() => {
-          try { fr.contentWindow.focus(); fr.contentWindow.print(); }
-          catch (e) { window.open(url, "_blank"); }
-        }, 300);
-      };
-      document.body.appendChild(fr);
-      setTimeout(() => { fr.remove(); URL.revokeObjectURL(url); }, 120000);
-    }).catch((err) => {
-      console.error("PDF:", err);
-      if (win) win.close();
-      doPrint();
-    });
-  });
+  // دوگمەی پرینت: یەکسەر پەنجەرەی پرینتی وێبگەڕ دەکاتەوە
+  $("printBtn").addEventListener("click", doPrint);
   $("pdfBtn").addEventListener("click", () => {
     withPdf($("pdfBtn"), async (blob) => saveBlob(blob)).catch((err) => { console.error("PDF:", err); doPrint(); });
   });
@@ -1009,7 +980,7 @@ function giyotinCalc(inp) {
     document.querySelectorAll(".site-only").forEach((el) => el.remove());
     $("printNote").textContent = "ئەمە تەنها پێشبینینە. دوگمەی پرینت لەسەر وێبسایتەکە هەیە.";
   } else {
-    $("printNote").textContent = "دوگمەی پرینت خۆی پەڕەکان بە ئاسۆیی (Landscape) و لەسەر کاغەزی A4 ئامادە دەکات.";
+    $("printNote").textContent = "لە پەنجەرەی پرینتدا کاغەزی A4 و ئاسۆیی (Landscape) هەڵبژێرە. ئەگەر PDF ـت دەوێت، «داگرتنی PDF» بەکاربهێنە.";
   }
   syncForm();
   update();
