@@ -25,6 +25,11 @@
     unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F; }
   @font-face { font-family: 'Zain'; font-weight: 800; font-display: swap;
     src: url('fonts/zain-latin-800-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Zain'; font-weight: 900; font-display: swap;
+    src: url('fonts/zain-arabic-900-normal.woff2') format('woff2');
+    unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F; }
+  @font-face { font-family: 'Zain'; font-weight: 900; font-display: swap;
+    src: url('fonts/zain-latin-900-normal.woff2') format('woff2'); }
 
   /* Layout: هەمان ڕووکاری حیسابکەری پەرگۆلا (تاریک و شەرابی)، پەڕەی پرینت وەک ئێکسڵەکە (سپی و شین) */
   :root {
@@ -44,7 +49,8 @@
     --warn: #ffc864;
     /* پەڕەی ئێکسڵ */
     --xl-main: #9A0D37;
-    --xl-line: #3b2a30;
+    --xl-rule: #dccbd2;
+    --xl-muted: #6b5a61;
     --xl-ink: #000000;
     --xl-paper: #ffffff;
     --xl-red: #e00000;
@@ -171,12 +177,12 @@
   .pv-sizer > .page { position: absolute; top: 0; left: 0; transform-origin: top left; box-shadow: 0 6px 24px rgba(0,0,0,0.45); }
   .empty { padding: 34px 16px; text-align: center; color: rgba(255,255,255,0.75); font-size: 14px; }
 
-  /* ═════════ پەڕەی A4 (وەک ئێکسڵەکە) ═════════ */
+  /* ═════════ پەڕەی A4 (هەمان ڕیزبەندی ئێکسڵەکە، بە ڕەنگ و لۆگۆی ووڵات شەید) ═════════ */
   .page {
-    width: 297mm; height: 210mm; padding: 6mm 6mm 5mm;
+    width: 297mm; height: 210mm; padding: 7mm 7mm 4.5mm;
     background: var(--xl-paper); color: var(--xl-ink);
     font-family: var(--xl-font); direction: ltr;
-    display: flex; flex-direction: column; gap: 2.6mm;
+    display: flex; flex-direction: column; gap: 2.4mm;
     overflow: hidden;
   }
   .page .ku { font-family: 'Zain', var(--xl-font); direction: rtl; font-weight: 700; }
@@ -185,56 +191,71 @@
     display: grid;
     grid-template-columns: minmax(0,12.71fr) minmax(0,11.14fr) minmax(0,16.43fr) minmax(0,2.14fr) minmax(0,12.29fr) minmax(0,17.57fr) minmax(0,2.14fr) minmax(0,13.86fr) minmax(0,19.71fr) minmax(0,2.14fr) minmax(0,14.14fr) minmax(0,10fr) minmax(0,13fr) minmax(0,2.14fr) minmax(0,11.14fr) minmax(0,18.71fr) minmax(0,2.14fr) minmax(0,11.14fr) minmax(0,16.14fr) minmax(0,2.71fr);
   }
-  .hd { grid-template-rows: repeat(6, minmax(0, 1fr)); height: 40mm; }
-  .p2 .hd { height: 31mm; }
-  .c { border: 0.2mm solid var(--xl-line); margin: 0 -0.125mm -0.25mm 0; display: flex; align-items: center; padding: 0 1.2mm; min-width: 0; overflow: hidden; white-space: nowrap; }
-  .hl { background: var(--xl-main); color: #fff; font-weight: 700; font-size: 6.4pt; flex-direction: column; align-items: flex-start; justify-content: center; line-height: 1.05; white-space: normal; }
-  .hl .ku { font-size: 6pt; font-weight: 700; opacity: .92; }
-  .hv { font-size: 10pt; font-weight: 700; font-variant-numeric: tabular-nums; white-space: normal; line-height: 1.05; }
+  .hd { grid-template-rows: repeat(6, minmax(0, 1fr)); height: 38mm; flex: 0 0 auto; }
+  .p2 .hd { height: 30mm; }
+  .c { border: 0.2mm solid var(--xl-rule); margin: 0 -0.1mm -0.2mm 0; display: flex; align-items: center; padding: 0 1.3mm; min-width: 0; overflow: hidden; white-space: nowrap; }
+  .hl { background: var(--xl-main); border-color: var(--xl-main); color: #fff; font-weight: 700; font-size: 6.3pt; flex-direction: column; align-items: flex-start; justify-content: center; line-height: 1.05; white-space: normal; letter-spacing: .15px; }
+  .hl .ku { font-size: 6pt; font-weight: 400; opacity: .85; }
+  .hv { font-size: 10pt; font-weight: 700; font-variant-numeric: tabular-nums; white-space: normal; line-height: 1.05; color: #20151a; }
   .hv.ctr { justify-content: center; }
-  .camt { background: var(--xl-main); color: #fff; font-weight: 700; font-size: 8pt; justify-content: center; gap: 1.5mm; }
-  .camt .ku { font-size: 7pt; }
-  .must { justify-content: center; font-size: 14pt; font-weight: 700; white-space: normal; text-align: center; line-height: 1.1; }
-  .brand { grid-column: 1 / 4; grid-row: 1 / 6; display: flex; align-items: center; justify-content: center; gap: 2.5mm; padding: 1mm; min-height: 0; }
-  .brand img { height: 100%; max-height: 24mm; width: auto; max-width: 48%; object-fit: contain; }
-  .brand .bt { display: flex; flex-direction: column; gap: 0.6mm; color: var(--xl-main); min-width: 0; }
-  .brand .bt .ku { font-size: 10pt; font-weight: 800; line-height: 1.1; white-space: nowrap; }
-  .brand .bt small { font-size: 6pt; letter-spacing: 0.4mm; color: #555; font-weight: 700; }
-  .redt { grid-column: 1 / 4; grid-row: 6 / 7; color: var(--xl-red); font-weight: 700; font-size: 8.5pt; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.05; }
+  .camt { background: var(--xl-main); border-color: var(--xl-main); color: #fff; font-weight: 700; font-size: 8pt; justify-content: center; gap: 1.5mm; }
+  .camt .ku { font-size: 7.5pt; font-weight: 400; opacity: .85; }
+  .must { justify-content: center; font-size: 14pt; font-weight: 700; white-space: normal; text-align: center; line-height: 1.1; color: var(--xl-main); }
 
-  .cards { flex: 1; display: grid; gap: 2.4mm 0; min-height: 0; }
-  .p1 .cards { grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 3mm 0; flex: 0 0 auto; height: 120mm; }
+  /* لۆگۆ وەک سەرپەڕەی بەڵگەنامەکانی ووڵات شەید */
+  .brand {
+    grid-column: 1 / 4; grid-row: 1 / 6; margin-right: 2mm;
+    background: var(--xl-main); color: #fff; border-radius: 2.6mm;
+    display: flex; flex-direction: row-reverse; align-items: center; justify-content: center; gap: 2.6mm;
+    padding: 1.5mm 2.5mm; min-height: 0; overflow: hidden;
+  }
+  .brand img { width: 14mm; height: auto; flex: 0 0 auto; }
+  .brand .bw { display: flex; flex-direction: column; align-items: flex-end; gap: 0.4mm; min-width: 0; }
+  .brand .bw .ku { font-family: 'Zain', var(--xl-font); font-weight: 900; font-size: 15pt; line-height: 1; white-space: nowrap; }
+  .brand .bw small { font-family: 'Zain', var(--xl-font); font-weight: 700; font-size: 5pt; letter-spacing: 1mm; opacity: .82; white-space: nowrap; margin-right: -1mm; }
+  .doc { grid-column: 1 / 4; grid-row: 6 / 7; margin-right: 2mm; display: flex; align-items: center; justify-content: space-between; gap: 2mm; padding: 0 1mm; min-width: 0; }
+  .doc .ku { color: var(--xl-main); font-weight: 800; font-size: 9pt; white-space: nowrap; }
+  .doc span:not(.ku) { font-size: 6pt; font-weight: 700; letter-spacing: .35mm; color: var(--xl-muted); white-space: nowrap; }
+  .redt { color: var(--xl-red); font-weight: 700; font-size: 7pt; letter-spacing: 0 !important; white-space: normal !important; text-align: left; line-height: 1.05; }
+
+  .cards { flex: 1; display: grid; min-height: 0; }
+  .p1 .cards { grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 2.8mm 0; flex: 0 0 auto; height: 118mm; }
   .p2 .cards { grid-template-rows: repeat(8, minmax(0, 1fr)); gap: 1.3mm 0; }
   .row { display: grid; grid-template-rows: minmax(0, 1fr); min-height: 0; }
-  .lab { grid-column: 1 / 2; display: grid; background: var(--xl-main); color: #fff; border: 0.2mm solid var(--xl-line); border-right: 0; }
-  .lab div { display: flex; flex-direction: column; justify-content: center; padding: 0 1.2mm; font-size: 6.4pt; font-weight: 700; line-height: 1.05; letter-spacing: .2px; }
-  .lab .ku { font-size: 6pt; }
-  .card { position: relative; display: grid; border: 0.2mm solid var(--xl-line); min-width: 0; overflow: hidden; }
+  .lab { grid-column: 1 / 2; display: grid; background: var(--xl-main); color: #fff; border-radius: 1.6mm 0 0 1.6mm; }
+  .lab div { display: flex; flex-direction: column; justify-content: center; padding: 0 1.4mm; font-size: 6.2pt; font-weight: 700; line-height: 1.05; letter-spacing: .3px; }
+  .card { position: relative; display: grid; border: 0.25mm solid var(--xl-rule); border-radius: 1.6mm; min-width: 0; overflow: hidden; background: #fff; }
+  .row > .lab + .card { border-radius: 0 1.6mm 1.6mm 0; border-left: 0; }
   .p1 .card, .p1 .lab { grid-template-rows: 37fr 14fr 31fr 18fr; }
   .p2 .card, .p2 .lab { grid-template-rows: 36fr 13fr 22fr; }
-  .card > div { position: relative; padding: 0 1.1mm; display: flex; flex-direction: column; justify-content: center; min-width: 0; line-height: 1.05; }
-  .card .nm { font-weight: 700; font-size: 7.4pt; justify-content: flex-start; padding-top: 0.5mm; }
-  .p2 .card .nm { font-size: 6.8pt; }
-  .card .nm .ku { font-size: 6.1pt; font-weight: 400; color: #6b5a61; margin-top: 0.3mm; text-align: left; direction: rtl; align-self: flex-start; }
-  .card .cd { font-weight: 700; font-size: 7.4pt; }
-  .card .ol { font-weight: 700; font-size: 12pt; color: var(--xl-main); background: var(--xl-soft); font-variant-numeric: tabular-nums; }
-  .card .mq { font-weight: 700; font-size: 11pt; color: var(--xl-main); font-variant-numeric: tabular-nums; }
-  .p2 .card .mq { font-size: 8.5pt; flex-direction: row; align-items: center; justify-content: space-between; padding-right: 45%; }
-  .p2 .card .mq em { font-style: normal; font-size: 7pt; }
-  .card > div > * { position: relative; z-index: 2; }
-  .card img { position: absolute; z-index: 1; right: 1mm; top: 32%; bottom: 0.8mm; width: 52%; height: auto; max-height: 66%; object-fit: contain; object-position: right center; }
-  .p2 .card img { top: 46%; max-height: 52%; width: 44%; }
+  .card > div { position: relative; padding: 0 1.3mm; display: flex; flex-direction: column; justify-content: center; min-width: 0; line-height: 1.05; }
+  .card .nm { font-weight: 700; font-size: 7.3pt; justify-content: flex-start; padding-top: 0.7mm; color: #20151a; }
+  .p2 .card .nm { font-size: 6.7pt; }
+  .card .nm .ku { font-size: 6.1pt; font-weight: 400; color: var(--xl-muted); margin-top: 0.3mm; text-align: left; direction: rtl; align-self: flex-start; }
   .p2 .card .nm .ku { font-size: 5.8pt; }
+  .card .cd { font-weight: 700; font-size: 7pt; color: var(--xl-muted); }
+  .card .ol { font-weight: 700; font-size: 12.5pt; color: var(--xl-main); background: var(--xl-soft); font-variant-numeric: tabular-nums; }
+  .card .mq { font-weight: 700; font-size: 11pt; color: var(--xl-main); font-variant-numeric: tabular-nums; }
+  .p2 .card .mq { font-size: 8.8pt; flex-direction: row; align-items: center; justify-content: space-between; padding-right: 45%; }
+  .p2 .card .mq em { font-style: normal; font-size: 6.6pt; color: var(--xl-muted); }
+  .card > div > * { position: relative; z-index: 2; }
+  .card img { position: absolute; z-index: 1; right: 1.2mm; top: 32%; bottom: 0.9mm; width: 52%; height: auto; max-height: 64%; object-fit: contain; object-position: right center; }
+  .p2 .card img { top: 46%; max-height: 50%; width: 44%; }
+  .card.blank { border-style: dashed; }
   .card.blank > * { visibility: hidden; }
-  .z0 { visibility: hidden; }
 
-  .notebox { border: 0.2mm solid var(--xl-line); display: flex; flex-direction: column; padding: 1.5mm 2.5mm; min-height: 0; }
+  .notebox { border: 0.25mm solid var(--xl-rule); border-radius: 1.6mm; display: flex; flex-direction: column; padding: 1.6mm 3mm; min-height: 0; }
   .p1 .notebox { flex: 1; }
-  .p2 .notebox { height: 10mm; flex: 0 0 auto; }
-  .notebox .t { font-weight: 700; font-size: 11pt; color: var(--xl-main); display: flex; gap: 2mm; align-items: baseline; }
+  .p2 .notebox { height: 9mm; flex: 0 0 auto; justify-content: center; }
+  .notebox .t { font-weight: 700; font-size: 10pt; color: var(--xl-main); display: flex; gap: 2mm; align-items: baseline; }
   .notebox .t .ku { font-size: 10pt; }
-  .notebox .tx { font-size: 10pt; white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 0.8mm; line-height: 1.25; }
-  .p2 .notebox .t { font-size: 9pt; justify-content: center; }
+  .notebox .tx { font-size: 10pt; color: #20151a; white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 0.8mm; line-height: 1.25; font-family: 'Zain', var(--xl-font); }
+  .p2 .notebox .t { font-size: 9pt; }
+  .p2 .notebox .t .tx { margin: 0; font-weight: 400; }
+
+  /* ژێرپەڕە وەک بەڵگەنامەکانی ووڵات شەید */
+  .pfoot { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 4mm; border-top: 0.2mm solid var(--xl-rule); padding-top: 1.2mm; font-size: 6.6pt; color: var(--xl-muted); font-variant-numeric: tabular-nums; }
+  .pfoot .ku { color: var(--xl-main); font-size: 8pt; font-weight: 800; }
 
   @media (max-width: 520px) {
     .gc { padding: 14px; border-radius: 16px; }
@@ -243,14 +264,17 @@
   }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
-  /* ═════════ پرینت ═════════ */
+  /* ═════════ پرینت ═════════
+     دوگمەی «پرینت» PDF ـی ئاسۆیی دروست دەکات. ئەمەی خوارەوە تەنها بۆ کاتێکە
+     کە کەسێک ڕاستەوخۆ لە وێبگەڕەکەوە پرینت دەکات: پەڕەکە بچووک دەکرێتەوە
+     تا لەگەڵ لێواری پرینتەری ئایفۆنیش (نزیکەی ٢٠mm) لە یەک پەڕەدا جێی ببێتەوە. */
   #print-root { display: none; }
   @media print {
     @page { size: A4 landscape; margin: 0; }
     html, body { background: #fff !important; }
     .bg, .app { display: none !important; }
     #print-root { display: block !important; }
-    #print-root .page { zoom: 0.86; margin: 0 auto; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
+    #print-root .page { zoom: 0.78; margin: 8mm auto 0; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
     #print-root .page:last-child { break-after: auto; page-break-after: auto; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   }
@@ -683,8 +707,8 @@ function giyotinCalc(inp) {
   function header(U, G, page2) {
     const hideZero = (v, f) => (v === 0 ? "" : f(v));
     let h = `<div class="cols hd">`;
-    h += `<div class="brand"><img src="${IMG}logo.webp" alt="WLAT SHADE"><div class="bt"><span class="ku">بڕینی گیۆتین جام</span><small>GİYOTİN CAM</small></div></div>`;
-    if (U.B9) h += `<div class="redt">${esc(U.B9)}</div>`;
+    h += `<div class="brand"><img src="${IMG}mark-white.webp" alt=""><div class="bw"><span class="ku">ووڵات شەید</span><small>WLAT SHADE</small></div></div>`;
+    h += `<div class="doc"><span class="ku">بڕینی گیۆتین جام</span>${U.B9 ? `<span class="redt">${esc(U.B9)}</span>` : `<span>GİYOTİN CAM</span>`}</div>`;
     // F-G
     const fg = [["GENİŞLİK", "پانی", fmt0(U.G4)], ["YÜKSEKLİK", "بەرزی", fmt0(U.G5)], ["BÖLME", "بەش", fmtGen(U.G6)],
                 ["MEKANİZMA", "میکانیزم", U.G7], ["TİP", "جۆر", U.G8], ["RAL", "ڕەنگ", U.G9]];
@@ -700,7 +724,7 @@ function giyotinCalc(inp) {
     h += hl("EN", "پانی", "11/12", "3/4") + hv(m6, "12/13", "3/4", "", "M6") + hv(hideZero(U.N6, fmt0), "13/14", "3/4", "", "N6");
     h += hl("ADET", "ژمارە", "11/12", "4/5") + hv(fmtGen(U.M7), "12/13", "4/5", "", "M7") + hv(hideZero(U.N7, fmtGen), "13/14", "4/5", "", "N7");
     h += hl("m²", "", "11/12", "5/6") + hv(fmt2(U.M8), "12/14", "5/6", "ctr", "M8");
-    if (!page2) h += hl("TUTAMAKLI BAZA:", "بازەی دەسکدار", "11/12", "6/7") + hv(U.M9, "12/14", "6/7", "ctr", "M9");
+    if (!page2) h += hl("TUTAMAKLI", "بازەی دەسکدار", "11/12", "6/7") + hv(U.M9, "12/14", "6/7", "ctr", "M9");
     // P-T
     h += hl("MÜŞTERİ", "کڕیار", "15/16", "1/4") + `<div class="c must" style="grid-column:16/20;grid-row:1/4">${esc(S.D2 || "")}</div>`;
     h += hl("TARİH", "بەروار", "15/16", "4/5") + hv(stamp(), "16/20", "4/5");
@@ -709,6 +733,8 @@ function giyotinCalc(inp) {
     return h + `</div>`;
   }
 
+  const foot = (n) => `<div class="pfoot"><span>0770 220 3536 · 0770 155 9272</span>` +
+    `<span>GİYOTİN ÜRETİM KAĞIDI · ${n} / 2</span><span class="ku">ووڵات شەید — سلێمانی</span></div>`;
   function labCol(rows) {
     return `<div class="lab">${rows.map(([t]) => `<div>${t}</div>`).join("")}</div>`;
   }
@@ -732,7 +758,7 @@ function giyotinCalc(inp) {
       });
       h += `</div>`;
     });
-    h += `</div><div class="notebox"><div class="t">NOT:<span class="ku">تێبینی</span></div><div class="tx">${esc(S.D14 || "")}</div></div></div>`;
+    h += `</div><div class="notebox"><div class="t">NOT:<span class="ku">تێبینی</span></div><div class="tx">${esc(S.D14 || "")}</div></div>${foot(1)}</div>`;
     return h;
   }
 
@@ -752,7 +778,7 @@ function giyotinCalc(inp) {
       });
       h += `</div>`;
     });
-    h += `</div><div class="notebox"><div class="t">NOT: <span class="tx" style="margin:0;font-weight:400">${esc(S.D14 || "")}</span></div></div></div>`;
+    h += `</div><div class="notebox"><div class="t">NOT: <span class="tx">${esc(S.D14 || "")}</span></div></div>${foot(2)}</div>`;
     return h;
   }
 
@@ -840,26 +866,54 @@ function giyotinCalc(inp) {
     setTimeout(() => { document.title = prev; }, 1000);
   };
   let pdfBusy = false;
-  $("printBtn").addEventListener("click", doPrint);
-  $("pdfBtn").addEventListener("click", async () => {
+  // مۆبایل و تابلێت: پرینتی وێبگەڕ لای خۆیەوە پەڕە ستوونی دەکات، بۆیە PDF ەکە دەکەینەوە
+  // (پەڕەکانی ئاسۆیین) و لەوێوە پرینت دەکرێت.
+  const isTouch = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  async function withPdf(btn, fn) {
     if (pdfBusy) return;
     pdfBusy = true;
-    const btn = $("pdfBtn"), label = btn.textContent;
+    const label = btn.textContent;
     btn.disabled = true; btn.textContent = "چاوەڕێ بکە…";
-    try {
-      update();
-      const blob = await buildPdf();
+    try { update(); await fn(await buildPdf()); }
+    finally { pdfBusy = false; btn.disabled = false; btn.textContent = label; }
+  }
+  function saveBlob(blob) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = pdfName() + ".pdf"; a.rel = "noopener";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+  // دوگمەی پرینت: هەمیشە ئاسۆیی، چونکە پەڕەکانی PDF ەکە خۆیان ئاسۆیین
+  $("printBtn").addEventListener("click", () => {
+    const win = isTouch ? window.open("", "_blank") : null; // دەبێت لەناو کلیکەکەدا بکرێتەوە
+    withPdf($("printBtn"), async (blob) => {
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = pdfName() + ".pdf"; a.rel = "noopener";
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
-    } catch (err) {
+      if (isTouch) {
+        if (win) win.location.href = url; else saveBlob(blob);
+        return;
+      }
+      const fr = document.createElement("iframe");
+      fr.setAttribute("aria-hidden", "true");
+      fr.style.cssText = "position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0";
+      fr.src = url;
+      fr.onload = () => {
+        setTimeout(() => {
+          try { fr.contentWindow.focus(); fr.contentWindow.print(); }
+          catch (e) { window.open(url, "_blank"); }
+        }, 300);
+      };
+      document.body.appendChild(fr);
+      setTimeout(() => { fr.remove(); URL.revokeObjectURL(url); }, 120000);
+    }).catch((err) => {
       console.error("PDF:", err);
+      if (win) win.close();
       doPrint();
-    } finally {
-      pdfBusy = false; btn.disabled = false; btn.textContent = label;
-    }
+    });
+  });
+  $("pdfBtn").addEventListener("click", () => {
+    withPdf($("pdfBtn"), async (blob) => saveBlob(blob)).catch((err) => { console.error("PDF:", err); doPrint(); });
   });
 
   // ── PDF بەبێ کتێبخانە (هەمان ڕێگای حیسابکەری پەرگۆلا): هەر پەڕەیەک دەبێتە
@@ -874,7 +928,9 @@ function giyotinCalc(inp) {
   async function inlineFonts() {
     if (fontCss !== null) return fontCss;
     const files = [["fonts/zain-arabic-700-normal.woff2", 700, 1], ["fonts/zain-latin-700-normal.woff2", 700, 0],
-                   ["fonts/zain-arabic-400-normal.woff2", 400, 1], ["fonts/zain-latin-400-normal.woff2", 400, 0]];
+                   ["fonts/zain-arabic-400-normal.woff2", 400, 1], ["fonts/zain-latin-400-normal.woff2", 400, 0],
+                   ["fonts/zain-arabic-800-normal.woff2", 800, 1], ["fonts/zain-arabic-900-normal.woff2", 900, 1],
+                   ["fonts/zain-latin-900-normal.woff2", 900, 0]];
     const parts = await Promise.all(files.map(async ([u, w, ar]) => {
       const buf = await (await fetch(u)).arrayBuffer();
       return `@font-face{font-family:'Zain';font-weight:${w};src:url(data:font/woff2;base64,${b64(buf)}) format('woff2');${ar ? `unicode-range:${ARABIC};` : ""}}`;
@@ -940,6 +996,10 @@ function giyotinCalc(inp) {
     const css = [...document.querySelectorAll("style")].map((el) => el.textContent).join("\n").replace(/@font-face\s*\{[^}]*\}/g, "");
     let fonts = "";
     try { fonts = await inlineFonts(); } catch (e) { fonts = ""; }
+    // یەکەم وێنەکێشان تەنها بۆ بارکردنی فۆنتەکانە: هەندێک وێبگەڕ لە یەکەم جاردا
+    // فۆنتی ناو SVG بەکارناهێنن و نووسینی کوردی ون دەبێت.
+    await pageJpeg(pages[0], css + fonts, 0.2);
+    await new Promise((r) => setTimeout(r, 120));
     const shots = [];
     for (const pg of pages) shots.push(await pageJpeg(pg, css + fonts, 2.5));
     return jpegsToPdf(shots);
@@ -949,7 +1009,7 @@ function giyotinCalc(inp) {
     document.querySelectorAll(".site-only").forEach((el) => el.remove());
     $("printNote").textContent = "ئەمە تەنها پێشبینینە. دوگمەی پرینت لەسەر وێبسایتەکە هەیە.";
   } else {
-    $("printNote").textContent = "بۆ پرینت: کاغەزی A4 و ئاسۆیی (Landscape) هەڵبژێرە.";
+    $("printNote").textContent = "دوگمەی پرینت خۆی پەڕەکان بە ئاسۆیی (Landscape) و لەسەر کاغەزی A4 ئامادە دەکات.";
   }
   syncForm();
   update();
