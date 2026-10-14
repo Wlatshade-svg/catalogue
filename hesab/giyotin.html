@@ -274,8 +274,12 @@
     html, body { background: #fff !important; }
     .bg, .app { display: none !important; }
     #print-root { display: block !important; }
-    #print-root .page { zoom: 0.78; margin: 8mm auto 0; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
-    #print-root .page:last-child { break-after: auto; page-break-after: auto; }
+    /* zoom لە سەفاریدا قەبارە گەورەکە دەهێڵێتەوە بۆ ژماردنی پەڕەکان و پەڕەی بەتاڵ
+       دروست دەکات؛ بۆیە هەر پەڕەیەک دەخەینە ناو چوارچێوەیەکی قەبارە-دیاریکراو و
+       لەناویدا بە transform بچووکی دەکەینەوە (297×210mm × 0.78). */
+    #print-root .pp { direction: ltr; position: relative; width: 231.6mm; height: 163.8mm; overflow: hidden; margin: 3mm auto 0; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
+    #print-root .pp:last-child { break-after: auto; page-break-after: auto; }
+    #print-root .pp > .page { position: absolute; top: 0; left: 0; transform: scale(0.78); transform-origin: top left; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   }
 </style>
@@ -843,7 +847,7 @@ function giyotinCalc(inp) {
     if (ready) {
       const p1 = page1(U, G), p2 = page2(U, G);
       $("pv").innerHTML = `<div class="pv-slot"><div class="pv-sizer">${p1}</div></div><div class="pv-slot"><div class="pv-sizer">${p2}</div></div>`;
-      $("print-root").innerHTML = p1 + p2;
+      $("print-root").innerHTML = `<div class="pp">${p1}</div><div class="pp">${p2}</div>`;
       fit();
     } else {
       $("pv").innerHTML = `<div class="empty">پانی و بەرزی بنووسە، ئینجا هەردوو پەڕەکە لێرە دەردەکەون.</div>`;
