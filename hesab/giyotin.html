@@ -269,7 +269,7 @@
     <div class="grid">
       <div class="f"><label class="lbl" for="D2">ناوی کڕیار <span class="tr">MÜŞTERİ ADI</span></label><input type="text" id="D2" /></div>
       <div class="f"><label class="lbl" for="D1">بەرپرس <span class="tr">İLGİLİ PERSONEL</span></label><input type="text" id="D1" /></div>
-      <div class="f"><label class="lbl" for="D7">ڕەنگ <span class="tr">RAL</span></label><input type="text" id="D7" placeholder="9016 MAT" dir="ltr" /></div>
+      <div class="f"><label class="lbl" for="D7">ڕەنگ <span class="tr">RAL</span></label><input type="text" id="D7" dir="ltr" /></div>
       <div class="f"><label class="lbl" for="D4">ژمارەی سیستەم <span class="tr">SİSTEM ADEDİ</span></label><input type="number" id="D4" min="1" step="1" inputmode="numeric" /></div>
     </div>
 
@@ -641,11 +641,8 @@ function giyotinCalc(inp) {
     B4: [["تیشکی خۆر", "GÜNIŞIĞI"], ["سپی", "BEYAZ"], ["نییە", "YOK"]],
     B5: [["نییە", "YOK"], ["هەیە", "VAR"]],
   };
-  const DEF = { B1: 1, B2: 1, B3: 1, B4: 3, B5: 1, B6: 2, B7: 2, B8: 1, B9: 1, D1: "", D2: "", D4: 1, D5: 2650, D6: 3300, D7: "", D9: "", D14: "" };
-  const KEY = "giyotin-v1";
+  const DEF = { B1: 1, B2: 1, B3: 1, B4: 3, B5: 1, B6: 2, B7: 2, B8: 1, B9: 1, D1: "", D2: "", D4: 1, D5: "", D6: "", D7: "", D9: "", D14: "" };
   let S = { ...DEF };
-  try { const saved = JSON.parse(localStorage.getItem(KEY) || "null"); if (saved && typeof saved === "object") S = { ...DEF, ...saved }; } catch (e) {}
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
 
   function buildSeg(id) {
     const box = $(id);
@@ -781,7 +778,6 @@ function giyotinCalc(inp) {
   $("pv").addEventListener("click", (e) => { if (e.target.closest(".pv-sizer")) setZoom(!zoom); });
 
   function update() {
-    save();
     $("altWrap").hidden = S.B8 < 3;
     const n = (v) => (v === "" || v == null || isNaN(+v) ? 0 : +v);
     const inp = { ...S, D7: S.D7 || "" };
@@ -828,7 +824,7 @@ function giyotinCalc(inp) {
     ["printBtn", "pdfBtn"].forEach((id) => { const b = $(id); if (b && !pdfBusy) b.disabled = !ready; });
   }
 
-  $("reset").addEventListener("click", () => { S = { ...DEF, D5: "", D6: "" }; syncForm(); update(); $("D2").focus(); });
+  $("reset").addEventListener("click", () => { S = { ...DEF }; syncForm(); update(); $("D2").focus(); });
   const pdfName = () => {
     const clean = (v) => String(v || "").trim().replace(/[\\/:*?"<>|]+/g, "-");
     const d = new Date(), p = (n) => String(n).padStart(2, "0");
