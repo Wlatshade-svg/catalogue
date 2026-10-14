@@ -149,6 +149,13 @@
   .gdl dd { margin: 4px 0 0; direction: ltr; text-align: right; font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
   .gdl div.q dd { color: var(--accent-hi); }
 
+  /* وێنەی سیستەم (هەمان شێوازی بەڵگەنامەی ٥ سیستەمەکە) */
+  .draw { background: #fbf8f9; border-radius: 16px; padding: 10px 8px 6px; box-shadow: inset 0 0 0 1px rgba(154,13,55,0.12); }
+  .draw svg { display: block; width: 100%; height: auto; max-height: 640px; margin: 0 auto; }
+  .draw-cap { display: flex; flex-wrap: wrap; gap: 6px 8px; justify-content: flex-start; }
+  .draw-cap span { font-size: 12px; color: var(--muted); border: 1px solid var(--panel-line); border-radius: 999px; padding: 3px 10px; background: rgba(0,0,0,0.2); }
+  .draw-cap span { display: inline-flex; gap: 7px; align-items: baseline; }
+  .draw-cap span b { color: var(--text); font-weight: 700; font-family: var(--xl-font); font-size: 11px; direction: ltr; unicode-bidi: isolate; }
   .warn { border: 1px solid var(--warn-line); background: var(--warn-bg); color: var(--warn); border-radius: 12px; padding: 10px 13px; font-size: 14px; }
   .warn b { font-family: var(--xl-font); font-size: 11px; letter-spacing: .6px; direction: ltr; display: inline-block; }
 
@@ -332,6 +339,12 @@
     <h2 id="camh">قیاسی جام <span class="tr">CAM ÖLÇÜLERİ</span></h2>
     <div id="warns" style="display:flex;flex-direction:column;gap:8px"></div>
     <div class="glass" id="glass"></div>
+  </section>
+
+  <section class="gc" aria-labelledby="drawh" id="drawSec" hidden>
+    <h2 id="drawh">وێنەی سیستەم <span class="tr">SİSTEM ÇİZİMİ</span></h2>
+    <div class="draw" id="draw"></div>
+    <div class="draw-cap" id="drawCap"></div>
   </section>
 
   <div class="bar">
@@ -787,6 +800,112 @@ function giyotinCalc(inp) {
     return h;
   }
 
+
+  // ── وێنەی سیستەم: بە ڕێژەی ڕاستەقینەی پانی و بەرزی، لەگەڵ قیاسی جامی هەر پانێڵێک ──
+  function glassLook(i) {
+    const clear = { a: "#d7e7f2", b: "#f5fafd" }, smoke = { a: "#a9b0b8", b: "#dfe3e7" },
+          smoke2 = { a: "#8d959e", b: "#c9ced4" }, green = { a: "#bfdccb", b: "#eaf5ee" },
+          green2 = { a: "#9fc9b0", b: "#dbeee2" }, sin = { a: "#cfe3ea", b: "#eef7f8" };
+    const m = { 1: clear, 2: { ...clear, grid: 1 }, 3: smoke, 4: smoke2, 5: sin, 6: clear, 7: smoke, 8: smoke2,
+                9: green, 10: green2, 11: { none: 1 }, 12: green, 13: clear, 14: smoke, 15: { none: 1 }, 16: clear, 17: smoke };
+    return m[i] || clear;
+  }
+  function drawSystem(U, G) {
+    const W = U.G4, H = U.G5, N = U.G6, tip = S.B8;
+    // قەبارەی وێنەکە شێوەی سیستەمەکە وەردەگرێت، بۆیە لە مۆبایلیش بەتاڵی زیادی نییە
+    const L = 128, Rm = 92, T = 24, B = 92;
+    const s = Math.min(720 / W, 440 / H);
+    const fw = W * s, fh = H * s, x0 = L, y0 = T;
+    const VW = Math.max(L + fw + Rm, 420), VH = T + fh + B;
+    // لە شاشەی بچووکدا نووسینەکان گەورەتر دەکرێن تا بخوێنرێنەوە
+    const cw = $("draw").clientWidth || 700;
+    const fk = Math.min(1.7, Math.max(1, (VW / cw) * 0.9));
+    const F = (n) => (n * fk).toFixed(1);
+    const hb = Math.max(26, fh * 0.075), rb = Math.max(12, fh * 0.035), pw = Math.max(10, fw * 0.02), gap = 7;
+    // بەرزی جامەکان (هەمان حیسابی ئێکسڵ): هەموو پانێڵەکان EN، بۆ قیاسی جیاواز خوارەوەیان H10
+    const hs = [];
+    for (let k = 0; k < N; k++) hs.push(tip >= 3 && k === N - 1 ? G.H10 : G.H9);
+    const sum = hs.reduce((a, b) => a + Math.max(b, 1), 0);
+    const inner = fh - hb - rb - gap * (N + 1);
+    const look = glassLook(S.B9);
+    const red = "#9A0D37", frame = "#8a939c", frameD = "#5c656e", ink = "#2a1d22", mute = "#7a6970";
+    const fx = (v) => fmt0(v);
+    let svg = `<svg viewBox="0 0 ${VW} ${VH}" xmlns="http://www.w3.org/2000/svg" direction="ltr" role="img" aria-label="وێنەی سیستەمی گیۆتین ${fx(W)} × ${fx(H)} mm">`;
+    svg += `<defs><linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${look.b || "#fff"}"/><stop offset=".55" stop-color="${look.a || "#fff"}"/><stop offset="1" stop-color="${look.b || "#fff"}"/></linearGradient>` +
+           `<marker id="ar" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1 L10 5 L0 9 z" fill="${red}"/></marker>` +
+           `<filter id="glow" x="-10%" y="-200%" width="120%" height="500%"><feGaussianBlur stdDeviation="3"/></filter></defs>`;
+    // چوارچێوە
+    svg += `<rect x="${x0}" y="${y0}" width="${fw}" height="${fh}" rx="3" fill="${frame}" stroke="${frameD}" stroke-width="2"/>`;
+    // سندوقی ماتۆڕ
+    svg += `<rect x="${x0}" y="${y0}" width="${fw}" height="${hb}" rx="3" fill="${frameD}"/>`;
+    svg += `<text x="${x0 + fw / 2}" y="${y0 + hb / 2 + 5}" text-anchor="middle" font-family="Zain, Arial, sans-serif" font-size="${F(15)}" font-weight="700" fill="#fff" direction="rtl">سندوقی ماتۆڕ · <tspan font-family="Arial, sans-serif" font-size="${F(11)}" letter-spacing="1">MOTOR KUTUSU</tspan></text>`;
+    // ڕووناکی LED
+    if (U.J7 !== "YOK") {
+      const c = U.J7 === "BEYAZ" ? "#ffffff" : "#ffcf6b";
+      svg += `<line x1="${x0 + pw + 6}" y1="${y0 + hb + 2}" x2="${x0 + fw - pw - 6}" y2="${y0 + hb + 2}" stroke="${c}" stroke-width="6" filter="url(#glow)" opacity=".95"/>` +
+             `<line x1="${x0 + pw + 6}" y1="${y0 + hb + 2}" x2="${x0 + fw - pw - 6}" y2="${y0 + hb + 2}" stroke="${c}" stroke-width="2"/>`;
+    }
+    // پانێڵەکان
+    let y = y0 + hb + gap;
+    const gx = x0 + pw, gw = fw - 2 * pw;
+    hs.forEach((h, k) => {
+      const ph = Math.max(12, inner * Math.max(h, 1) / sum);
+      svg += `<rect x="${gx}" y="${y}" width="${gw}" height="${ph}" fill="${frameD}" opacity=".35"/>`;
+      if (look.none) {
+        svg += `<rect x="${gx + 4}" y="${y + 4}" width="${gw - 8}" height="${Math.max(0, ph - 8)}" fill="#ffffff" stroke="${mute}" stroke-dasharray="6 5"/>`;
+      } else {
+        svg += `<rect x="${gx + 4}" y="${y + 4}" width="${gw - 8}" height="${Math.max(0, ph - 8)}" fill="url(#gl)" stroke="#6f7a84" stroke-width="1.2"/>`;
+        // بریسکەی جام
+        svg += `<path d="M${gx + gw * 0.12} ${y + ph - 10} L${gx + gw * 0.22} ${y + 10}" stroke="#fff" stroke-opacity=".55" stroke-width="5"/>`;
+        if (look.grid) for (let q = 1; q < 4; q++) svg += `<line x1="${gx + 4 + (gw - 8) * q / 4}" y1="${y + 4}" x2="${gx + 4 + (gw - 8) * q / 4}" y2="${y + ph - 4}" stroke="#fff" stroke-width="3"/>`;
+      }
+      // نووسینی ناو پانێڵ
+      const cy = y + ph / 2;
+      if (ph > 40 * fk) {
+        svg += `<text x="${gx + gw / 2}" y="${cy - 4 * fk}" text-anchor="middle" font-family="Zain, Arial, sans-serif" font-size="${F(16)}" font-weight="700" fill="${ink}" direction="rtl">پانێڵی ${k + 1}</text>`;
+        svg += `<text x="${gx + gw / 2}" y="${cy + 17 * fk}" text-anchor="middle" font-family="Arial, sans-serif" font-size="${F(14)}" font-weight="700" fill="${red}" direction="ltr" unicode-bidi="embed">${fx(h)} × ${fx(G.J9)}</text>`;
+      } else {
+        svg += `<text x="${gx + gw / 2}" y="${cy + 5}" text-anchor="middle" font-family="Arial, sans-serif" font-size="${F(13)}" font-weight="700" fill="${red}" direction="ltr" unicode-bidi="embed">${fx(h)} × ${fx(G.J9)}</text>`;
+      }
+      // قیاسی بەرزی جام لە لای چەپ
+      const dx = x0 - 46;
+      svg += `<line x1="${dx}" y1="${y + 4}" x2="${dx}" y2="${y + ph - 4}" stroke="${red}" stroke-width="1.3" marker-start="url(#ar)" marker-end="url(#ar)"/>` +
+             `<line x1="${dx - 8}" y1="${y + 4}" x2="${x0 - 4}" y2="${y + 4}" stroke="${red}" stroke-width=".8" opacity=".6"/>` +
+             `<line x1="${dx - 8}" y1="${y + ph - 4}" x2="${x0 - 4}" y2="${y + ph - 4}" stroke="${red}" stroke-width=".8" opacity=".6"/>` +
+             `<text x="${dx - 10}" y="${cy}" transform="rotate(-90 ${dx - 10} ${cy})" text-anchor="middle" font-family="Arial, sans-serif" font-size="${F(14)}" font-weight="700" fill="${red}">${fx(h)}</text>`;
+      y += ph + gap;
+      // ڕێڵی نێوان پانێڵەکان
+      if (k < N - 1) svg += `<rect x="${gx}" y="${y - gap}" width="${gw}" height="${gap}" fill="${frame}"/>`;
+    });
+    // دەسکی بازە
+    if (U.M9 === "VAR") {
+      const hy = y0 + fh - rb - gap - 10;
+      svg += `<rect x="${x0 + fw / 2 - 40}" y="${hy}" width="80" height="7" rx="3.5" fill="${frameD}"/>`;
+    }
+    // چوارچێوەی خوارەوە
+    svg += `<rect x="${x0}" y="${y0 + fh - rb}" width="${fw}" height="${rb}" fill="${frameD}"/>`;
+    // ناونیشانی قیاسی لای چەپ
+    svg += `<text x="${x0 - 96}" y="${y0 + fh / 2}" transform="rotate(-90 ${x0 - 96} ${y0 + fh / 2})" text-anchor="middle" font-family="Zain, Arial, sans-serif" font-size="${F(13)}" fill="${mute}" direction="rtl">بەرزی جام (mm)</text>`;
+    // بەرزی گشتی (ڕاست)
+    const rx = x0 + fw + 44;
+    svg += `<line x1="${x0 + fw + 6}" y1="${y0}" x2="${rx + 12}" y2="${y0}" stroke="${red}" stroke-width=".8" opacity=".6"/>` +
+           `<line x1="${x0 + fw + 6}" y1="${y0 + fh}" x2="${rx + 12}" y2="${y0 + fh}" stroke="${red}" stroke-width=".8" opacity=".6"/>` +
+           `<line x1="${rx}" y1="${y0}" x2="${rx}" y2="${y0 + fh}" stroke="${red}" stroke-width="1.5" marker-start="url(#ar)" marker-end="url(#ar)"/>` +
+           `<text x="${rx + 22}" y="${y0 + fh / 2}" transform="rotate(-90 ${rx + 22} ${y0 + fh / 2})" text-anchor="middle" font-family="Arial, sans-serif" font-size="${F(17)}" font-weight="700" fill="${red}" direction="ltr" unicode-bidi="embed">${fx(H)} mm</text>`;
+    // پانی گشتی (خوارەوە)
+    const by = y0 + fh + 40;
+    svg += `<line x1="${x0}" y1="${y0 + fh + 6}" x2="${x0}" y2="${by + 12}" stroke="${red}" stroke-width=".8" opacity=".6"/>` +
+           `<line x1="${x0 + fw}" y1="${y0 + fh + 6}" x2="${x0 + fw}" y2="${by + 12}" stroke="${red}" stroke-width=".8" opacity=".6"/>` +
+           `<line x1="${x0}" y1="${by}" x2="${x0 + fw}" y2="${by}" stroke="${red}" stroke-width="1.5" marker-start="url(#ar)" marker-end="url(#ar)"/>` +
+           `<text x="${x0 + fw / 2}" y="${by - 10}" text-anchor="middle" font-family="Arial, sans-serif" font-size="${F(17)}" font-weight="700" fill="${red}" direction="ltr" unicode-bidi="embed">${fx(W)} mm</text>` +
+           `<text x="${x0 + fw / 2}" y="${by + 26}" text-anchor="middle" font-family="Zain, Arial, sans-serif" font-size="${F(14)}" fill="${mute}" direction="rtl">ڕووبەری سیستەمێک: <tspan direction="ltr" unicode-bidi="embed">${fmt2(U.Q8 / Math.max(U.J9, 1))} m²</tspan></text>`;
+    svg += `</svg>`;
+    $("draw").innerHTML = svg;
+    const chip = (k, v) => `<span>${k}<b>${esc(v)}</b></span>`;
+    $("drawCap").innerHTML = chip("جام", U.L4.trim()) + chip("بەش", String(N)) + chip("میکانیزم", U.G7) +
+      chip("ڕووناکی", U.J7) + (U.J9 > 1 ? chip("ژمارەی سیستەم", `× ${fmtGen(U.J9)}`) : "");
+  }
+
   // ── پێشبینین: پەڕەکان بچووک دەکرێنەوە بۆ پانی شاشە ──
   const PAGE_W = 297 * 96 / 25.4, PAGE_H = 210 * 96 / 25.4;
   let zoom = false;
@@ -800,7 +919,8 @@ function giyotinCalc(inp) {
       sz.firstElementChild.style.transform = `scale(${k})`;
     });
   }
-  window.addEventListener("resize", fit);
+  let rz = 0;
+  window.addEventListener("resize", () => { fit(); clearTimeout(rz); rz = setTimeout(update, 150); });
   function setZoom(z) {
     zoom = z;
     document.querySelector(".pv").classList.toggle("zoom", zoom);
@@ -843,6 +963,12 @@ function giyotinCalc(inp) {
     } else {
       $("glass").innerHTML = `<div class="gbox"><span class="k">پانی و بەرزی و ژمارەی سیستەم بنووسە.</span></div>`;
     }
+
+    // وێنەی سیستەم
+    // وێنەکە تەنها کاتێک دەکێشرێت کە قیاسەکان ئەرێنین (لە کاتی نووسیندا نیوەچڵن)
+    const drawable = ready && U.G4 > 0 && U.G5 > 0 && G.H9 > 0 && G.J9 > 0 && (S.B8 < 3 || G.H10 > 0);
+    $("drawSec").hidden = !drawable;
+    if (drawable) drawSystem(U, G);
 
     // پەڕەکان
     if (ready) {
