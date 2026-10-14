@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>WLAT SHADE — Giyotin Cam Üretim</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="حیسابکەری بڕینی گیۆتینی شووشە — WLAT SHADE. Giyotin cam üretim kağıdı." />
+<meta name="description" content="بڕینی گیۆتین جام — WLAT SHADE. Giyotin cam üretim kağıdı." />
 <meta name="theme-color" content="#070209" />
 <link rel="icon" type="image/png" href="logo-icon.png" />
 <link rel="preload" as="font" type="font/woff2" href="fonts/zain-arabic-700-normal.woff2" crossorigin />
@@ -43,11 +43,12 @@
     --warn-line: rgba(255, 176, 32, 0.45);
     --warn: #ffc864;
     /* پەڕەی ئێکسڵ */
-    --xl-blue: #1144CA;
+    --xl-main: #9A0D37;
+    --xl-line: #3b2a30;
     --xl-ink: #000000;
     --xl-paper: #ffffff;
     --xl-red: #e00000;
-    --xl-soft: #f3f3f3;
+    --xl-soft: #f8eef1;
     --sys: 'Zain', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     --xl-font: Arial, 'Helvetica Neue', Helvetica, 'Liberation Sans', sans-serif;
   }
@@ -82,6 +83,7 @@
   .logo .s { color: #ded2d8; }
   .logo small { display: block; font-size: 9px; letter-spacing: 2.6px; color: var(--muted); font-weight: 400; margin-top: 4px; }
   header.top h1 { font-size: 22px; font-weight: 800; margin: 8px 0 0; text-wrap: balance; }
+  header.top h1 .hw { color: var(--accent-hi); }
   header.top p { margin: 0; color: var(--muted); font-size: 12px; letter-spacing: 1.5px; direction: ltr; }
   .back { color: var(--muted); font-size: 13px; text-decoration: none; border-bottom: 1px dashed var(--faint); }
   .back:hover, .back:focus-visible { color: var(--text); }
@@ -185,51 +187,51 @@
   }
   .hd { grid-template-rows: repeat(6, minmax(0, 1fr)); height: 40mm; }
   .p2 .hd { height: 31mm; }
-  .c { border: 0.25mm solid var(--xl-ink); margin: 0 -0.125mm -0.25mm 0; display: flex; align-items: center; padding: 0 1.2mm; min-width: 0; overflow: hidden; white-space: nowrap; }
-  .hl { background: var(--xl-blue); color: #fff; font-weight: 700; font-size: 6.4pt; flex-direction: column; align-items: flex-start; justify-content: center; line-height: 1.05; white-space: normal; }
+  .c { border: 0.2mm solid var(--xl-line); margin: 0 -0.125mm -0.25mm 0; display: flex; align-items: center; padding: 0 1.2mm; min-width: 0; overflow: hidden; white-space: nowrap; }
+  .hl { background: var(--xl-main); color: #fff; font-weight: 700; font-size: 6.4pt; flex-direction: column; align-items: flex-start; justify-content: center; line-height: 1.05; white-space: normal; }
   .hl .ku { font-size: 6pt; font-weight: 700; opacity: .92; }
   .hv { font-size: 10pt; font-weight: 700; font-variant-numeric: tabular-nums; white-space: normal; line-height: 1.05; }
   .hv.ctr { justify-content: center; }
-  .camt { background: var(--xl-blue); color: #fff; font-weight: 700; font-size: 8pt; justify-content: center; gap: 1.5mm; }
+  .camt { background: var(--xl-main); color: #fff; font-weight: 700; font-size: 8pt; justify-content: center; gap: 1.5mm; }
   .camt .ku { font-size: 7pt; }
   .must { justify-content: center; font-size: 14pt; font-weight: 700; white-space: normal; text-align: center; line-height: 1.1; }
-  .brand { grid-column: 1 / 4; grid-row: 1 / 6; border: 0.25mm solid var(--xl-ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8mm; }
-  .brand .bl { font-size: 17pt; font-weight: 700; letter-spacing: 1.6mm; white-space: nowrap; }
-  .brand .bl .w { color: var(--accent); }
-  .brand small { font-size: 5pt; letter-spacing: 0.5mm; color: #444; }
-  .brand .ku { font-size: 8pt; color: var(--accent); margin-top: 0.6mm; }
+  .brand { grid-column: 1 / 4; grid-row: 1 / 6; display: flex; align-items: center; justify-content: center; gap: 2.5mm; padding: 1mm; min-height: 0; }
+  .brand img { height: 100%; max-height: 24mm; width: auto; max-width: 48%; object-fit: contain; }
+  .brand .bt { display: flex; flex-direction: column; gap: 0.6mm; color: var(--xl-main); min-width: 0; }
+  .brand .bt .ku { font-size: 10pt; font-weight: 800; line-height: 1.1; white-space: nowrap; }
+  .brand .bt small { font-size: 6pt; letter-spacing: 0.4mm; color: #555; font-weight: 700; }
   .redt { grid-column: 1 / 4; grid-row: 6 / 7; color: var(--xl-red); font-weight: 700; font-size: 8.5pt; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.05; }
 
   .cards { flex: 1; display: grid; gap: 2.4mm 0; min-height: 0; }
-  .p1 .cards { grid-template-rows: repeat(4, minmax(0, 1fr)); flex: 0 0 auto; height: 118mm; }
+  .p1 .cards { grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 3mm 0; flex: 0 0 auto; height: 120mm; }
   .p2 .cards { grid-template-rows: repeat(8, minmax(0, 1fr)); gap: 1.3mm 0; }
   .row { display: grid; grid-template-rows: minmax(0, 1fr); min-height: 0; }
-  .lab { grid-column: 1 / 2; display: grid; background: var(--xl-blue); color: #fff; border: 0.25mm solid var(--xl-ink); border-right: 0; }
-  .lab div { display: flex; flex-direction: column; justify-content: center; padding: 0 1.2mm; font-size: 6pt; font-weight: 700; line-height: 1.05; }
+  .lab { grid-column: 1 / 2; display: grid; background: var(--xl-main); color: #fff; border: 0.2mm solid var(--xl-line); border-right: 0; }
+  .lab div { display: flex; flex-direction: column; justify-content: center; padding: 0 1.2mm; font-size: 6.4pt; font-weight: 700; line-height: 1.05; letter-spacing: .2px; }
   .lab .ku { font-size: 6pt; }
-  .card { position: relative; display: grid; border: 0.25mm solid var(--xl-ink); min-width: 0; overflow: hidden; }
+  .card { position: relative; display: grid; border: 0.2mm solid var(--xl-line); min-width: 0; overflow: hidden; }
   .p1 .card, .p1 .lab { grid-template-rows: 37fr 14fr 31fr 18fr; }
   .p2 .card, .p2 .lab { grid-template-rows: 36fr 13fr 22fr; }
   .card > div { position: relative; padding: 0 1.1mm; display: flex; flex-direction: column; justify-content: center; min-width: 0; line-height: 1.05; }
   .card .nm { font-weight: 700; font-size: 7.4pt; justify-content: flex-start; padding-top: 0.5mm; }
   .p2 .card .nm { font-size: 6.8pt; }
-  .card .nm .ku { font-size: 6.3pt; font-weight: 700; color: #333; margin-top: 0.3mm; text-align: left; direction: rtl; align-self: flex-start; }
+  .card .nm .ku { font-size: 6.1pt; font-weight: 400; color: #6b5a61; margin-top: 0.3mm; text-align: left; direction: rtl; align-self: flex-start; }
   .card .cd { font-weight: 700; font-size: 7.4pt; }
-  .card .ol { font-weight: 700; font-size: 12pt; color: var(--xl-blue); background: var(--xl-soft); font-variant-numeric: tabular-nums; }
-  .card .mq { font-weight: 700; font-size: 11pt; color: var(--xl-blue); font-variant-numeric: tabular-nums; }
+  .card .ol { font-weight: 700; font-size: 12pt; color: var(--xl-main); background: var(--xl-soft); font-variant-numeric: tabular-nums; }
+  .card .mq { font-weight: 700; font-size: 11pt; color: var(--xl-main); font-variant-numeric: tabular-nums; }
   .p2 .card .mq { font-size: 8.5pt; flex-direction: row; align-items: center; justify-content: space-between; padding-right: 45%; }
   .p2 .card .mq em { font-style: normal; font-size: 7pt; }
   .card > div > * { position: relative; z-index: 2; }
   .card img { position: absolute; z-index: 1; right: 1mm; top: 32%; bottom: 0.8mm; width: 52%; height: auto; max-height: 66%; object-fit: contain; object-position: right center; }
   .p2 .card img { top: 46%; max-height: 52%; width: 44%; }
-  .p2 .card .nm .ku { font-size: 6pt; }
+  .p2 .card .nm .ku { font-size: 5.8pt; }
   .card.blank > * { visibility: hidden; }
   .z0 { visibility: hidden; }
 
-  .notebox { border: 0.3mm solid var(--xl-ink); display: flex; flex-direction: column; padding: 1.5mm 2.5mm; min-height: 0; }
+  .notebox { border: 0.2mm solid var(--xl-line); display: flex; flex-direction: column; padding: 1.5mm 2.5mm; min-height: 0; }
   .p1 .notebox { flex: 1; }
   .p2 .notebox { height: 10mm; flex: 0 0 auto; }
-  .notebox .t { font-weight: 700; font-size: 12pt; display: flex; gap: 2mm; align-items: baseline; }
+  .notebox .t { font-weight: 700; font-size: 11pt; color: var(--xl-main); display: flex; gap: 2mm; align-items: baseline; }
   .notebox .t .ku { font-size: 10pt; }
   .notebox .tx { font-size: 10pt; white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 0.8mm; line-height: 1.25; }
   .p2 .notebox .t { font-size: 9pt; justify-content: center; }
@@ -248,7 +250,7 @@
     html, body { background: #fff !important; }
     .bg, .app { display: none !important; }
     #print-root { display: block !important; }
-    #print-root .page { break-after: page; page-break-after: always; }
+    #print-root .page { zoom: 0.86; margin: 0 auto; break-after: page; page-break-after: always; break-inside: avoid; page-break-inside: avoid; }
     #print-root .page:last-child { break-after: auto; page-break-after: auto; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   }
@@ -259,9 +261,9 @@
 <main class="app" id="app" dir="rtl" lang="ckb">
   <header class="top">
     <div class="logo"><span class="w">WLAT</span> <span class="s">SHADE</span><small>CANOPY &amp; ALUMINIUM SHADE SYSTEMS</small></div>
-    <h1>حیسابکەری بڕینی گیۆتینی شووشە</h1>
+    <h1><span class="hw">حسابکردنی</span> بڕینی گیۆتین جام</h1>
     <p>GİYOTİN CAM ÜRETİM KAĞIDI</p>
-    <a class="back site-only" href="index.html">← حیسابکەری پەرگۆلا</a>
+    <a class="back site-only" href="index.html">بڕینی پەرگۆلا ←</a>
   </header>
 
   <form class="gc" id="frm" autocomplete="off" novalidate>
@@ -288,17 +290,17 @@
     <div class="grid">
       <div class="f"><span class="lbl">میکانیزم <span class="tr">MEKANİZMA</span></span><div class="seg" id="B1" role="radiogroup" aria-label="MEKANİZMA"></div></div>
       <div class="f"><span class="lbl">بازەی دەسکدار <span class="tr">TUTAMAKLI BAZA</span></span><div class="seg" id="B6" role="radiogroup" aria-label="TUTAMAKLI BAZA"></div></div>
-      <div class="f"><label class="lbl" for="B2">مەکینە <span class="tr">MOTOR</span></label><select id="B2"></select></div>
+      <div class="f"><label class="lbl" for="B2">ماتۆڕ <span class="tr">MOTOR</span></label><select id="B2"></select></div>
       <div class="f"><label class="lbl" for="B3">ڕیمۆت <span class="tr">KUMANDA</span></label><select id="B3"></select></div>
       <div class="f"><span class="lbl">ڕووناکی <span class="tr">AYDINLATMA</span></span><div class="seg" id="B4" role="radiogroup" aria-label="AYDINLATMA"></div></div>
       <div class="f"><span class="lbl">سێنسەر <span class="tr">SENSÖR</span></span><div class="seg" id="B5" role="radiogroup" aria-label="SENSÖR"></div></div>
-      <div class="f wide"><label class="lbl" for="B9">جۆری شووشە <span class="tr">CAM</span></label><select id="B9"></select></div>
+      <div class="f wide"><label class="lbl" for="B9">جۆری جام <span class="tr">CAM</span></label><select id="B9"></select></div>
       <div class="f wide"><label class="lbl" for="D14">تێبینی بۆ پەڕەی بەرهەمهێنان <span class="tr">NOT</span></label><textarea id="D14"></textarea></div>
     </div>
   </form>
 
   <section class="gc" aria-labelledby="camh">
-    <h2 id="camh">قیاسی شووشە <span class="tr">CAM ÖLÇÜLERİ</span></h2>
+    <h2 id="camh">قیاسی جام <span class="tr">CAM ÖLÇÜLERİ</span></h2>
     <div id="warns" style="display:flex;flex-direction:column;gap:8px"></div>
     <div class="glass" id="glass"></div>
   </section>
@@ -555,33 +557,33 @@ function giyotinCalc(inp) {
 
   // ── ناوی کوردی بۆ هەموو نووسینەکان ──
   const KU = {
-    "MOTOR KUTUSU": "سندوقی مەکینە", "MOTOR KUTUSU KAPAK": "قەپاغی سندوقی مەکینە",
-    "MOTOR KUTUSU VİDA KAPAĞI": "قەپاغی بورغی سندوقی مەکینە", "DİKEY BAZA": "بازەی ستوونی",
+    "MOTOR KUTUSU": "سندوقی ماتۆڕ", "MOTOR KUTUSU KAPAK": "قەپاغی سندوقی ماتۆڕ",
+    "MOTOR KUTUSU VİDA KAPAĞI": "قەپاغی بورغی سندوقی ماتۆڕ", "DİKEY BAZA": "بازەی ستوونی",
     "KENET": "کەنەت", "ORTA ALT BAZA": "بازەی خوارەوەی ناوەڕاست", "KÜPEŞTE BAZA": "بازەی کوپەشتە",
     "TUTAMAKLI BAZA": "بازەی دەسکدار", "SABİT KANAT KİLİT": "قفڵی باڵی جێگیر",
     "VASİSTAS MAKAS RAY": "ڕەیی مەقەستی ڤاسیستاس", "YAN DİKME RAYI İÇ TIRNAK": "ڕەیی ستوونی لا - ناوەوە",
     "YAN DİKME RAYI DIŞ TIRNAK": "ڕەیی ستوونی لا - دەرەوە", "YAN DİKME KASA": "چوارچێوەی ستوونی لا",
     "ALT KASA": "چوارچێوەی خوارەوە", "ALT BAZA VASİSTAS ADAPTÖR": "ئەداپتەری ڤاسیستاسی بازە",
     "HAREKETLİ KÜPEŞTE KAPAK": "قەپاغی کوپەشتەی جووڵاو", "YAN DİKME KAPAK": "قەپاغی ستوونی لا",
-    "MOTOR BORUSU": "بۆری مەکینە", "8MM ADAPTÖR": "ئەداپتەری 8mm",
+    "MOTOR BORUSU": "بۆری ماتۆڕ", "8MM ADAPTÖR": "ئەداپتەری 8mm",
     "ZİNCİR DİŞLİSİ": "ددانەی زنجیر", "ZİNCİR": "زنجیر", "KAYIŞ KASNAK": "پەڕەی قایش", "KAYIŞ": "قایش",
     "ORTA VASİSTAS ALT KASA T.": "تاکۆزی ڤاسیستاسی ناوەڕاست", "VASİSTAS ÜST TAKOZ": "تاکۆزی سەرەوەی ڤاسیستاس",
     "VASİSTAS KOL": "دەستەی ڤاسیستاس", "İSPANYOLET": "ئیسپانیۆلێت", "VASİSTAS ALT TAKOZ": "تاکۆزی خوارەوەی ڤاسیستاس",
     "RAY PROFİL KAPAK": "قەپاغی پرۆفیلی ڕەی", "VASİSTAS MAKAS": "مەقەستی ڤاسیستاس", "ZİNCİR YÖNLENDİRİCİ": "ئاراستەکەری زنجیر",
     "KÜPEŞTE BAZA TAKOZU": "تاکۆزی بازەی کوپەشتە", "KENET PROFİL TAKOZU": "تاکۆزی پرۆفیلی کەنەت",
-    "KASA KÖŞE BİRLEŞTİRME T.": "تاکۆزی گۆشەی چوارچێوە", "MOTOR YAN KAPAĞI": "قەپاغی لای مەکینە",
-    "MOTOR KIZAĞI": "ڕێڕەوی مەکینە", "RULMAN YATAĞI": "جێگەی بێرینگ", "RULMAN": "بێرینگ", "BORU BAŞI": "سەری بۆری",
+    "KASA KÖŞE BİRLEŞTİRME T.": "تاکۆزی گۆشەی چوارچێوە", "MOTOR YAN KAPAĞI": "قەپاغی لای ماتۆڕ",
+    "MOTOR KIZAĞI": "ڕێڕەوی ماتۆڕ", "RULMAN YATAĞI": "جێگەی بێرینگ", "RULMAN": "بێرینگ", "BORU BAŞI": "سەری بۆری",
     "KANAT DENGE TEKERİ": "تایەی هاوسەنگی باڵ", "4,2X60 YHB ( MATKAP UCLU ) VİDA": "بورغی 4.2×60 (سەر دریل)",
     "M8X90 YARIM DİŞ İNBUS CİVATA": "پێچی ئینبوس M8×90", "M8X20 İNBUS CİVATA": "پێچی ئینبوس M8×20",
     "M8X12 HAVŞA BAŞ CİVATA": "پێچی سەرتەخت M8×12", "3,9X19 YHB ( HAVŞA BAŞLI ) VİDA": "بورغی 3.9×19 (سەرتەخت)",
     "4,2X50 YHB ( MATKAP UCLU ) VİDA": "بورغی 4.2×50 (سەر دریل)", "4,8X70 YHB ( MATKAP UCLU ) VİDA": "بورغی 4.8×70 (سەر دریل)",
-    "EPDM KENET CONTA FİTİLİ": "لاستیکی کەنەت", "EPDM MOTOR KUTUSU FİTİLİ": "لاستیکی سندوقی مەکینە",
+    "EPDM KENET CONTA FİTİLİ": "لاستیکی کەنەت", "EPDM MOTOR KUTUSU FİTİLİ": "لاستیکی سندوقی ماتۆڕ",
     "FIRÇA FİTİLİ ( KIL FİTİLİ )": "فیتیلەی فڵچە", "ŞERİT LED": "شریتی LED", "LED KAPAĞI": "قەپاغی LED",
     "ADAPTÖR  + DİMMER": "ئەداپتەر + دیمەر", "SENSÖR": "سێنسەر", "KUMANDA": "ڕیمۆت", "SOMFY RTS KUMANDA": "ڕیمۆتی Somfy RTS",
-    "MOTOR": "مەکینە", "SOUDAL FİX ALL SİLİKON": "سیلیکۆن", "3,9X38 YHB ( MATKAP UCLU ) VİDA": "بورغی 3.9×38 (سەر دریل)",
+    "MOTOR": "ماتۆڕ", "SOUDAL FİX ALL SİLİKON": "سیلیکۆن", "3,9X38 YHB ( MATKAP UCLU ) VİDA": "بورغی 3.9×38 (سەر دریل)",
     "KAYIŞ BAĞLANTI": "لکێنەری قایش", "KAYIŞ BAĞLANTI PİMİ": "بزماری لکێنەری قایش",
     "SOMFY MOTOR\nZAMAK APARATI": "پارچەی زاماکی Somfy", "SOMFY MOTOR\nPLASTIK TAKIMI": "دەستە پلاستیکی Somfy",
-    "MOSEL MOTOR\nMOTOR BAŞI": "سەری مەکینەی Mosel", "MOSEL MOTOR\nMOTOR BİLEZİĞİ": "ئەڵقەی مەکینەی Mosel",
+    "MOSEL MOTOR\nMOTOR BAŞI": "سەری ماتۆڕی Mosel", "MOSEL MOTOR\nMOTOR BİLEZİĞİ": "ئەڵقەی ماتۆڕی Mosel",
     "ZİNCİR TUTUCU PLASTİK BORU": "بۆری پلاستیکی ڕاگری زنجیر",
   };
 
@@ -634,11 +636,11 @@ function giyotinCalc(inp) {
 
   // ── هەڵبژاردنەکان ──
   const OPTS = {
-    B8: [["ستاندارد", "STANDART"], ["سڕینەوەدار", "SİLİNEBİLİR"], ["قیاسی جیاواز — ستاندارد", "DEĞİŞİK ÖLÇÜ STANDART"], ["قیاسی جیاواز — سڕینەوەدار", "DEĞİŞİK ÖLÇÜ SİLİNEBİLİR"]],
+    B8: [["ستاندارد", "STANDART"], ["سیلینەبیلیر", "SİLİNEBİLİR"], ["قیاسی جیاواز، ستاندارد", "DEĞİŞİK ÖLÇÜ STANDART"], ["قیاسی جیاواز، سیلینەبیلیر", "DEĞİŞİK ÖLÇÜ SİLİNEBİLİR"]],
     B7: [["2", ""], ["3", ""], ["4", ""]],
     B1: [["زنجیری", "ZİNCİRLİ"], ["قایشی", "KAYIŞLI"]],
     B6: [["نییە", "YOK"], ["هەیە", "VAR"]],
-    B4: [["تیشکی خۆر", "GÜNIŞIĞI"], ["سپی", "BEYAZ"], ["نییە", "YOK"]],
+    B4: [["زەرد", "GÜNIŞIĞI"], ["سپی", "BEYAZ"], ["نییە", "YOK"]],
     B5: [["نییە", "YOK"], ["هەیە", "VAR"]],
   };
   const DEF = { B1: 1, B2: 1, B3: 1, B4: 3, B5: 1, B6: 2, B7: 2, B8: 1, B9: 1, D1: "", D2: "", D4: 1, D5: "", D6: "", D7: "", D9: "", D14: "" };
@@ -681,18 +683,18 @@ function giyotinCalc(inp) {
   function header(U, G, page2) {
     const hideZero = (v, f) => (v === 0 ? "" : f(v));
     let h = `<div class="cols hd">`;
-    h += `<div class="brand"><div class="bl"><span class="w">WLAT</span> SHADE</div><small>CANOPY &amp; ALUMINIUM SHADE SYSTEMS</small><div class="ku">پەڕەی بەرهەمهێنانی گیۆتین</div></div>`;
+    h += `<div class="brand"><img src="${IMG}logo.webp" alt="WLAT SHADE"><div class="bt"><span class="ku">بڕینی گیۆتین جام</span><small>GİYOTİN CAM</small></div></div>`;
     if (U.B9) h += `<div class="redt">${esc(U.B9)}</div>`;
     // F-G
     const fg = [["GENİŞLİK", "پانی", fmt0(U.G4)], ["YÜKSEKLİK", "بەرزی", fmt0(U.G5)], ["BÖLME", "بەش", fmtGen(U.G6)],
                 ["MEKANİZMA", "میکانیزم", U.G7], ["TİP", "جۆر", U.G8], ["RAL", "ڕەنگ", U.G9]];
     fg.forEach(([t, k, v], i) => { h += hl(t, k, "5/6", `${i + 1}/${i + 2}`) + hv(v, "6/7", `${i + 1}/${i + 2}`, "", `G${i + 4}`); });
     // I-J
-    h += hl("MOTOR", "مەکینە", "8/9", "1/3") + hv(U.J4, "9/10", "1/3", "", "J4");
+    h += hl("MOTOR", "ماتۆڕ", "8/9", "1/3") + hv(U.J4, "9/10", "1/3", "", "J4");
     const ij = [["KUMANDA", "ڕیمۆت", U.J6], ["AYDINLATMA", "ڕووناکی", U.J7], ["SENSÖR", "سێنسەر", U.J8], ["ADET", "ژمارە", fmtGen(U.J9)]];
     ij.forEach(([t, k, v], i) => { h += hl(t, k, "8/9", `${i + 3}/${i + 4}`) + hv(v, "9/10", `${i + 3}/${i + 4}`, "", `J${i + 6}`); });
-    // L-N : شووشە
-    h += `<div class="c camt" style="grid-column:11/14;grid-row:1/2"><span data-c="L4">${esc(U.L4.trim())}</span><span class="ku">شووشە</span></div>`;
+    // L-N : جام
+    h += `<div class="c camt" style="grid-column:11/14;grid-row:1/2"><span data-c="L4">${esc(U.L4.trim())}</span><span class="ku">جام</span></div>`;
     const m5 = page2 && U.M5 === 0 ? "" : fmt0(U.M5), m6 = page2 && U.M6 === 0 ? "" : fmt0(U.M6);
     h += hl("UZUNLUK", "درێژی", "11/12", "2/3") + hv(m5, "12/13", "2/3", "", "M5") + hv(hideZero(U.N5, fmt0), "13/14", "2/3", "", "N5");
     h += hl("EN", "پانی", "11/12", "3/4") + hv(m6, "12/13", "3/4", "", "M6") + hv(hideZero(U.N6, fmt0), "13/14", "3/4", "", "N6");
@@ -708,7 +710,7 @@ function giyotinCalc(inp) {
   }
 
   function labCol(rows) {
-    return `<div class="lab">${rows.map(([t, k]) => `<div>${t}<span class="ku">${k}</span></div>`).join("")}</div>`;
+    return `<div class="lab">${rows.map(([t]) => `<div>${t}</div>`).join("")}</div>`;
   }
   function nameCell(name) {
     const ku = KU[name] || KU[name.trim()] || "";
@@ -785,30 +787,30 @@ function giyotinCalc(inp) {
 
     // ئاگادارکردنەوەکان
     const w = [];
-    if (G.L1.trim()) w.push(`ژمارەی کەناڵی ڕیمۆت بەس نییە بۆ ئەم ژمارە سیستەمە. <b>KUMANDA HATALI</b>`);
-    if (G.L4.trim()) w.push(`ئەم مەکینەیە لەگەڵ ڕووناکیدا ناگونجێت. <b>MOTOR HATALI</b>`);
-    if (S.B8 >= 3 && !n(S.D9)) w.push(`بۆ جۆری «قیاسی جیاواز» بەرزی بەشی خوارەوە بنووسە. <b>ALT BÖLME YÜKSEKLİĞİ</b>`);
+    if (G.L1.trim()) w.push(`کەناڵەکانی ڕیمۆت بۆ ئەم ژمارە سیستەمە بەس نین. <b>KUMANDA HATALI</b>`);
+    if (G.L4.trim()) w.push(`ئەم ماتۆڕە لەگەڵ ڕووناکیدا ناگونجێت. <b>MOTOR HATALI</b>`);
+    if (S.B8 >= 3 && !n(S.D9)) w.push(`بۆ جۆری «قیاسی جیاواز»، بەرزی بەشی خوارەوە بنووسە. <b>ALT BÖLME YÜKSEKLİĞİ</b>`);
     const ready = n(S.D5) > 0 && n(S.D6) > 0 && n(S.D4) > 0;
     if (ready) {
       const neg = ["C13","F13","I13","L13","P13","S13","C18","F18","I18","L18","P18","S18","C23","F23","I23","L23","P23","S23","C28","F28","I28","L28","P28","M5","M6"]
         .some((k) => typeof U[k] === "number" && U[k] < 0);
-      if (neg) w.push(`هەندێک قیاس کەمتر لە سفر دەرچوو. پانی و بەرزییەکە بپشکنە.`);
+      if (neg) w.push(`هەندێک قیاس لە سفر کەمتر دەرچوو. پانی و بەرزی بپشکنە (بە ملیمەتر).`);
     }
     $("warns").innerHTML = w.map((t) => `<div class="warn" role="status">${t}</div>`).join("");
 
-    // قیاسی شووشە (GİRİŞ H9 × J9 ، H10 × J10)
+    // قیاسی جام (GİRİŞ H9 × J9 ، H10 × J10)
     if (ready) {
       const box = (title, a, b, q) => `<div class="gbox"><span class="k">${title}</span><dl class="gdl">` +
         `<div><dt>پانی<i>EN</i></dt><dd>${fmt0(a)}</dd></div>` +
         `<div><dt>درێژی<i>UZUNLUK</i></dt><dd>${fmt0(b)}</dd></div>` +
         `<div class="q"><dt>ژمارە<i>ADET</i></dt><dd>${fmtGen(q)}</dd></div></dl>` +
         `<span class="x">${fmtGen(a)} × ${fmtGen(b)} mm</span></div>`;
-      let g = box("شووشەی سەرەوە / CAM", G.H9, G.J9, G.K9);
-      if (S.B8 >= 3) g += box("شووشەی خوارەوە / ALT CAM", G.H10, G.J10, G.K10);
-      g += `<div class="gbox"><span class="k">ڕووبەری شووشە / CAM m²</span><span class="v">${fmt2(U.M8)} <b>m²</b></span><span class="x">${esc(U.L4.trim())}</span></div>`;
+      let g = box("جامی سەرەوە / CAM", G.H9, G.J9, G.K9);
+      if (S.B8 >= 3) g += box("جامی خوارەوە / ALT CAM", G.H10, G.J10, G.K10);
+      g += `<div class="gbox"><span class="k">ڕووبەری جام / CAM m²</span><span class="v">${fmt2(U.M8)} <b>m²</b></span><span class="x">${esc(U.L4.trim())}</span></div>`;
       $("glass").innerHTML = g;
     } else {
-      $("glass").innerHTML = `<div class="gbox"><span class="k">پانی، بەرزی و ژمارەی سیستەم بنووسە.</span></div>`;
+      $("glass").innerHTML = `<div class="gbox"><span class="k">پانی و بەرزی و ژمارەی سیستەم بنووسە.</span></div>`;
     }
 
     // پەڕەکان
@@ -818,7 +820,7 @@ function giyotinCalc(inp) {
       $("print-root").innerHTML = p1 + p2;
       fit();
     } else {
-      $("pv").innerHTML = `<div class="empty">کاتێک پانی و بەرزی بنووسیت، هەردوو پەڕەکە لێرە دەردەکەون.</div>`;
+      $("pv").innerHTML = `<div class="empty">پانی و بەرزی بنووسە، ئینجا هەردوو پەڕەکە لێرە دەردەکەون.</div>`;
       $("print-root").innerHTML = "";
     }
     ["printBtn", "pdfBtn"].forEach((id) => { const b = $(id); if (b && !pdfBusy) b.disabled = !ready; });
@@ -883,7 +885,7 @@ function giyotinCalc(inp) {
   const imgCache = {};
   async function dataUrl(src) {
     if (!imgCache[src]) {
-      imgCache[src] = fetch(src).then((r) => r.arrayBuffer()).then((buf) => `data:image/webp;base64,${b64(buf)}`);
+      imgCache[src] = fetch(src).then(async (r) => `data:${r.headers.get("content-type") || "image/webp"};base64,${b64(await r.arrayBuffer())}`);
     }
     return imgCache[src];
   }
@@ -945,9 +947,9 @@ function giyotinCalc(inp) {
 
   if (PREVIEW) {
     document.querySelectorAll(".site-only").forEach((el) => el.remove());
-    $("printNote").textContent = "ئەمە وەشانی تاقیکردنەوەیە. دوگمەی پرینت تەنها لەسەر سایتەکە خۆی کار دەکات، بۆیە لێرەدا نییە. پەڕەکان لە خوارەوە وەک خۆیان دەبینیت.";
+    $("printNote").textContent = "ئەمە تەنها پێشبینینە. دوگمەی پرینت لەسەر وێبسایتەکە هەیە.";
   } else {
-    $("printNote").textContent = "پرینتەر: A4، ئاسۆیی (Landscape)، Margins: None.";
+    $("printNote").textContent = "بۆ پرینت: کاغەزی A4 و ئاسۆیی (Landscape) هەڵبژێرە.";
   }
   syncForm();
   update();

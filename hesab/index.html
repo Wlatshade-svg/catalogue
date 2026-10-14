@@ -214,6 +214,14 @@
       .logo-w, .logo-s { animation: none; background-position: 0 0; }
     }
     .pbtn:active { transform: scale(0.96); }
+    /* لینکی پەڕەی گیۆتین جام */
+    .gyt-link {
+      display: inline-block; margin-top: 16px; padding: 8px 16px;
+      border: 1px solid rgba(154,13,55,0.45); border-radius: 12px;
+      background: rgba(154,13,55,0.12); color: #f0e8ec; text-decoration: none;
+      font-family: var(--krd); font-size: 14px; font-weight: 700; direction: rtl;
+    }
+    .gyt-link:hover, .gyt-link:focus-visible { background: rgba(154,13,55,0.26); border-color: #9A0D37; }
 
     .chips {
       display: flex; gap: 6px; margin-bottom: 14px;
@@ -2067,7 +2075,12 @@ function App() {
       background: "linear-gradient(90deg,transparent,#9A0D37,transparent)",
       margin: "14px auto 0"
     }
-  })), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("a", {
+    href: "giyotin.html",
+    className: "gyt-link"
+  }, "حسابکردنی بڕینی گیۆتین جام", /*#__PURE__*/React.createElement("span", {
+    "aria-hidden": "true"
+  }, " ←"))), /*#__PURE__*/React.createElement("div", {
     className: "gc"
   }, /*#__PURE__*/React.createElement("div", {
     style: {
