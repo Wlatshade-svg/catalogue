@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>WLAT SHADE — Pergola Fiyat Hesabı</title>
+<meta name="description" content="حسابی نرخی پەرگۆلا — WLAT SHADE (ناوخۆیی)." />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#070209" />
+<link rel="icon" type="image/png" href="logo-icon.png" />
+<link rel="preload" as="font" type="font/woff2" href="fonts/zain-arabic-700-normal.woff2" crossorigin />
+<style>
+  @font-face { font-family: 'Zain'; font-weight: 400; font-display: swap; src: url('fonts/zain-arabic-400-normal.woff2') format('woff2');
+    unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F; }
+  @font-face { font-family: 'Zain'; font-weight: 400; font-display: swap; src: url('fonts/zain-latin-400-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Zain'; font-weight: 700; font-display: swap; src: url('fonts/zain-arabic-700-normal.woff2') format('woff2');
+    unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F; }
+  @font-face { font-family: 'Zain'; font-weight: 700; font-display: swap; src: url('fonts/zain-latin-700-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Zain'; font-weight: 800; font-display: swap; src: url('fonts/zain-arabic-800-normal.woff2') format('woff2');
+    unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F; }
+  @font-face { font-family: 'Zain'; font-weight: 800; font-display: swap; src: url('fonts/zain-latin-800-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Zain'; font-weight: 900; font-display: swap; src: url('fonts/zain-arabic-900-normal.woff2') format('woff2');
+    unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F; }
+  @font-face { font-family: 'Zain'; font-weight: 900; font-display: swap; src: url('fonts/zain-latin-900-normal.woff2') format('woff2'); }
+
+  /* Layout: هەمان ڕووکاری حیسابکەرەکانی تری ووڵات شەید (تاریک و بۆردۆ)، پەڕەی پرینت A4 ی ستوونی */
+  :root {
+    color-scheme: dark;
+    --bg: #070209;
+    --text: #f0e8ec;
+    --muted: rgba(240, 232, 236, 0.58);
+    --faint: rgba(240, 232, 236, 0.34);
+    --accent: #9A0D37;
+    --accent-hi: #c2184b;
+    --gold: #f2c46d;
+    --panel: rgba(154, 13, 55, 0.07);
+    --panel-line: rgba(154, 13, 55, 0.22);
+    --field: rgba(0, 0, 0, 0.28);
+    --field-line: rgba(255, 255, 255, 0.10);
+    --row: rgba(255, 255, 255, 0.035);
+    /* پەڕەی پرینت */
+    --pr-main: #9A0D37;
+    --pr-ink: #20151a;
+    --pr-muted: #6b5a61;
+    --pr-rule: #e3d3d9;
+    --pr-soft: #f8eef1;
+    --sys: 'Zain', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --lat: Arial, 'Helvetica Neue', Helvetica, 'Liberation Sans', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sys); font-size: 15px; line-height: 1.5; overflow-x: hidden; }
+  .bg { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse 60% 45% at 15% 5%, rgba(154,13,55,0.45) 0%, transparent 60%),
+                radial-gradient(ellipse 45% 50% at 90% 90%, rgba(120,10,45,0.38) 0%, transparent 60%);
+    filter: blur(30px); }
+  .app { position: relative; z-index: 1; max-width: 960px; margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 28px 80px; display: flex; flex-direction: column; gap: 16px; }
+
+  header.top { text-align: center; padding-block: 14px 6px; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+  .logo { font-weight: 700; font-size: 30px; letter-spacing: 7px; direction: ltr; line-height: 1.1; }
+  .logo .w { color: var(--accent-hi); }
+  .logo .s { color: #ded2d8; }
+  .logo small { display: block; font-size: 9px; letter-spacing: 2.6px; color: var(--muted); font-weight: 400; margin-top: 4px; }
+  header.top h1 { font-size: 24px; font-weight: 800; margin: 8px 0 0; text-wrap: balance; }
+  header.top h1 .hw { color: var(--accent-hi); }
+  header.top p { margin: 0; color: var(--muted); font-size: 11px; letter-spacing: 2px; direction: ltr; font-family: var(--lat); }
+  .badge { margin-top: 6px; font-size: 12px; color: var(--muted); border: 1px solid var(--panel-line); border-radius: 999px; padding: 2px 12px; }
+
+  .gc { background: var(--panel); border: 1px solid var(--panel-line); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .gc h2 { font-size: 17px; font-weight: 800; margin: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; line-height: 1.3; padding-bottom: 10px; border-bottom: 1px solid var(--panel-line); }
+  .gc h2 .tr { font-family: var(--lat); font-size: 10px; font-weight: 700; letter-spacing: 1.6px; color: var(--faint); direction: ltr; }
+  .gc h2:not(:first-child) { margin-top: 10px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px 18px; }
+  .f { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .f.wide { grid-column: 1 / -1; }
+  .lbl { font-size: 15px; font-weight: 700; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; line-height: 1.3; }
+  .lbl .tr { font-family: var(--lat); font-size: 10px; letter-spacing: 1px; color: var(--faint); font-weight: 700; direction: ltr; white-space: nowrap; }
+  input[type=text], input[type=number] { width: 100%; min-width: 0; background: var(--field); color: var(--text); border: 1px solid var(--field-line); border-radius: 11px; padding: 10px 12px; font: inherit; font-size: 16px; }
+  input[type=number] { direction: ltr; text-align: right; font-variant-numeric: tabular-nums; }
+  input:focus-visible { outline: 2px solid var(--accent-hi); outline-offset: 1px; }
+  .unit { position: relative; }
+  .unit input { padding-left: 46px; }
+  .unit span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--faint); font-size: 12px; direction: ltr; pointer-events: none; font-family: var(--lat); }
+
+  .seg { display: flex; gap: 8px; flex-wrap: wrap; }
+  .seg label { flex: 1 1 0; min-width: 72px; position: relative; }
+  .seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .seg span { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%;
+    padding: 10px 8px; min-height: 56px; border-radius: 12px; line-height: 1.25; border: 1px solid var(--field-line); background: var(--field);
+    color: var(--muted); font-size: 15px; transition: background .15s, border-color .15s, color .15s; }
+  .seg span i { font-style: normal; font-family: var(--lat); font-size: 9.5px; letter-spacing: .8px; opacity: .6; direction: ltr; margin-top: 4px; }
+  .seg input:checked + span { border-color: var(--accent-hi); background: rgba(154,13,55,0.22); color: #fff; }
+  .seg input:focus-visible + span { outline: 2px solid var(--accent-hi); outline-offset: 1px; }
+
+  /* ئەنجام */
+  .sum { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .tile { border: 1px solid var(--panel-line); background: rgba(0,0,0,0.25); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .tile .k { font-size: 13px; color: var(--muted); line-height: 1.3; }
+  .tile .k i { font-style: normal; font-family: var(--lat); font-size: 9px; letter-spacing: .8px; display: block; direction: ltr; text-align: right; color: var(--faint); margin-top: 2px; }
+  .tile .v { direction: ltr; text-align: right; font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 4px; font-family: var(--lat); }
+  .tile.main { border-color: var(--accent-hi); background: linear-gradient(160deg, rgba(154,13,55,0.35), rgba(154,13,55,0.12)); grid-column: 1 / -1; }
+  .tile.main .v { font-size: 34px; color: #fff; }
+  .tile .v.gold { color: var(--gold); }
+
+  .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 14px; border: 1px solid var(--panel-line); }
+  table.mats { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 460px; }
+  table.mats th { text-align: right; font-size: 12px; font-weight: 700; color: var(--muted); padding: 10px 12px; background: rgba(154,13,55,0.16); white-space: nowrap; }
+  table.mats th i { font-style: normal; font-family: var(--lat); font-size: 9px; letter-spacing: .8px; display: block; color: var(--faint); }
+  table.mats td { padding: 9px 12px; border-top: 1px solid var(--row); vertical-align: middle; }
+  table.mats tr:nth-child(even) td { background: var(--row); }
+  table.mats td.n b { display: block; font-weight: 700; }
+  table.mats td.n i { font-style: normal; font-family: var(--lat); font-size: 10px; color: var(--faint); letter-spacing: .4px; }
+  table.mats td.num { direction: ltr; text-align: left; font-family: var(--lat); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.mats td.tot { font-weight: 700; color: #fff; }
+  table.mats tr.zero td { opacity: .38; }
+  table.mats td.num small { display: none; font-size: 11px; color: var(--faint); margin-top: 2px; }
+  table.mats tfoot td { border-top: 1px solid var(--panel-line); font-weight: 800; padding: 11px 12px; background: rgba(154,13,55,0.12); }
+
+  .bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .bar .note { color: var(--muted); font-size: 13px; flex: 1 1 260px; min-width: 0; }
+  .btn { border: 0; border-radius: 12px; padding: 11px 20px; font: inherit; font-weight: 800; font-size: 15px; cursor: pointer; background: var(--accent); color: #fff; }
+  .btn:hover { background: var(--accent-hi); }
+  .btn.ghost { background: transparent; border: 1px solid var(--field-line); color: var(--muted); font-weight: 700; }
+  .btn.ghost:hover { color: var(--text); border-color: var(--faint); }
+  .btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .empty { padding: 28px 16px; text-align: center; color: var(--muted); font-size: 14px; }
+
+  /* پێشبینینی پەڕەی پرینت */
+  .pv { border-radius: 16px; overflow: hidden; border: 1px solid var(--panel-line); background: #5d5760; }
+  .pv-bar { display: flex; justify-content: space-between; gap: 8px; padding: 8px 13px; background: rgba(154,13,55,0.18); font-size: 12px; color: var(--muted); }
+  .pv-body { padding: 12px; }
+  .pv-slot { width: 100%; overflow: hidden; direction: ltr; }
+  .pv-sizer { position: relative; margin: 0 auto; }
+  .pv-sizer > .page { position: absolute; top: 0; left: 0; transform-origin: top left; box-shadow: 0 6px 24px rgba(0,0,0,0.45); }
+
+  @media (max-width: 520px) {
+    .gc { padding: 18px 16px; border-radius: 16px; gap: 20px; }
+    .grid { grid-template-columns: 1fr; gap: 22px; }
+    .tile.main .v { font-size: 30px; }
+    /* لە مۆبایل نرخی یەکە دەچێتە ژێر بڕەکە، بۆیە خشتەکە بێ سکڕۆڵ جێی دەبێتەوە */
+    table.mats { min-width: 0; font-size: 13.5px; }
+    table.mats th.b, table.mats td.b { display: none; }
+    table.mats td.num small { display: block; }
+    table.mats td, table.mats th { padding: 9px 8px; }
+    #ray label { min-width: 0; }
+    .tile .v.sm { font-size: 20px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  /* ═════════ پەڕەی A4 ی ستوونی (ناوخۆیی) ═════════ */
+  .page { width: 210mm; height: 297mm; padding: 11mm 12mm 7mm; background: #fff; color: var(--pr-ink);
+    font-family: var(--lat); direction: rtl; display: flex; flex-direction: column; gap: 3.6mm; overflow: hidden; }
+  .page > * { flex-shrink: 0; }
+  .page .ku { font-family: 'Zain', var(--lat); }
+  .p-head { background: var(--pr-main); color: #fff; border-radius: 3.5mm; padding: 4mm 7mm; display: flex; align-items: center; justify-content: space-between; gap: 6mm; }
+  .p-brand { display: flex; align-items: center; gap: 4mm; }
+  .p-brand img { width: 22mm; height: auto; }
+  .p-brand .bw { display: flex; flex-direction: column; gap: 0.6mm; }
+  .p-brand .bw .ku { font-weight: 900; font-size: 21pt; line-height: 1; }
+  .p-brand .bw small { font-family: 'Zain', var(--lat); font-weight: 700; font-size: 6.5pt; letter-spacing: 1.6mm; opacity: .82; direction: ltr; text-align: right; }
+  .p-doc { text-align: left; display: flex; flex-direction: column; gap: 1mm; align-items: flex-end; direction: ltr; }
+  .p-doc b { font-size: 9pt; letter-spacing: .6mm; }
+  .p-doc .ku { font-size: 12pt; font-weight: 800; direction: rtl; }
+  .p-doc span { font-size: 8pt; opacity: .85; }
+  .p-title { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 0.5mm solid var(--pr-main); padding-bottom: 2.5mm; }
+  .p-title .ku { font-size: 17pt; font-weight: 900; color: var(--pr-main); }
+  .p-title span { font-size: 8pt; color: var(--pr-muted); letter-spacing: .5mm; direction: ltr; }
+  .p-info { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border: 0.25mm solid var(--pr-rule); border-radius: 2mm; overflow: hidden; }
+  .p-info div { padding: 1.6mm 3mm; border-left: 0.25mm solid var(--pr-rule); border-bottom: 0.25mm solid var(--pr-rule); display: flex; flex-direction: column; gap: 0.6mm; min-width: 0; }
+  .p-info div:nth-child(6n) { border-left: 0; }
+  .p-info div:nth-last-child(-n+6) { border-bottom: 0; }
+  .p-info .k { font-family: 'Zain', var(--lat); font-size: 8pt; color: var(--pr-muted); }
+  .p-info .k i { font-style: normal; font-family: var(--lat); font-size: 5.6pt; letter-spacing: .25mm; display: block; direction: ltr; text-align: right; }
+  .p-info .v { font-size: 9.6pt; font-weight: 700; direction: ltr; text-align: right; overflow-wrap: anywhere; }
+  .p-info .v.ku { direction: rtl; }
+  table.p-mats { width: 100%; border-collapse: collapse; font-size: 8.6pt; }
+  table.p-mats th { background: var(--pr-main); color: #fff; font-weight: 700; padding: 1.6mm 2.4mm; text-align: right; font-size: 7.6pt; }
+  table.p-mats th:first-child { border-radius: 0 1.6mm 0 0; }
+  table.p-mats th:last-child { border-radius: 1.6mm 0 0 0; }
+  table.p-mats th .ku { font-size: 8.4pt; }
+  table.p-mats td { padding: 0.75mm 2.4mm; border-bottom: 0.2mm solid var(--pr-rule); line-height: 1.25; }
+  table.p-mats tr:nth-child(even) td { background: var(--pr-soft); }
+  table.p-mats td.n .ku { font-weight: 700; font-size: 9pt; }
+  table.p-mats td.n i { font-style: normal; color: var(--pr-muted); font-size: 7pt; margin-right: 1.5mm; }
+  table.p-mats td.num { direction: ltr; text-align: left; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.p-mats td.tot { font-weight: 700; }
+  table.p-mats tr.zero td { color: #b3a5ab; }
+  .p-tot { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 3mm; }
+  .p-tot div { border: 0.25mm solid var(--pr-rule); border-radius: 2mm; padding: 2.5mm 3.5mm; display: flex; flex-direction: column; gap: 0.8mm; }
+  .p-tot .k { font-family: 'Zain', var(--lat); font-size: 8.5pt; color: var(--pr-muted); }
+  .p-tot .v { font-size: 13pt; font-weight: 700; direction: ltr; text-align: right; font-variant-numeric: tabular-nums; }
+  .p-tot .main { background: var(--pr-main); border-color: var(--pr-main); color: #fff; }
+  .p-tot .main .k { color: rgba(255,255,255,.85); }
+  .p-tot .main .v { font-size: 17pt; }
+  .p-ray { font-family: 'Zain', var(--lat); font-size: 9pt; color: var(--pr-muted); }
+  .p-ray b { font-family: var(--lat); color: var(--pr-main); direction: ltr; display: inline-block; }
+  .p-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 0.2mm solid var(--pr-rule); padding-top: 2mm; font-size: 7.5pt; color: var(--pr-muted); direction: ltr; }
+  .p-foot .ku { color: var(--pr-main); font-size: 9pt; font-weight: 800; }
+
+  /* ═════════ پرینت ═════════
+     پەڕەکە لەناو چوارچێوەیەکی قەبارە-دیاریکراودا بچووک دەکرێتەوە تا لەگەڵ لێواری
+     پرینتەری ئایفۆنیش (نزیکەی ٢٠mm) لە یەک پەڕەدا جێی ببێتەوە. */
+  #print-root { display: none; }
+  @media print {
+    @page { size: A4 portrait; margin: 0; }
+    html, body { background: #fff !important; }
+    .bg, .app { display: none !important; }
+    #print-root { display: block !important; }
+    #print-root .pp { direction: ltr; position: relative; width: 168mm; height: 237.6mm; overflow: hidden; margin: 4mm auto 0; break-inside: avoid; page-break-inside: avoid; }
+    #print-root .pp > .page { position: absolute; top: 0; left: 0; transform: scale(0.8); transform-origin: top left; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  }
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+<main class="app" id="app" dir="rtl" lang="ckb">
+  <header class="top">
+    <div class="logo"><span class="w">WLAT</span> <span class="s">SHADE</span><small>CANOPY &amp; ALUMINIUM SHADE SYSTEMS</small></div>
+    <h1><span class="hw">حسابی</span> نرخی پەرگۆلا</h1>
+    <p>PERGOLA FİYAT HESABI</p>
+    <span class="badge">تەنها بۆ بەکارهێنانی ناوخۆیی</span>
+  </header>
+
+  <form class="gc" id="frm" autocomplete="off" novalidate>
+    <h2>زانیاری کڕیار <span class="tr">SİPARİŞ</span></h2>
+    <div class="grid">
+      <div class="f"><label class="lbl" for="firma">ناوی کڕیار <span class="tr">FİRMA ADI</span></label><input type="text" id="firma" /></div>
+      <div class="f"><label class="lbl" for="ral">ڕەنگی ئەلەمنیۆم <span class="tr">RAL KODU</span></label><input type="text" id="ral" dir="ltr" /></div>
+      <div class="f"><label class="lbl" for="kumasRenk">ڕەنگی قوماش <span class="tr">KUMAŞ RENGİ</span></label><input type="text" id="kumasRenk" /></div>
+      <div class="f"><label class="lbl" for="citaRenk">ڕەنگی چیتا <span class="tr">ÇİTA RENGİ</span></label><input type="text" id="citaRenk" /></div>
+    </div>
+
+    <h2>قیاس <span class="tr">ÖLÇÜ (mm)</span></h2>
+    <div class="grid">
+      <div class="f"><label class="lbl" for="cephe">پانی <span class="tr">CEPHE</span></label><div class="unit"><input type="number" id="cephe" min="0" step="1" inputmode="numeric" /><span>mm</span></div></div>
+      <div class="f"><label class="lbl" for="acilir">درێژی <span class="tr">AÇILIR</span></label><div class="unit"><input type="number" id="acilir" min="0" step="1" inputmode="numeric" /><span>mm</span></div></div>
+      <div class="f"><label class="lbl" for="yukseklik">بەرزی <span class="tr">YÜKSEKLİK</span></label><div class="unit"><input type="number" id="yukseklik" min="0" step="1" inputmode="numeric" /><span>mm</span></div></div>
+      <div class="f wide"><span class="lbl">ژمارەی ڕێل <span class="tr">RAY SAYISI</span></span><div class="seg" id="ray" role="radiogroup" aria-label="RAY SAYISI"></div></div>
+    </div>
+
+    <h2>تایبەتمەندییەکان <span class="tr">ÖZELLİKLER</span></h2>
+    <div class="grid">
+      <div class="f"><span class="lbl">سیزۆنی ڕێل <span class="tr">RAY SERİSİ</span></span><div class="seg" id="series" role="radiogroup" aria-label="RAY SERİSİ"></div></div>
+      <div class="f"><span class="lbl">پایە <span class="tr">AYAK</span></span><div class="seg" id="ayak" role="radiogroup" aria-label="AYAK"></div></div>
+      <div class="f wide"><span class="lbl">شێوەی ڕێل <span class="tr">RADÜS</span></span><div class="seg" id="radius" role="radiogroup" aria-label="RADÜS"></div></div>
+      <div class="f wide"><span class="lbl">ماتۆڕ <span class="tr">MOTOR</span></span><div class="seg" id="motor" role="radiogroup" aria-label="MOTOR"></div></div>
+      <div class="f"><label class="lbl" for="kar">قازانج <span class="tr">KÂR MARJI (%)</span></label><div class="unit"><input type="number" id="kar" min="0" step="1" inputmode="decimal" /><span>%</span></div></div>
+    </div>
+  </form>
+
+  <section class="gc" aria-labelledby="resh">
+    <h2 id="resh">نرخ <span class="tr">FİYAT ($)</span></h2>
+    <div id="res"></div>
+  </section>
+
+  <section class="gc" aria-labelledby="math" id="matSec" hidden>
+    <h2 id="math">وردەکاری مەواد <span class="tr">MALZEME LİSTESİ</span></h2>
+    <div class="tbl-wrap"><table class="mats" id="mats"></table></div>
+  </section>
+
+  <div class="bar">
+    <div class="note">پەڕەی پرینت هەموو مەوادەکان و تێچوو و قازانج پیشان دەدات. تەنها بۆ ناوخۆیە، نەک بۆ کڕیار.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" class="btn ghost" id="reset">پاککردنەوە</button>
+      <button type="button" class="btn ghost" id="printBtn">پرینت</button>
+      <button type="button" class="btn" id="pdfBtn">داگرتنی PDF</button>
+    </div>
+  </div>
+
+  <section class="pv" aria-label="پێشبینینی پەڕەی پرینت" id="pvSec" hidden>
+    <div class="pv-bar"><span>پێشبینینی پرینت — A4</span><span style="direction:ltr;font-family:var(--lat);font-size:10px;letter-spacing:1px">MALİYET TABLOSU</span></div>
+    <div class="pv-body"><div class="pv-slot"><div class="pv-sizer" id="pv"></div></div></div>
+  </section>
+</main>
+<div id="print-root"></div>
+
+<script>
+// حسابی نرخی پەرگۆلا — هەمان فۆرمولەکانی ئێکسڵی «70 LIK RAY SERİ» (شیتی Maliyet)
+// ناوی خانەکان وەک ئێکسڵن: J5 Cephe، J6 Açılır، J7 Yükseklik، J8 Ray Sayısı،
+// J9 Radüs، J10 Ayak، J11 Motor، J15 Kar Marjı. هەموو قیاسەکان بە ملیمەترن.
+const PERGOLA_PRICES = {
+  // نرخی یەکە بە دۆلار. ڕێل و ئولوک بۆ سیزۆنی 90mm لە وێبسایتە کۆنەکەوە هاتوون (ئێکسڵەکە تەنها 70mm ـە).
+  "70": { ray: 13.5, oluk: 14 },
+  "90": { ray: 24, oluk: 18 },
+};
+
+function pergolaPrice(inp) {
+  const J5 = +inp.cephe || 0, J6 = +inp.acilir || 0, J7 = +inp.yukseklik || 0, J8 = +inp.ray || 0;
+  const J9 = inp.radius, J10 = inp.ayak, J11 = inp.motor, J15 = +inp.kar || 0;
+  const P = PERGOLA_PRICES[inp.series] || PERGOLA_PRICES["70"];
+  const tam = J9 === "Tam";
+  const R = {};
+  R.R19 = (J6 * J5 / 1000000) * 1.1;
+  R.R20 = ((J6 * J5) / 1000000) * (tam ? 1.25 : 1);
+  R.R21 = (J8 * J6 / 1000) * (tam ? 1.1 : 1);
+  R.R22 = ((J5 + 100) / 1000) * (tam ? 2 : 1);
+  R.R23 = (J8 * J7 / 1000) * (tam ? 2 : 1) * (J10 === "Yok" ? 0 : 1);
+  R.R24 = J5 * 2 / 1000;
+  R.R25 = (((J6 / 500) - 1) * J5 / 1000) * (tam ? 1.15 : 1);
+  R.R26 = (J5 / 1000) * (tam ? 2 : 1);
+  R.R27 = J5 / 1000;
+  R.R28 = (((J6 * 2) + 500) / 1000) * J8;
+  R.R29 = R.R24 + R.R25;
+  R.R30 = R.R21 * 2;
+  R.R31 = (J6 * 2 / 1000) * (tam ? 1.1 : 1);
+  R.R32 = (R.R29 + R.R30) * 2;
+  R.R33 = (J5 / 700) * (tam ? 0 : 1);
+  R.R34 = J8;
+  R.R35 = R.R19 * (tam ? 1.5 : 1);
+  R.R36 = 1;
+  R.R37 = J8 * (tam ? 2 : 1);
+  R.R38 = 1;
+  R.R39 = 60;
+  R.R40 = J11 === "MOSEL" ? 1 : 0;
+  R.R41 = J11 === "SOMFY" ? 1 : 0;
+  R.R42 = J11 === "MOSEL" ? 1 : 0;
+  R.R43 = J11 === "SOMFY" ? 1 : 0;
+
+  // [خانە، تورکی، کوردی، یەکە، نرخی یەکە]
+  const rows = [
+    ["R19", "Kumaş", "قوماش", "m²", 4],
+    ["R20", "İşçilik", "کارکردن", "m²", 4],
+    ["R21", "Ray", "ڕێل", "m", P.ray],
+    ["R22", "Oluk", "ئولوک", "m", P.oluk],
+    ["R23", "Ayak", "پایە", "m", 12.5],
+    ["R24", "Kalın Çita", "چیتای ئەستوور", "m", 5.4],
+    ["R25", "İnce Çita", "چیتای باریک", "m", 4.2],
+    ["R26", "Ara Kayıt", "تەختەی ناوەڕاست", "m", 7.5],
+    ["R27", "Boru", "بۆری", "m", 4.6],
+    ["R28", "Triger", "تریگەر", "m", 1.5],
+    ["R29", "Çita Fitili", "فیتیلی چیتا", "m", 0.5],
+    ["R30", "Ray Fitili", "فیتیلی ڕێل", "m", 0.6],
+    ["R31", "Kablo Fitili", "فیتیلی کابل", "m", 0.5],
+    ["R32", "Kablo", "کابل", "m", 0.15],
+    ["R33", "Trapez", "تراپێز", "Ad.", 4],
+    ["R34", "Plastik", "پلاستیک", "Ad.", 17.5],
+    ["R35", "Led", "LED", "Ad.", 1.2],
+    ["R36", "Adaptör", "ئەداپتەر", "Ad.", 10],
+    ["R37", "Demir Aparat", "پارچەی ئاسن", "Ad.", 15],
+    ["R38", "Somun + Vida", "پێچ و مەرەدەنک", "Ad.", 25],
+    ["R39", "Ambalaj", "پاکێج", "m²", 0.2],
+    ["R40", "Mosel Motor", "ماتۆڕی مۆسێل", "Ad.", 90],
+    ["R41", "Somfy Motor", "ماتۆڕی سۆمفی", "Ad.", 320],
+    ["R42", "Mosel Kumanda", "ڕیمۆتی مۆسێل", "Ad.", 15],
+    ["R43", "Somfy Kumanda", "ڕیمۆتی سۆمفی", "Ad.", 50],
+  ].map(([cell, tr, ku, unit, birim]) => ({ cell, tr, ku, unit, birim, qty: R[cell], total: R[cell] * birim }));
+
+  const toplam = rows.reduce((s, r) => s + r.total, 0);   // AA44
+  const kar = toplam * J15 / 100;                          // AA45
+  const satis = toplam + kar;                              // AA46
+  // شیتی «RAY KESİM ÖLÇÜSÜ»: √(açılım² + (345 − 280)²) − 21
+  const rayKesim = Math.sqrt(J6 * J6 + (345 - 280) * (345 - 280)) - 21;
+  const m2 = J5 * J6 / 1000000;
+  return { rows, toplam, kar, satis, rayKesim, m2 };
+}
+
+
+</script>
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  // خڕکردنەوە وەک ئێکسڵ: 15 ژمارەی گرنگ، نیوە بۆ دوور لە سفر (1178.225 → 1178.23)
+  const xround = (v, d) => { const r = Math.round(+(Math.abs(v).toPrecision(15) + "e" + d)); return (v < 0 && r ? -1 : 1) * +(r + "e-" + d); };
+  const q2 = (v) => xround(v, 2).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const usd = (v) => "$" + q2(v);
+  const n = (v) => (v === "" || v == null || isNaN(+v) ? 0 : +v);
+
+  const OPTS = {
+    ray: [["2", "2"], ["3", "3"], ["4", "4"], ["5", "5"], ["6", "6"]],
+    series: [["70", "70mm", "ئاسایی"], ["90", "90mm", "گەورە"]],
+    ayak: [["Var", "VAR", "هەیە"], ["Yok", "YOK", "نییە"]],
+    radius: [["Düz", "DÜZ", "ڕاست"], ["Yarım", "YARIM", "نیوە"], ["Tam", "TAM", "تەواو"]],
+    motor: [["YOK", "MOTORSUZ", "بێ ماتۆڕ"], ["MOSEL", "MOSEL · $90", "مۆسێل"], ["SOMFY", "SOMFY · $320", "سۆمفی"]],
+  };
+  const DEF = { firma: "", ral: "", kumasRenk: "", citaRenk: "", cephe: "", acilir: "", yukseklik: "", ray: "4", series: "70", ayak: "Var", radius: "Düz", motor: "MOSEL", kar: "20" };
+  let S = { ...DEF };
+
+  function buildSeg(id) {
+    $(id).innerHTML = OPTS[id].map(([v, tr, ku], i) =>
+      `<label><input type="radio" name="${id}" id="${id}_${i}" value="${esc(v)}"><span>${ku ? esc(ku) : esc(tr)}${ku ? `<i>${esc(tr)}</i>` : ""}</span></label>`).join("");
+    $(id).addEventListener("change", (e) => { S[id] = e.target.value; update(); });
+  }
+  Object.keys(OPTS).forEach(buildSeg);
+  ["firma", "ral", "kumasRenk", "citaRenk", "cephe", "acilir", "yukseklik", "kar"].forEach((id) => $(id).addEventListener("input", () => { S[id] = $(id).value; update(); }));
+  $("frm").addEventListener("submit", (e) => e.preventDefault());
+
+  function syncForm() {
+    Object.keys(OPTS).forEach((id) => { const i = OPTS[id].findIndex((o) => o[0] === S[id]); if (i >= 0) $(`${id}_${i}`).checked = true; });
+    ["firma", "ral", "kumasRenk", "citaRenk", "cephe", "acilir", "yukseklik", "kar"].forEach((id) => { if ($(id).value !== String(S[id])) $(id).value = S[id]; });
+  }
+
+  const today = () => { const d = new Date(), p = (x) => String(x).padStart(2, "0"); return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()}`; };
+  const label = (id, v) => { const o = OPTS[id].find((x) => x[0] === v); return o ? (o[2] || o[1]) : v; };
+
+  function sheet(r) {
+    const info = [
+      ["کڕیار", "FİRMA", S.firma || "—", true], ["بەروار", "TARİH", today()], ["پانی × درێژی", "CEPHE × AÇILIR", `${n(S.cephe)} × ${n(S.acilir)} mm`], ["بەرزی", "YÜKSEKLİK", `${n(S.yukseklik)} mm`],
+      ["ژمارەی ڕێل", "RAY SAYISI", S.ray], ["سیزۆنی ڕێل", "RAY SERİSİ", `${S.series} mm`], ["شێوەی ڕێل", "RADÜS", `${label("radius", S.radius)} · ${S.radius}`, true], ["پایە", "AYAK", `${label("ayak", S.ayak)} · ${S.ayak}`, true],
+      ["ماتۆڕ", "MOTOR", S.motor === "YOK" ? "بێ ماتۆڕ" : S.motor, S.motor === "YOK"], ["RAL", "RAL KODU", S.ral || "—"], ["ڕەنگی قوماش", "KUMAŞ", S.kumasRenk || "—", true], ["ڕەنگی چیتا", "ÇİTA", S.citaRenk || "—", true],
+    ];
+    let h = `<div class="page">`;
+    h += `<div class="p-head"><div class="p-brand"><img src="images/mark-white.webp" alt=""><div class="bw"><span class="ku">ووڵات شەید</span><small>WLAT SHADE</small></div></div>` +
+         `<div class="p-doc"><b>MALİYET TABLOSU</b><span class="ku">حسابی نرخی پەرگۆلا</span><span>${today()}</span></div></div>`;
+    h += `<div class="p-title"><span class="ku">${esc(S.firma || "حسابی نرخی پەرگۆلا")}</span><span>${n(S.cephe)} × ${n(S.acilir)} mm · ${q2(r.m2)} m²</span></div>`;
+    h += `<div class="p-info">${info.map(([k, tr, v, ku]) => `<div><span class="k">${k}<i>${tr}</i></span><span class="v${ku ? " ku" : ""}">${esc(v)}</span></div>`).join("")}</div>`;
+    h += `<table class="p-mats"><thead><tr><th><span class="ku">مەواد</span> · MALZEME</th><th>ADET</th><th>BİRİM</th><th>TOPLAM</th></tr></thead><tbody>`;
+    r.rows.forEach((m) => {
+      h += `<tr class="${m.total === 0 ? "zero" : ""}"><td class="n"><span class="ku">${m.ku}</span><i>${m.tr}</i></td>` +
+           `<td class="num">${q2(m.qty)} ${m.unit}</td><td class="num">${usd(m.birim)}</td><td class="num tot">${m.total === 0 ? "—" : usd(m.total)}</td></tr>`;
+    });
+    h += `</tbody></table>`;
+    h += `<div class="p-tot"><div><span class="k">کۆی تێچوو · TOPLAM</span><span class="v">${usd(r.toplam)}</span></div>` +
+         `<div><span class="k">قازانج · KÂR (${q2(n(S.kar))}%)</span><span class="v">${usd(r.kar)}</span></div>` +
+         `<div class="main"><span class="k">نرخی فرۆشتن · SATIŞ</span><span class="v">${usd(r.satis)}</span></div></div>`;
+    h += `<div class="p-ray">پێوانەی بڕینی ڕێل (RAY KESİM ÖLÇÜSÜ): <b>${q2(r.rayKesim)} mm</b></div>`;
+    h += `<div class="p-foot"><span>0770 220 3536 · 0770 155 9272</span><span>MALİYET TABLOSU · İÇ KULLANIM</span><span class="ku">ووڵات شەید — سلێمانی</span></div>`;
+    return h + `</div>`;
+  }
+
+  const PAGE_W = 210 * 96 / 25.4, PAGE_H = 297 * 96 / 25.4;
+  function fit() {
+    const sz = $("pv"), slot = sz.parentElement;
+    const k = Math.min(1, slot.clientWidth / PAGE_W);
+    sz.style.width = `${PAGE_W * k}px`; sz.style.height = `${PAGE_H * k}px`;
+    if (sz.firstElementChild) sz.firstElementChild.style.transform = `scale(${k})`;
+  }
+  window.addEventListener("resize", fit);
+
+  function update() {
+    const ready = n(S.cephe) > 0 && n(S.acilir) > 0;
+    const r = pergolaPrice({ ...S, ray: n(S.ray), kar: n(S.kar), yukseklik: n(S.yukseklik) });
+    if (!ready) {
+      $("res").innerHTML = `<div class="empty">پانی و درێژی بنووسە، ئینجا نرخەکە لێرە دەردەکەوێت.</div>`;
+    } else {
+      const tile = (k, tr, v, cls = "") => `<div class="tile ${cls}"><span class="k">${k}<i>${tr}</i></span><span class="v ${cls === "gold" ? "gold" : ""}">${v}</span></div>`;
+      $("res").innerHTML = `<div class="sum">` +
+        tile("نرخی فرۆشتن", "SATIŞ", usd(r.satis), "main") +
+        tile("کۆی تێچوو", "TOPLAM", usd(r.toplam)) +
+        `<div class="tile"><span class="k">قازانج (${q2(n(S.kar))}%)<i>KÂR</i></span><span class="v gold">+${usd(r.kar)}</span></div>` +
+        tile("نرخی هەر مەترێکی چوارگۆشە", "SATIŞ / m²", r.m2 > 0 ? usd(r.satis / r.m2) : "—") +
+        `<div class="tile"><span class="k">پێوانەی بڕینی ڕێل<i>RAY KESİM</i></span><span class="v sm">${q2(r.rayKesim)} mm</span></div>` + `</div>`;
+    }
+    $("matSec").hidden = !ready; $("pvSec").hidden = !ready;
+    ["printBtn", "pdfBtn"].forEach((id) => { if (!pdfBusy) $(id).disabled = !ready; });
+    if (!ready) { $("print-root").innerHTML = ""; $("pv").innerHTML = ""; return; }
+
+    let t = `<thead><tr><th>مەواد<i>MALZEME</i></th><th>بڕ<i>ADET</i></th><th class="b">نرخی یەکە<i>BİRİM</i></th><th>کۆ<i>TOPLAM</i></th></tr></thead><tbody>`;
+    r.rows.forEach((m) => {
+      t += `<tr class="${m.total === 0 ? "zero" : ""}"><td class="n"><b>${m.ku}</b><i>${m.tr}</i></td><td class="num">${q2(m.qty)} ${m.unit}<small>× ${usd(m.birim)}</small></td>` +
+           `<td class="num b">${usd(m.birim)}</td><td class="num tot">${m.total === 0 ? "—" : usd(m.total)}</td></tr>`;
+    });
+    t += `</tbody><tfoot><tr><td colspan="2">کۆی تێچوو · TOPLAM</td><td class="b"></td><td class="num">${usd(r.toplam)}</td></tr></tfoot>`;
+    $("mats").innerHTML = t;
+
+    const pg = sheet(r);
+    $("pv").innerHTML = pg;
+    $("print-root").innerHTML = `<div class="pp">${pg}</div>`;
+    fit();
+  }
+
+  // ── پرینت و PDF ──
+  const pdfName = () => {
+    const clean = (v) => String(v || "").trim().replace(/[\\/:*?"<>|]+/g, "-");
+    return `${clean(S.firma) || "WLAT-SHADE"}_NIRX_${clean(S.cephe)}x${clean(S.acilir)}_${today().replace(/\./g, "-")}`;
+  };
+  const doPrint = () => { update(); const prev = document.title; document.title = pdfName(); window.print(); setTimeout(() => { document.title = prev; }, 1000); };
+  let pdfBusy = false;
+  $("printBtn").addEventListener("click", doPrint);
+  $("pdfBtn").addEventListener("click", async () => {
+    if (pdfBusy) return;
+    pdfBusy = true;
+    const btn = $("pdfBtn"), label0 = btn.textContent;
+    btn.disabled = true; btn.textContent = "چاوەڕێ بکە…";
+    try {
+      update();
+      const blob = await buildPdf();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = pdfName() + ".pdf"; a.rel = "noopener";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (err) { console.error("PDF:", err); doPrint(); }
+    finally { pdfBusy = false; btn.disabled = false; btn.textContent = label0; }
+  });
+  $("reset").addEventListener("click", () => { S = { ...DEF }; syncForm(); update(); $("firma").focus(); });
+
+  // ── PDF بەبێ کتێبخانە: پەڕەکە دەبێتە وێنەیەکی JPEG لەناو A4 ی ستوونیدا ──
+  const b64 = (buf) => { const bytes = new Uint8Array(buf); let bin = ""; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(bin); };
+  const ARABIC = "U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F";
+  let fontCss = null;
+  async function inlineFonts() {
+    if (fontCss !== null) return fontCss;
+    const files = [["fonts/zain-arabic-700-normal.woff2", 700, 1], ["fonts/zain-latin-700-normal.woff2", 700, 0], ["fonts/zain-arabic-400-normal.woff2", 400, 1],
+                   ["fonts/zain-latin-400-normal.woff2", 400, 0], ["fonts/zain-arabic-800-normal.woff2", 800, 1], ["fonts/zain-arabic-900-normal.woff2", 900, 1], ["fonts/zain-latin-900-normal.woff2", 900, 0]];
+    const parts = await Promise.all(files.map(async ([u, w, ar]) => {
+      const buf = await (await fetch(u)).arrayBuffer();
+      return `@font-face{font-family:'Zain';font-weight:${w};src:url(data:font/woff2;base64,${b64(buf)}) format('woff2');${ar ? `unicode-range:${ARABIC};` : ""}}`;
+    }));
+    return (fontCss = parts.join(""));
+  }
+  const imgCache = {};
+  const dataUrl = (src) => imgCache[src] || (imgCache[src] = fetch(src).then(async (r) => `data:${r.headers.get("content-type") || "image/webp"};base64,${b64(await r.arrayBuffer())}`));
+  async function pageJpeg(pageEl, css, SCALE) {
+    const W = Math.round(PAGE_W), H = Math.round(PAGE_H);
+    const clone = pageEl.cloneNode(true); clone.style.transform = "none";
+    await Promise.all([...clone.querySelectorAll("img")].map(async (im) => { im.setAttribute("src", await dataUrl(im.getAttribute("src"))); }));
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><foreignObject x="0" y="0" width="${W}" height="${H}">` +
+      `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${W}px;height:${H}px;background:#fff"><style><![CDATA[${css}]]></style>${new XMLSerializer().serializeToString(clone)}</div></foreignObject></svg>`;
+    const img = new Image();
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    if (img.decode) await img.decode(); else await new Promise((ok, no) => { img.onload = ok; img.onerror = no; });
+    const c = document.createElement("canvas"); c.width = W * SCALE; c.height = H * SCALE;
+    const ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(img, 0, 0, c.width, c.height);
+    const url = c.toDataURL("image/jpeg", 0.92);
+    if (url.indexOf("data:image/jpeg") !== 0) throw new Error("JPEG");
+    return { data: atob(url.slice(url.indexOf(",") + 1)), w: c.width, h: c.height };
+  }
+  function jpegsToPdf(pages) {
+    const PW = 595.276, PH = 841.89;
+    const objs = [null, "<< /Type /Catalog /Pages 2 0 R >>", null], kids = [];
+    pages.forEach((pg, i) => {
+      const pageId = 3 + i * 3, contId = pageId + 1, imgId = pageId + 2;
+      kids.push(`${pageId} 0 R`);
+      const content = `q ${PW} 0 0 ${PH} 0 0 cm /Im0 Do Q`;
+      objs[pageId] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /XObject << /Im0 ${imgId} 0 R >> /ProcSet [/PDF /ImageC] >> /Contents ${contId} 0 R >>`;
+      objs[contId] = `<< /Length ${content.length} >>\nstream\n${content}\nendstream`;
+      objs[imgId] = `<< /Type /XObject /Subtype /Image /Width ${pg.w} /Height ${pg.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${pg.data.length} >>\nstream\n${pg.data}\nendstream`;
+    });
+    objs[2] = `<< /Type /Pages /Kids [${kids.join(" ")}] /Count ${pages.length} >>`;
+    let out = "%PDF-1.4\n"; const off = [];
+    for (let i = 1; i < objs.length; i++) { off[i] = out.length; out += `${i} 0 obj\n${objs[i]}\nendobj\n`; }
+    const xref = out.length;
+    out += `xref\n0 ${objs.length}\n0000000000 65535 f \n`;
+    for (let i = 1; i < objs.length; i++) out += ("0000000000" + off[i]).slice(-10) + " 00000 n \n";
+    out += `trailer\n<< /Size ${objs.length} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+    const bytes = new Uint8Array(out.length);
+    for (let i = 0; i < out.length; i++) bytes[i] = out.charCodeAt(i) & 0xff;
+    return new Blob([bytes], { type: "application/pdf" });
+  }
+  async function buildPdf() {
+    const pages = [...$("print-root").querySelectorAll(".page")];
+    if (!pages.length) throw new Error("no pages");
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    const css = [...document.querySelectorAll("style")].map((el) => el.textContent).join("\n").replace(/@font-face\s*\{[^}]*\}/g, "");
+    let fonts = ""; try { fonts = await inlineFonts(); } catch (e) { fonts = ""; }
+    // یەکەم وێنەکێشان تەنها بۆ بارکردنی فۆنتەکانە
+    await pageJpeg(pages[0], css + fonts, 0.2);
+    await new Promise((r) => setTimeout(r, 120));
+    const shots = [];
+    for (const pg of pages) shots.push(await pageJpeg(pg, css + fonts, 2.5));
+    return jpegsToPdf(shots);
+  }
+
+  syncForm();
+  update();
+})();
+</script>
+</body>
+</html>
