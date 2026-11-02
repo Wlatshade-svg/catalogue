@@ -8,6 +8,12 @@
 <meta name="robots" content="noindex, nofollow" />
 <meta name="theme-color" content="#070209" />
 <link rel="icon" type="image/png" href="logo-icon.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/apple-180.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="نرخی پەرگۆلا" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <link rel="preload" as="font" type="font/woff2" href="fonts/zain-arabic-700-normal.woff2" crossorigin />
 <style>
   @font-face { font-family: 'Zain'; font-weight: 400; font-display: swap; src: url('fonts/zain-arabic-400-normal.woff2') format('woff2');
@@ -561,6 +567,10 @@ function pergolaPrice(inp) {
   syncForm();
   update();
 })();
+</script>
+<script>
+  // ئەپ: دامەزراندن لەسەر کۆمپیوتەر و مۆبایل، و کارکردن بێ ئینتەرنێت
+  if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 </script>
 </body>
 </html>
