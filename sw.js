@@ -1,6 +1,6 @@
 // ئەپی ووڵات شەید: پەڕەکان هەمیشە نوێترین وەشان لە ئینتەرنێتەوە وەردەگرن،
 // و ئەگەر ئینتەرنێت نەبوو، دوایین وەشانی پاشەکەوتکراو دەکرێتەوە.
-const CACHE = "wlat-nirx-v3";
+const CACHE = "wlat-nirx-v4";
 const ASSETS = ["./", "index.html", "logo-icon.png", "images/mark-white.webp", "icons/icon-192.png", "fonts/zain-arabic-400-normal.woff2", "fonts/zain-arabic-700-normal.woff2", "fonts/zain-arabic-800-normal.woff2", "fonts/zain-arabic-900-normal.woff2", "fonts/zain-latin-400-normal.woff2", "fonts/zain-latin-700-normal.woff2", "fonts/zain-latin-800-normal.woff2", "fonts/zain-latin-900-normal.woff2"];
 self.addEventListener("install", (e) => {
   self.skipWaiting();
