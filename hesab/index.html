@@ -8,7 +8,12 @@
   <meta name="description" content="حیسابکەری بڕینی پەرگۆلا — WLAT SHADE. Pergola kesim hesaplama aracı." />
   <meta name="theme-color" content="#070209" />
   <link rel="icon" type="image/png" href="logo-icon.png" />
-  <link rel="apple-touch-icon" href="logo-icon.png" />
+<link rel="manifest" href="pergola.webmanifest" />
+<link rel="apple-touch-icon" href="icons/pergola-apple-180.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="بڕینی پەرگۆلا" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <link rel="preload" as="font" type="font/woff2" href="fonts/zain-arabic-700-normal.woff2" crossorigin />
   <link rel="preload" as="font" type="font/woff2" href="fonts/zain-latin-700-normal.woff2" crossorigin />
@@ -2483,5 +2488,9 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(/*#__PURE__*/React.createElement(App, null));
 </script>
 
+<script>
+  // ئەپ: دامەزراندن لەسەر کۆمپیوتەر و مۆبایل، و کارکردن بێ ئینتەرنێت
+  if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+</script>
 </body>
 </html>
