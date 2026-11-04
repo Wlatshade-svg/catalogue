@@ -4,7 +4,7 @@
   "short_name": "گیۆتین جام",
   "lang": "ckb",
   "dir": "rtl",
-  "start_url": "giyotin.html",
+  "start_url": "giyotin",
   "scope": "./",
   "display": "standalone",
   "background_color": "#070209",
