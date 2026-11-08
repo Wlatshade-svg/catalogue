@@ -1,0 +1,781 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Bod;src:url(fonts/bodoni.woff2)}
+@font-face{font-family:BodI;src:url(fonts/bodoni-italic.woff2)}
+@font-face{font-family:Pin;src:url(fonts/pinyon.woff2)}
+@font-face{font-family:Nas;src:url(fonts/naskh.woff2)}
+html,body{margin:0;background:#000;overflow:hidden}
+canvas{display:block;width:1920px;height:1080px}
+</style></head><body><canvas id="c" width="3840" height="2160"></canvas>
+<script type="module">
+import { mulberry, clamp, lerp, vnoise } from '/core/lib.js';
+
+const W = 1920, H = 1080, SS = 2;
+const Q = new URLSearchParams(location.search);
+const WASH = Q.get('wash') !== '0';
+const PAPER = '#f1e8d2', INK = '#1c1510';
+const PI = Math.PI;
+
+function mk() { const c = document.createElement('canvas'); c.width = W * SS; c.height = H * SS; const x = c.getContext('2d'); x.scale(SS, SS); return [c, x]; }
+const [inkC, ink] = mk();
+const [washC, wash] = mk();
+const [paperC, paper] = mk();
+
+/* ---------------- 3D camera ---------------- */
+const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+const mul = (a, k) => [a[0] * k, a[1] * k, a[2] * k];
+const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const norm = a => { const l = Math.hypot(...a) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
+const lerp3 = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
+
+const CAM = [-7.6, 6.5, -10.2], TGT = [0.3, 1.45, 3.4];
+const FW = norm(sub(TGT, CAM)), RT = norm(cross(FW, [0, 1, 0])).map(v => -v), UP = cross(RT, FW).map(v => -v);
+const F = 1520, CX = 900, CY = 600;
+let SHIFT = [0, 0, 0];
+function P(p) { const d = sub(add(p, SHIFT), CAM); const z = dot(d, FW); return [CX + F * dot(d, RT) / z, CY - F * dot(d, UP) / z]; }
+function depth(p) { return dot(sub(add(p, SHIFT), CAM), FW); }
+const LIGHT = norm([-0.55, 0.8, -0.35]);      // towards the sun: upper left, a little towards us
+
+/* ---------------- burin primitives ---------------- */
+const swell = u => (0.2 + 0.8 * Math.pow(Math.sin(PI * clamp(u)), 0.7)) * Math.pow(clamp(Math.min(u, 1 - u) / 0.22), 0.5);
+
+// fill a variable-width stroke along pts with widths ws
+function band(c, pts, ws) {
+  const n = pts.length; if (n < 2) return;
+  const L = [], R = [];
+  for (let i = 0; i < n; i++) {
+    const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)];
+    let dx = b[0] - a[0], dy = b[1] - a[1]; const l = Math.hypot(dx, dy) || 1; dx /= l; dy /= l;
+    const w = ws[i] / 2;
+    L.push([pts[i][0] - dy * w, pts[i][1] + dx * w]); R.push([pts[i][0] + dy * w, pts[i][1] - dx * w]);
+  }
+  c.beginPath(); c.moveTo(L[0][0], L[0][1]);
+  for (let i = 1; i < n; i++) c.lineTo(L[i][0], L[i][1]);
+  for (let i = n - 1; i >= 0; i--) c.lineTo(R[i][0], R[i][1]);
+  c.closePath(); c.fill();
+}
+// cut one line: tone-driven widths, split into runs where the tone falls below threshold, each run swells
+function cut(pts, wOf, minLen = 3) {
+  let run = [], wr = [];
+  const flush = () => {
+    if (run.length > 1) {
+      let len = 0; const acc = [0];
+      for (let i = 1; i < run.length; i++) { len += Math.hypot(run[i][0] - run[i - 1][0], run[i][1] - run[i - 1][1]); acc.push(len); }
+      if (len >= minLen) band(ink, run, wr.map((w, i) => w * swell(acc[i] / len)));
+    }
+    run = []; wr = [];
+  };
+  for (let i = 0; i < pts.length; i++) {
+    const w = wOf(pts[i], i);
+    if (w > 0.06) { run.push(pts[i]); wr.push(w); } else flush();
+  }
+  flush();
+}
+const fam = (t, th, w) => t <= th ? 0 : w * Math.pow((t - th) / (1 - th), 0.65) + 0.15;
+
+// parallel hatching of a polygon (screen space)
+function hatch(poly, o) {
+  const { ang = 0.5, sp = 4.2, tone, w = 1.7, th = 0.1, seed = 7, step = 2.5, jit = 0.18, wav = 0.6 } = o;
+  const r = mulberry(seed), c = Math.cos(ang), s = Math.sin(ang);
+  const R = poly.map(([x, y]) => [x * c + y * s, -x * s + y * c]);
+  let y0 = Infinity, y1 = -Infinity; for (const p of R) { y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }
+  for (let yy = y0 + sp * r(); yy < y1; yy += sp * (1 + jit * (r() - 0.5))) {
+    const xs = [];
+    for (let i = 0; i < R.length; i++) {
+      const a = R[i], b = R[(i + 1) % R.length];
+      if ((a[1] <= yy) !== (b[1] <= yy)) xs.push(a[0] + (yy - a[1]) / (b[1] - a[1]) * (b[0] - a[0]));
+    }
+    xs.sort((a, b) => a - b);
+    const ph = r() * 9;
+    for (let k = 0; k + 1 < xs.length; k += 2) {
+      const xa = xs[k], xb = xs[k + 1], n = Math.max(2, Math.ceil((xb - xa) / step));
+      const pts = [];
+      for (let i = 0; i <= n; i++) {
+        const xr = lerp(xa, xb, i / n), yr = yy + wav * Math.sin(xr * 0.02 + ph);
+        pts.push([xr * c - yr * s, xr * s + yr * c]);
+      }
+      cut(pts, p => fam(tone(p[0], p[1]), th, w));
+    }
+  }
+}
+// the three families of tone
+function engrave(poly, o) {
+  const { ang = 0.6, sp = 4.2, tone, w = 1.7, seed = 1, cross = 1.05, third = -0.45 } = o;
+  hatch(poly, { ...o, ang, sp, tone, w, th: o.th1 ?? 0.1, seed });
+  hatch(poly, { ...o, ang: ang + cross, sp: sp * 1.12, tone, w: w * 0.8, th: 0.48, seed: seed + 11 });
+  hatch(poly, { ...o, ang: ang + third, sp: sp * 1.3, tone, w: w * 0.6, th: 0.76, seed: seed + 23 });
+}
+function occlude(poly, grow = 0, clearWash = true) {
+  if (clearWash) { wash.save(); wash.globalCompositeOperation = 'destination-out'; wash.beginPath(); poly.forEach((p, i) => i ? wash.lineTo(p[0], p[1]) : wash.moveTo(p[0], p[1])); wash.closePath(); wash.fill(); if (grow) { wash.lineWidth = grow; wash.stroke(); } wash.restore(); }
+  ink.save(); ink.globalCompositeOperation = 'destination-out';
+  ink.beginPath(); poly.forEach((p, i) => i ? ink.lineTo(p[0], p[1]) : ink.moveTo(p[0], p[1])); ink.closePath(); ink.fill();
+  if (grow) { ink.lineWidth = grow; ink.lineJoin = 'round'; ink.stroke(); }
+  ink.restore();
+}
+// contour cut in several runs, pinched where runs hand over
+function outline(pts, { w = 1.6, closed = false, runLen = 140, seed = 3, min = 0.45 } = {}) {
+  const r = mulberry(seed);
+  let path = pts.slice(); if (closed) path.push(pts[0]);
+  // resample
+  const rs = [path[0]];
+  for (let i = 1; i < path.length; i++) {
+    const a = path[i - 1], b = path[i], l = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.max(1, Math.ceil(l / 3));
+    for (let k = 1; k <= n; k++) rs.push([lerp(a[0], b[0], k / n), lerp(a[1], b[1], k / n)]);
+  }
+  let i = 0;
+  while (i < rs.length - 1) {
+    const n = Math.max(6, Math.round(runLen / 3 * (0.7 + 0.6 * r())));
+    const j = Math.min(rs.length - 1, i + n);
+    const run = rs.slice(i, j + 1), m = run.length;
+    band(ink, run, run.map((_, k) => { const u = k / (m - 1); return w * (min + (1.35 - min) * Math.pow(Math.sin(PI * u), 0.7)); }));
+    i = j - 1; if (j === rs.length - 1) break;
+  }
+}
+function stipple(cx, cy, rad, n, size, seed) {
+  const r = mulberry(seed);
+  for (let i = 0; i < n; i++) {
+    const a = r() * 2 * PI, d = Math.sqrt(r()) * rad;
+    ink.beginPath(); ink.arc(cx + Math.cos(a) * d, cy + Math.sin(a) * d * 0.8, size * (0.5 + r()), 0, 2 * PI); ink.fill();
+  }
+}
+
+/* ---------------- hand wash ---------------- */
+function washRegion(poly, color, { seed = 1, alpha = 0.55, spill = 3 } = {}) {
+  if (!WASH) return;
+  const r = mulberry(seed);
+  const jit = poly.map(([x, y], i) => [x + (vnoise(i * 0.37 + seed) - 0.5) * spill * 2 + (r() - .5) * 1.2, y + (vnoise(i * 0.41 + seed * 3) - 0.5) * spill * 2 + 1.5]);
+  wash.save();
+  wash.globalAlpha = alpha; wash.fillStyle = color;
+  wash.beginPath(); jit.forEach((p, i) => i ? wash.lineTo(p[0], p[1]) : wash.moveTo(p[0], p[1])); wash.closePath(); wash.fill();
+  // tide line at the wet edge
+  wash.globalAlpha = alpha * 0.55; wash.strokeStyle = color; wash.lineWidth = 1.6; wash.stroke();
+  // density lift
+  wash.clip();
+  wash.globalCompositeOperation = 'destination-out';
+  for (let i = 0; i < 26; i++) {
+    const [x0, y0] = jit[Math.floor(r() * jit.length)];
+    const g = wash.createRadialGradient(x0, y0, 0, x0, y0, 40 + r() * 90);
+    g.addColorStop(0, 'rgba(0,0,0,0.25)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    wash.globalAlpha = 1; wash.fillStyle = g; wash.fillRect(x0 - 140, y0 - 140, 280, 280);
+  }
+  wash.restore();
+}
+
+/* ---------------- paper ---------------- */
+function makePaper() {
+  const c = paper, r = mulberry(99);
+  c.fillStyle = PAPER; c.fillRect(0, 0, W, H);
+  for (let i = 0; i < 70; i++) {
+    const x = r() * W, y = r() * H, rad = 80 + r() * 320;
+    const g = c.createRadialGradient(x, y, 0, x, y, rad);
+    const dark = r() < 0.6;
+    g.addColorStop(0, dark ? 'rgba(150,115,60,0.05)' : 'rgba(255,250,235,0.07)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    c.fillStyle = g; c.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+  }
+  c.strokeStyle = 'rgba(120,95,55,0.035)'; c.lineWidth = 0.6;
+  for (let y = 0; y < H; y += 4.5) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y + (r() - .5)); c.stroke(); }
+  c.strokeStyle = 'rgba(120,95,55,0.045)'; c.lineWidth = 1;
+  for (let x = 30; x < W; x += 64) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x + 2, H); c.stroke(); }
+  for (let i = 0; i < 2600; i++) {
+    const x = r() * W, y = r() * H, a = r() * PI, l = 3 + r() * 12;
+    c.strokeStyle = `rgba(${r() < .5 ? '110,85,50' : '255,252,240'},${0.05 + r() * 0.07})`; c.lineWidth = 0.4 + r() * 0.5;
+    c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x + Math.cos(a) * l * .5 + r() * 2, y + Math.sin(a) * l * .5, x + Math.cos(a) * l, y + Math.sin(a) * l); c.stroke();
+  }
+  for (let i = 0; i < 90; i++) {
+    const x = r() * W, y = r() * H, rad = 0.6 + r() * r() * 5;
+    c.fillStyle = `rgba(140,95,45,${0.08 + r() * 0.18})`; c.beginPath(); c.arc(x, y, rad, 0, 2 * PI); c.fill();
+  }
+  // aged edges
+  const g = c.createRadialGradient(W / 2, H / 2, H * 0.45, W / 2, H / 2, W * 0.62);
+  g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(120,85,40,0.16)');
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+  // plate mark: the pressed plate is a touch smoother and darker, with a bevel
+  const m = 26;
+  c.fillStyle = 'rgba(120,95,60,0.035)'; c.fillRect(m, m, W - 2 * m, H - 2 * m);
+  c.strokeStyle = 'rgba(90,70,40,0.28)'; c.lineWidth = 1.4; c.strokeRect(m, m, W - 2 * m, H - 2 * m);
+  c.strokeStyle = 'rgba(255,252,240,0.55)'; c.lineWidth = 1.2; c.strokeRect(m + 2, m + 2, W - 2 * m - 4, H - 2 * m - 4);
+  c.strokeStyle = 'rgba(90,70,40,0.10)'; c.lineWidth = 3; c.strokeRect(m + 5, m + 5, W - 2 * m - 10, H - 2 * m - 10);
+}
+
+/* ---------------- frame, graticule, compass ---------------- */
+const IN = { x0: 64, y0: 60, x1: W - 64, y1: H - 60 };
+function frame() {
+  ink.fillStyle = INK;
+  const { x0, y0, x1, y1 } = IN;
+  // heavy rule + hairline
+  const rect = (a, b, c, d, w) => { band(ink, [[a, b], [c, b]], [w, w]); band(ink, [[c, b], [c, d]], [w, w]); band(ink, [[c, d], [a, d]], [w, w]); band(ink, [[a, d], [a, b]], [w, w]); };
+  rect(x0 - 12, y0 - 12, x1 + 12, y1 + 12, 2.6);
+  rect(x0 - 6, y0 - 6, x1 + 6, y1 + 6, 0.5);
+  rect(x0, y0, x1, y1, 0.9);
+  // graduated band between the two outer rules
+  const seg = 40;
+  for (let x = x0, k = 0; x < x1; x += seg, k++) if (k % 2 === 0) { ink.fillRect(x, y0 - 11, Math.min(seg, x1 - x), 4); ink.fillRect(x, y1 + 7, Math.min(seg, x1 - x), 4); }
+  for (let y = y0, k = 0; y < y1; y += seg, k++) if (k % 2 === 0) { ink.fillRect(x0 - 11, y, 4, Math.min(seg, y1 - y)); ink.fillRect(x1 + 7, y, 4, Math.min(seg, y1 - y)); }
+}
+function graticule() {
+  ink.fillStyle = INK;
+  const { x0, y0, x1, y1 } = IN;
+  for (let x = x0 + 240; x < x1; x += 240) band(ink, [[x, y0], [x, y1]], [0.45, 0.45]);
+  for (let y = y0 + 240; y < y1; y += 240) band(ink, [[x0, y], [x1, y]], [0.45, 0.45]);
+}
+const ROSE = [1745, 196, 88];
+function rhumbs() {
+  const [cx, cy] = ROSE; ink.fillStyle = INK;
+  for (let k = 0; k < 32; k++) {
+    const a = k / 32 * 2 * PI;
+    const pts = [[cx, cy]];
+    // to the inner frame
+    let t = 4000; const dx = Math.cos(a), dy = Math.sin(a);
+    if (dx > 0) t = Math.min(t, (IN.x1 - cx) / dx); if (dx < 0) t = Math.min(t, (IN.x0 - cx) / dx);
+    if (dy > 0) t = Math.min(t, (IN.y1 - cy) / dy); if (dy < 0) t = Math.min(t, (IN.y0 - cy) / dy);
+    pts.push([cx + dx * t, cy + dy * t]);
+    if (k % 4 === 0) band(ink, pts, [0.55, 0.55]);
+    else if (k % 2 === 0) dashed(pts[0], pts[1], 0.45, 14, 6);
+    else dashed(pts[0], pts[1], 0.35, 4, 7);
+  }
+}
+function dashed(a, b, w, on, off) {
+  const l = Math.hypot(b[0] - a[0], b[1] - a[1]);
+  for (let s = 0; s < l; s += on + off) {
+    const t0 = s / l, t1 = Math.min(1, (s + on) / l);
+    band(ink, [[lerp(a[0], b[0], t0), lerp(a[1], b[1], t0)], [lerp(a[0], b[0], t1), lerp(a[1], b[1], t1)]], [w, w]);
+  }
+}
+function compass() {
+  const [cx, cy, R] = ROSE; ink.fillStyle = INK;
+  const circ = (r) => { const p = []; for (let i = 0; i <= 180; i++) { const a = i / 180 * 2 * PI; p.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); } return p; };
+  occlude(circ(R * 1.08), 0, true);
+  outline(circ(R * 1.06), { w: 1.4, runLen: 200 });
+  outline(circ(R * 0.98), { w: 0.7, runLen: 200 });
+  for (let i = 0; i < 128; i++) {
+    const a = i / 128 * 2 * PI, l = i % 4 === 0 ? 0.08 : 0.04;
+    band(ink, [[cx + Math.cos(a) * R * 0.98, cy + Math.sin(a) * R * 0.98], [cx + Math.cos(a) * R * (0.98 - l), cy + Math.sin(a) * R * (0.98 - l)]], [0.6, 0.6]);
+  }
+  outline(circ(R * 0.86), { w: 0.6, runLen: 200 });
+  const point = (a, len, wid, seed) => {
+    const tip = [cx + Math.cos(a) * len, cy + Math.sin(a) * len];
+    const l = [cx + Math.cos(a - PI / 2) * wid, cy + Math.sin(a - PI / 2) * wid];
+    const rr = [cx + Math.cos(a + PI / 2) * wid, cy + Math.sin(a + PI / 2) * wid];
+    occlude([[cx, cy], l, tip, rr]);
+    // one half dark: hatched across
+    hatch([[cx, cy], l, tip], { ang: a + PI / 2, sp: 2.4, tone: () => 0.9, w: 1.3, th: 0.05, seed, step: 1.5, wav: 0 });
+    outline([[cx, cy], l, tip, rr], { w: 0.9, closed: true, runLen: 80, seed });
+  };
+  for (let k = 0; k < 8; k++) point(-PI / 2 + PI / 8 + k * PI / 4, R * 0.56, R * 0.08, 50 + k);
+  for (let k = 0; k < 4; k++) point(-PI / 4 + k * PI / 2, R * 0.66, R * 0.11, 60 + k);
+  for (let k = 0; k < 4; k++) point(-PI / 2 + k * PI / 2, R * 0.92, R * 0.14, 70 + k);
+  outline(circ(R * 0.07), { w: 0.8, runLen: 60 });
+  // north mark
+  ink.font = '600 30px Bod'; ink.textAlign = 'center'; ink.fillText('N', cx, cy - R * 1.13);
+}
+
+/* ---------------- landscape ---------------- */
+const HORIZON = P([0, 0, 400])[1];
+function ridge(x, base, amp, f, seed) { return base - amp * (0.55 * vnoise(x * f + seed) + 0.3 * vnoise(x * f * 2.3 + seed * 2) + 0.15 * vnoise(x * f * 5.1 + seed * 3)); }
+function hills() {
+  const layers = [
+    { base: HORIZON + 10, amp: 250, f: 0.004, seed: 4, tone: (x, y) => 0.18 + 0.1 * vnoise(x * 0.01 + y * 0.02), ang: 0.02, sp: 4.6, wash: '#cfae7c' },
+    { base: HORIZON + 40, amp: 150, f: 0.006, seed: 9, tone: (x, y) => 0.3 + 0.18 * vnoise(x * 0.012), ang: 0.0, sp: 4.0, wash: '#c49a64' },
+  ];
+  for (const L of layers) {
+    const poly = [];
+    for (let x = IN.x0; x <= IN.x1; x += 6) poly.push([x, ridge(x, L.base, L.amp, L.f, L.seed)]);
+    poly.push([IN.x1, HORIZON + 60], [IN.x0, HORIZON + 60]);
+    occlude(poly);
+    washRegion(poly, L.wash, { seed: L.seed, alpha: 0.45, spill: 6 });
+    // shading falls on the slopes facing away from the light (left-lit: slopes rising to the right are dark)
+    const tone = (x, y) => {
+      const d = ridge(x + 6, L.base, L.amp, L.f, L.seed) - ridge(x - 6, L.base, L.amp, L.f, L.seed);
+      return clamp(L.tone(x, y) + d * 0.035 + (y - ridge(x, L.base, L.amp, L.f, L.seed)) * -0.0008);
+    };
+    hatch(poly, { ang: L.ang, sp: L.sp, tone, w: 1.3, th: 0.1, seed: L.seed, wav: 1.2 });
+    hatch(poly, { ang: 1.05, sp: L.sp * 1.3, tone, w: 1.0, th: 0.42, seed: L.seed + 5, wav: 0.4 });
+    outline(poly.slice(0, poly.length - 2), { w: 1.0, runLen: 160, seed: L.seed });
+  }
+}
+function tree(x, yb, h, wdt, seed, kind = 'round') {
+  const r = mulberry(seed);
+  const trunk = [[x - 3.5, yb], [x + 3.5, yb], [x + 2, yb - h * 0.45], [x - 2, yb - h * 0.45]];
+  occlude(trunk); hatch(trunk, { ang: PI / 2, sp: 2.0, tone: xx => xx > x ? 0.85 : 0.5, w: 1.1, seed, wav: 0 });
+  // foliage: overlapping lobes, back ones first; each lobe cut with its own tone field
+  const lobes = [];
+  const n = kind === 'cypress' ? 9 : 11;
+  for (let i = 0; i < n; i++) {
+    const t = i / (n - 1);
+    const lx = kind === 'cypress' ? x + (r() - .5) * wdt * 0.5 : x + (r() - .5) * wdt * 0.8;
+    const ly = kind === 'cypress' ? yb - h * (0.2 + 0.75 * t) : yb - h * (0.35 + 0.55 * r());
+    const lr = kind === 'cypress' ? wdt * (0.32 - 0.16 * t) * (0.8 + 0.4 * r()) : wdt * (0.22 + 0.12 * r());
+    lobes.push([lx, ly, lr]);
+  }
+  lobes.sort((a, b) => (a[0] - x) * 0.3 - (a[1] - yb) * -1 - ((b[0] - x) * 0.3 - (b[1] - yb) * -1));
+  const all = [];
+  for (const [lx, ly, lr] of lobes) {
+    const poly = [];
+    for (let i = 0; i < 30; i++) { const a = i / 30 * 2 * PI; const rr = lr * (1 + 0.1 * Math.sin(a * 6 + lx) + 0.05 * Math.sin(a * 13 + ly)); poly.push([lx + Math.cos(a) * rr, ly + Math.sin(a) * rr * 0.9]); }
+    all.push(poly);
+    occlude(poly);
+    const tone = (px, py) => clamp(0.3 + (px - lx) / lr * 0.32 + (py - ly) / lr * 0.32 + (lx - x) / wdt * 0.3 + 0.12 * vnoise(px * 0.3 + py * 0.21));
+    hatch(poly, { ang: 0.75, sp: 3.0, tone, w: 1.25, seed: seed + lx | 0, wav: 0.9, step: 2 });
+    hatch(poly, { ang: -0.55, sp: 3.4, tone, w: 1.0, th: 0.5, seed: seed + ly | 0, wav: 0.9, step: 2 });
+    // scalloped outer edge: only the shadow side gets a cut line, light side left open (leaves)
+    const edge = poly.filter(([px, py]) => (px - lx) * 0.6 + (py - ly) * 0.8 > -lr * 0.2);
+    for (let i = 0; i + 1 < edge.length; i += 2) band(ink, [edge[i], edge[i + 1]], [0.4, 1.3]);
+  }
+  for (const p of all) washRegion(p, '#9aa47a', { seed: seed + p.length, alpha: 0.32, spill: 3 });
+}
+
+/* ---------------- ground ---------------- */
+function ground() {
+  const drive = [[-4.6, 0, -3.6], [4.4, 0, -3.6], [4.4, 0, 13], [-4.6, 0, 13]].map(P);
+  // the far ground band up to the horizon (fields): sparse horizontal hairlines
+  const field = [[IN.x0, HORIZON + 58], [IN.x1, HORIZON + 58], [IN.x1, IN.y1], [IN.x0, IN.y1]];
+  occlude(field);
+  hatch(field, { ang: 0, sp: 6, tone: (x, y) => 0.14 + 0.05 * vnoise(x * 0.01), w: 0.9, seed: 31, wav: 0.8 });
+  occlude(drive);
+  // pavers: perspective courses
+  const tonePv = (x, y) => 0.12;
+  washRegion(drive, '#c98f78', { seed: 33, alpha: 0.42, spill: 3 });
+  ink.fillStyle = INK;
+  for (let z = -3.6; z <= 13; z += 0.42) {
+    const a = P([-4.6, 0, z]), b = P([4.4, 0, z]);
+    const w = clamp(0.3 + 0.9 / (depth([0, 0, z]) * 0.15), 0.3, 1.0);
+    cut(resample([a, b], 4), () => w);
+  }
+  for (let x = -4.6, k = 0; x <= 4.4; x += 0.42, k++) {
+    // running bond: short joints across each course, staggered
+    for (let z = -3.6, j = 0; z < 13; z += 0.42, j++) {
+      const xx = x + (j % 2 ? 0.21 : 0); if (xx > 4.4) continue;
+      const a = P([xx, 0, z]), b = P([xx, 0, z + 0.42]);
+      const w = clamp(0.25 + 0.8 / (depth([xx, 0, z]) * 0.15), 0.25, 0.9);
+      band(ink, [a, b], [w, w * 0.8]);
+    }
+  }
+  // kerb on the left
+  const kerb = [[-4.6, 0, -3.6], [-4.6, 0.3, -3.6], [-4.6, 0.3, 13], [-4.6, 0, 13]];
+  face3(kerb, () => 0.2, { ang: 0.1, sp: 3.6, seed: 35 });
+  const kerbTop = [[-4.6, 0.3, -3.6], [-5.0, 0.3, -3.6], [-5.0, 0.3, 13], [-4.6, 0.3, 13]];
+  face3(kerbTop, () => 0.05, { ang: 0.1, sp: 4, seed: 36 });
+}
+function resample(pts, step) {
+  const out = [pts[0]];
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i], n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step));
+    for (let k = 1; k <= n; k++) out.push([lerp(a[0], b[0], k / n), lerp(a[1], b[1], k / n)]);
+  }
+  return out;
+}
+
+/* ---------------- generic 3D pieces ---------------- */
+function face3(pts3, tone, o = {}) {
+  const poly = pts3.map(P);
+  occlude(poly);
+  engrave(poly, { tone, ...o });
+  outline(poly, { w: o.ow ?? 1.2, closed: true, runLen: 120, seed: o.seed ?? 1 });
+  return poly;
+}
+// a cylinder between two world points (posts, arms, rods)
+function cylinder(a, b, rad, { dark = 0.62, seed = 1, sp = 2.6, w = 1.5 } = {}) {
+  const pa = P(a), pb = P(b);
+  const ra = F * rad / depth(a), rb = F * rad / depth(b);
+  let dx = pb[0] - pa[0], dy = pb[1] - pa[1]; const l = Math.hypot(dx, dy) || 1; dx /= l; dy /= l;
+  const nx = -dy, ny = dx;
+  const poly = [[pa[0] + nx * ra, pa[1] + ny * ra], [pb[0] + nx * rb, pb[1] + ny * rb], [pb[0] - nx * rb, pb[1] - ny * rb], [pa[0] - nx * ra, pa[1] - ny * ra]];
+  occlude(poly);
+  // tone across the cylinder: light from upper left of the screen
+  const lx = -0.75, ly = -0.65;
+  const side = Math.sign(nx * lx + ny * ly) || 1;   // which side faces the light
+  const tone = (x, y) => {
+    const t = clamp(((x - pa[0]) * dx + (y - pa[1]) * dy) / l);
+    const rr = lerp(ra, rb, t);
+    const s = ((x - pa[0]) * nx + (y - pa[1]) * ny) / rr * side; // +1 = lit side
+    const lit = Math.max(0, Math.cos((Math.asin(clamp(s, -1, 1)) - 0.55)));
+    const spec = Math.exp(-Math.pow((s - 0.55) / 0.12, 2));
+    return clamp(dark + (1 - lit) * 0.35 - spec * 0.55);
+  };
+  const ang = Math.atan2(dy, dx);
+  hatch(poly, { ang, sp: Math.max(1.6, Math.min(sp, (ra + rb) / 3)), tone, w, th: 0.1, seed, step: 2, wav: 0 });
+  hatch(poly, { ang: ang + PI / 2 + 0.25, sp: 3.0, tone, w: w * 0.8, th: 0.55, seed: seed + 9, step: 1.5, wav: 0 });
+  band(ink, [poly[0], poly[1]], [0.9, 0.9]); band(ink, [poly[3], poly[2]], [1.4, 1.4]);
+  return poly;
+}
+
+/* ---------------- the canopy ---------------- */
+const D = 2.7, NB = 3, XL = -3.15, XR = 2.95, YL = 3.0, YR = 2.62;
+function memb(k, u, v) {
+  const z0 = k * D, z1 = (k + 1) * D, e = 0.38, e2 = 0.32;
+  const x = lerp(XL + e2 * Math.sin(PI * v), XR - e2 * 0.5 * Math.sin(PI * v), u);
+  const z = lerp(z0 + e * Math.sin(PI * u), z1 - e * Math.sin(PI * u), v);
+  const su = Math.sin(PI * u), sv = Math.sin(PI * v);
+  const y = lerp(YL, YR, u) - 0.62 * su * sv + 0.22 * su * (1 - sv) * (1 - sv) + 0.12 * sv * (1 - su) * (1 - su);
+  return [x, y, z];
+}
+function membrane(k) {
+  const N = 60;
+  const bound = [];
+  for (let i = 0; i <= N; i++) bound.push(memb(k, i / N, 0));
+  for (let i = 0; i <= N; i++) bound.push(memb(k, 1, i / N));
+  for (let i = N; i >= 0; i--) bound.push(memb(k, i / N, 1));
+  for (let i = N; i >= 0; i--) bound.push(memb(k, 0, i / N));
+  const poly = bound.map(P);
+  occlude(poly);
+  // fabric is white: very pale, only the underside in the deepest folds takes crossing
+  const toneAt = (u, v) => {
+    const p = memb(k, u, v), du = sub(memb(k, u + 0.01, v), p), dv = sub(memb(k, u, v + 0.01), p);
+    let n = norm(cross(du, dv)); if (n[1] < 0) n = mul(n, -1);
+    const under = dot(n, sub(CAM, p)) < 0;
+    if (!under) return clamp(0.1 + 1.1 * (1 - dot(n, LIGHT)) + 0.08 * Math.sin(PI * u) * Math.sin(PI * v));
+    // translucent underside: glowing in the middle, darker toward the post and the tensioned edges
+    return clamp(0.3 + 0.26 * u + 0.22 * Math.pow(Math.abs(2 * v - 1), 3) + 0.35 * (1 - Math.abs(n[1])));
+  };
+  // contour lines along u (constant v) – follow the form
+  const lenV = Math.hypot(...sub(P(memb(k, 0.5, 1)), P(memb(k, 0.5, 0))));
+  const nv = Math.max(10, Math.round(lenV / 3.6));
+  for (let j = 1; j < nv; j++) {
+    const v = j / nv, pts = [], ts = [];
+    for (let i = 0; i <= 90; i++) { const u = i / 90; pts.push(P(memb(k, u, v))); ts.push(toneAt(u, v)); }
+    cut(pts, (_, i) => fam(ts[i], 0.12, 1.7));
+  }
+  const lenU = Math.hypot(...sub(P(memb(k, 1, 0.5)), P(memb(k, 0, 0.5))));
+  const nu = Math.max(20, Math.round(lenU / 4.2));
+  for (let j = 1; j < nu; j++) {
+    const u = j / nu, pts = [], ts = [];
+    for (let i = 0; i <= 50; i++) { const v = i / 50; pts.push(P(memb(k, u, v))); ts.push(toneAt(u, v)); }
+    cut(pts, (_, i) => fam(ts[i], 0.42, 1.1));
+  }
+  // hem bands along the free edges
+  for (const v of [0, 1]) {
+    const e = [], h = [];
+    for (let i = 0; i <= N; i++) { e.push(P(memb(k, i / N, v))); h.push(P(memb(k, i / N, v ? 0.955 : 0.045))); }
+    outline(e, { w: 1.8, runLen: 180, seed: k * 3 + v });
+    outline(h, { w: 0.6, runLen: 180, seed: k * 5 + v });
+  }
+  const e0 = []; for (let i = 0; i <= N; i++) e0.push(P(memb(k, 0, i / N)));
+  outline(e0, { w: 1.6, runLen: 160, seed: k + 40 });
+  return poly;
+}
+function canopy() {
+  const posts = [0, 1, 2, 3].map(k => k * D);
+  // far to near
+  for (let k = NB - 1; k >= 0; k--) {
+    // posts behind this bay
+    const z = (k + 1) * D;
+    cylinder([XR + 0.05, 0, z], [XR + 0.05, YR + 0.05, z], 0.1, { seed: 80 + k, dark: 0.66 });
+    cylinder([XR + 0.05, YR - 0.55, z], [XR - 2.1, YL - 0.15, z], 0.045, { seed: 90 + k, dark: 0.66 });   // brace
+    membrane(k);
+    // cantilever arm at the far edge and corner fittings
+    cylinder([XR + 0.05, YR + 0.02, z], [XL, YL, z], 0.06, { seed: 100 + k, dark: 0.66 });
+    if (k === NB - 1) { /* last bay far edge already drawn */ }
+  }
+  // front arm, post and the tall post with its tie rod
+  cylinder([XR + 0.05, 0, 0], [XR + 0.05, YR + 0.05, 0], 0.1, { seed: 120, dark: 0.66 });
+  cylinder([XR + 0.05, YR + 0.02, 0], [XL, YL, 0], 0.06, { seed: 121, dark: 0.66 });
+  cylinder([XR + 0.05, YR - 0.55, 0], [XR - 2.1, YL - 0.15, 0], 0.045, { seed: 122, dark: 0.66 });
+  const TOP = [XR + 0.55, 4.55, -0.35];
+  cylinder([XR + 0.55, 0, -0.35], TOP, 0.13, { seed: 123, dark: 0.66 });
+  cylinder(TOP, [XL - 0.05, YL + 0.05, 0], 0.05, { seed: 124, dark: 0.66 });
+  // hanger strap from the rod to the front hem
+  const hu = 0.5, rodPt = lerp3(TOP, [XL - 0.05, YL + 0.05, 0], 0.5), hemPt = memb(0, hu, 0);
+  const hp = [P(rodPt), P(hemPt)];
+  const hw = 4.5;
+  const strap = [[hp[0][0] - hw, hp[0][1]], [hp[0][0] + hw, hp[0][1]], [hp[1][0] + hw, hp[1][1]], [hp[1][0] - hw, hp[1][1]]];
+  occlude(strap); hatch(strap, { ang: PI / 2, sp: 1.8, tone: x => x > hp[0][0] + 1 ? 0.85 : 0.55, w: 1.2, seed: 125, step: 1.5, wav: 0 });
+  outline(strap, { w: 0.9, closed: true, runLen: 60 });
+  for (const t of [0.15, 0.85]) { const p = [lerp(hp[0][0], hp[1][0], t), lerp(hp[0][1], hp[1][1], t)]; ink.beginPath(); ink.arc(p[0], p[1], 2.2, 0, 2 * PI); ink.fill(); ink.fillStyle = PAPER; ink.beginPath(); ink.arc(p[0] - 0.6, p[1] - 0.6, 0.8, 0, 2 * PI); ink.fill(); ink.fillStyle = INK; }
+  return { hanger: P(lerp3(rodPt, hemPt, 0.4)) };
+}
+function canopyShadow() {
+  // sun from upper left-front: the shadow falls right and back
+  const sh = p => P([p[0] - LIGHT[0] / LIGHT[1] * p[1], 0, p[2] - LIGHT[2] / LIGHT[1] * p[1]]);
+  for (let k = 0; k < NB; k++) {
+    const N = 30, poly = [];
+    for (let i = 0; i <= N; i++) poly.push(sh(memb(k, i / N, 0)));
+    for (let i = 0; i <= N; i++) poly.push(sh(memb(k, 1, i / N)));
+    for (let i = N; i >= 0; i--) poly.push(sh(memb(k, i / N, 1)));
+    for (let i = N; i >= 0; i--) poly.push(sh(memb(k, 0, i / N)));
+    hatch(poly, { ang: -0.35, sp: 3.6, tone: () => 0.5, w: 1.1, th: 0.1, seed: 140 + k, wav: 0.3 });
+  }
+}
+
+/* ---------------- the car ---------------- */
+function car() {
+  const xl = -0.93, xr = 0.93, zf = 1.0, zb = 5.55;
+  const cl = -0.8, cr = 0.8;
+  const yb = 0.32, yw = 1.02, yr = 1.66;
+  const zh = 2.15, zw = 3.05, zrb = 4.95;
+  const L = [];
+  const darkCar = (base) => (x, y) => clamp(base + 0.08 * vnoise(x * 0.05 + y * 0.03));
+  // contact shadow
+  const cs = [[xl - 0.25, 0, zf - 0.1], [xr + 0.6, 0, zf - 0.1], [xr + 0.9, 0, zb + 0.4], [xl - 0.1, 0, zb + 0.3]].map(P);
+  occlude(cs); hatch(cs, { ang: 0.2, sp: 2.4, tone: () => 0.85, w: 1.4, seed: 160 });
+  hatch(cs, { ang: 1.4, sp: 2.8, tone: () => 0.85, w: 1.1, th: 0.4, seed: 161 });
+  // wheels on the left side (visible)
+  const wheel = (zc, seed) => {
+    const pts = []; for (let i = 0; i < 40; i++) { const a = i / 40 * 2 * PI; pts.push(P([xl - 0.02, 0.37 + Math.sin(a) * 0.37, zc + Math.cos(a) * 0.37])); }
+    occlude(pts); engrave(pts, { tone: () => 0.92, sp: 2.2, w: 1.3, seed });
+    const rim = []; for (let i = 0; i < 40; i++) { const a = i / 40 * 2 * PI; rim.push(P([xl - 0.06, 0.37 + Math.sin(a) * 0.22, zc + Math.cos(a) * 0.22])); }
+    occlude(rim); hatch(rim, { ang: 0.8, sp: 2.4, tone: (x, y) => 0.25 + 0.03 * (x - rim[0][0]) * 0, w: 1.0, seed: seed + 1 });
+    outline(rim, { w: 0.9, closed: true, runLen: 50 });
+    for (let s = 0; s < 5; s++) { const a = s / 5 * 2 * PI + 0.3; band(ink, [P([xl - 0.06, 0.37, zc]), P([xl - 0.06, 0.37 + Math.sin(a) * 0.2, zc + Math.cos(a) * 0.2])], [2.2, 1.0]); }
+  };
+  // body side (left) with wheel arches
+  const side = [];
+  side.push([xl, yb, zf + 0.1]);
+  const arch = (zc, dir) => { for (let i = 0; i <= 12; i++) { const a = PI - i / 12 * PI; side.push([xl, 0.37 + Math.sin(a) * 0.46, zc + Math.cos(a) * 0.46 * dir * -1]); } };
+  side.push([xl, yb, 1.62]);
+  for (let i = 0; i <= 12; i++) { const a = i / 12 * PI; side.push([xl, 0.37 + Math.sin(a) * 0.46, 2.1 - Math.cos(a) * 0.46]); }
+  side.push([xl, yb, 4.5]);
+  for (let i = 0; i <= 12; i++) { const a = i / 12 * PI; side.push([xl, 0.37 + Math.sin(a) * 0.46, 5.0 - Math.cos(a) * 0.46]); }
+  side.push([xl, yb, zb], [xl, yw + 0.02, zb], [xl, yw, zh], [xl, yw - 0.08, zf + 0.05]);
+  face3(side, (x, y) => clamp(0.62 + (y - P([xl, yw, 3])[1]) * 0.004), { ang: 0.12, sp: 3.0, w: 1.6, seed: 170 });
+  // highlight swage line
+  cut(resample([P([xl, 0.82, zf + 0.3]), P([xl, 0.88, zb - 0.2])], 3), () => 0.9);
+  wheel(2.1, 171); wheel(5.0, 173);
+  // front face
+  const front = [[xl, yb, zf + 0.1], [xr, yb, zf + 0.1], [xr, yw - 0.08, zf + 0.05], [xl, yw - 0.08, zf + 0.05]];
+  face3(front, darkCar(0.72), { ang: 0.05, sp: 2.8, w: 1.6, seed: 175 });
+  // grille (two kidneys), lamps, plate
+  const fq = (x0, y0, x1, y1, tone, seed) => face3([[x0, y0, zf + 0.06], [x1, y0, zf + 0.06], [x1, y1, zf + 0.06], [x0, y1, zf + 0.06]], () => tone, { ang: PI / 2, sp: 2.0, w: 1.1, seed, ow: 0.8 });
+  fq(-0.27, 0.6, -0.04, 0.95, 0.55, 176); fq(0.04, 0.6, 0.27, 0.95, 0.55, 177);
+  for (let gx = -0.24; gx < 0.26; gx += 0.045) if (Math.abs(gx) > 0.03) band(ink, [P([gx, 0.62, zf + 0.04]), P([gx, 0.93, zf + 0.04])], [1.0, 1.0]);
+  face3([[-0.88, 0.78, zf + 0.06], [-0.36, 0.76, zf + 0.06], [-0.4, 0.9, zf + 0.06], [-0.86, 0.94, zf + 0.06]], () => 0.12, { ang: 0.3, sp: 2.4, w: 1.0, seed: 178, ow: 0.9 });
+  face3([[0.36, 0.76, zf + 0.06], [0.88, 0.78, zf + 0.06], [0.86, 0.94, zf + 0.06], [0.4, 0.9, zf + 0.06]], () => 0.12, { ang: -0.3, sp: 2.4, w: 1.0, seed: 179, ow: 0.9 });
+  fq(-0.25, 0.4, 0.25, 0.52, 0.02, 180);
+  face3([[-0.9, 0.33, zf + 0.06], [0.9, 0.33, zf + 0.06], [0.9, 0.38, zf + 0.06], [-0.9, 0.38, zf + 0.06]], () => 0.08, { ang: 0, sp: 3, w: 1.0, seed: 187, ow: 0.8 });
+  // hood
+  const hood = [[xl, yw - 0.08, zf + 0.05], [xr, yw - 0.08, zf + 0.05], [xr - 0.05, yw, zh], [xl + 0.05, yw, zh]];
+  face3(hood, (x, y) => 0.38 + 0.1 * vnoise(x * 0.04), { ang: -0.2, sp: 3.2, w: 1.4, seed: 181 });
+  // windscreen
+  const ws = [[cl + 0.03, yw, zh], [cr - 0.03, yw, zh], [cr - 0.06, yr, zw], [cl + 0.06, yr, zw]];
+  face3(ws, (x, y) => 0.8 - 0.5 * Math.exp(-Math.pow(((x - y * 0.6) % 90) / 18, 2)), { ang: 0.9, sp: 2.6, w: 1.5, seed: 182 });
+  // roof
+  face3([[cl + 0.06, yr, zw], [cr - 0.06, yr, zw], [cr - 0.06, yr, zrb], [cl + 0.06, yr, zrb]], () => 0.28, { ang: 0.1, sp: 3.4, w: 1.3, seed: 183 });
+  // side glasshouse
+  const gl = [[xl + 0.03, yw, zh + 0.05], [xl + 0.12, yr, zw], [xl + 0.12, yr, zrb], [xl + 0.05, yw + 0.02, zb - 0.1]];
+  face3(gl, (x, y) => 0.55, { ang: 0.12, sp: 3.0, w: 1.4, seed: 184 });
+  const win = [[xl + 0.06, yw + 0.06, zh + 0.35], [xl + 0.12, yr - 0.05, zw + 0.1], [xl + 0.12, yr - 0.05, zrb - 0.15], [xl + 0.07, yw + 0.06, zb - 0.4]];
+  face3(win, (x, y) => 0.88, { ang: 0.12, sp: 2.4, w: 1.5, seed: 185 });
+  band(ink, [P([xl + 0.09, yw + 0.06, 3.75]), P([xl + 0.12, yr - 0.05, 3.75])], [2.4, 2.4]);
+  // mirror
+  face3([[xl - 0.22, yw + 0.05, zh + 0.2], [xl, yw + 0.05, zh + 0.2], [xl, yw + 0.22, zh + 0.2], [xl - 0.2, yw + 0.2, zh + 0.2]], () => 0.8, { ang: 0.4, sp: 2.2, w: 1.2, seed: 186 });
+}
+
+/* ---------------- the man ---------------- */
+// a limb: polyline of [x,y] with half-widths → closed outline
+function limb(pts, ws) {
+  const L = [], R = [];
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)];
+    let dx = b[0] - a[0], dy = b[1] - a[1]; const l = Math.hypot(dx, dy) || 1; dx /= l; dy /= l;
+    L.push([pts[i][0] - dy * ws[i], pts[i][1] + dx * ws[i]]); R.push([pts[i][0] + dy * ws[i], pts[i][1] - dx * ws[i]]);
+  }
+  return [...L, ...R.reverse()];
+}
+function spline(pts, n = 8) {   // Catmull-Rom through pts
+  const out = [];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)];
+    for (let k = 0; k < n; k++) {
+      const t = k / n, t2 = t * t, t3 = t2 * t;
+      out.push([0, 1].map(j => 0.5 * (2 * p1[j] + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2 + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t3)));
+    }
+  }
+  out.push(pts[pts.length - 1]);
+  return out;
+}
+function man(foot) {
+  const pf = P(foot), ph = P(add(foot, [0, 1.76, 0]));
+  const s = pf[1] - ph[1];
+  const at = ([x, y]) => [pf[0] + x * s, pf[1] - y * s];
+  const part = (pts, tone, o = {}) => {
+    const poly = pts.map(at);
+    occlude(poly);
+    if (o.wash) washRegion(poly, o.wash, { seed: o.seed ?? 1, alpha: o.wa ?? 0.5, spill: 2 });
+    const xs = poly.map(p => p[0]), cx = (Math.min(...xs) + Math.max(...xs)) / 2, wdt = Math.max(...xs) - Math.min(...xs) + 1;
+    engrave(poly, { tone: (x, y) => clamp(tone + (x - cx) / wdt * (o.grad ?? 0.55)), ang: o.ang ?? 1.3, sp: o.sp ?? 2.3, w: 1.15, seed: o.seed ?? 1 });
+    outline(poly, { w: o.ow ?? 1.15, closed: true, runLen: 60, seed: o.seed ?? 1 });
+  };
+  const CL = '#8e9c94';   // a grey-green suit
+  // wide trousers (shalwar), gathered at the ankle
+  part(limb(spline([[-0.035, 0.5], [-0.07, 0.3], [-0.06, 0.12], [-0.055, 0.04]]), [0.075, 0.085, 0.06, 0.035].flatMap(w => Array(8).fill(w)).slice(0, 25)), 0.42, { seed: 201, ang: 1.5, wash: CL });
+  part(limb(spline([[0.035, 0.5], [0.075, 0.3], [0.08, 0.12], [0.085, 0.04]]), [0.075, 0.085, 0.06, 0.035].flatMap(w => Array(8).fill(w)).slice(0, 25)), 0.55, { seed: 202, ang: 1.5, wash: CL });
+  // shoes
+  part(spline([[-0.1, 0.0], [-0.02, 0.0], [-0.025, 0.03], [-0.08, 0.04], [-0.1, 0.0]], 4), 0.9, { seed: 203, ow: 0.9 });
+  part(spline([[0.06, 0.0], [0.15, 0.0], [0.13, 0.035], [0.07, 0.04], [0.06, 0.0]], 4), 0.9, { seed: 204, ow: 0.9 });
+  // jacket
+  part(spline([[-0.115, 0.81], [-0.1, 0.66], [-0.105, 0.47], [0.0, 0.455], [0.105, 0.47], [0.1, 0.66], [0.115, 0.81], [0.05, 0.835], [0.0, 0.83], [-0.05, 0.835], [-0.115, 0.81]], 5), 0.3, { seed: 205, ang: 1.4, wash: CL });
+  // wide sash (pishtwen) with folds
+  part(spline([[-0.108, 0.6], [0.0, 0.59], [0.108, 0.6], [0.106, 0.52], [0.0, 0.51], [-0.106, 0.52], [-0.108, 0.6]], 4), 0.5, { seed: 206, ang: 0.08, sp: 2.0, wash: '#b98c5a', wa: 0.6 });
+  for (const yy of [0.575, 0.55, 0.53]) outline(spline([[-0.1, yy], [0, yy - 0.008], [0.1, yy]], 6).map(at), { w: 0.7, runLen: 200 });
+  // left arm hanging, a little bent
+  part(limb(spline([[-0.105, 0.8], [-0.14, 0.64], [-0.135, 0.5]]), Array(17).fill(0).map((_, i) => 0.034 - i * 0.0007)), 0.3, { seed: 207, ang: 1.45, wash: CL });
+  part(spline([[-0.15, 0.505], [-0.12, 0.505], [-0.125, 0.455], [-0.145, 0.45], [-0.15, 0.505]], 4), 0.2, { seed: 208, ow: 0.9 });
+  // right arm raised, pointing up to the canopy
+  part(limb(spline([[0.1, 0.795], [0.2, 0.88], [0.25, 1.0]]), Array(17).fill(0).map((_, i) => 0.034 - i * 0.0008)), 0.25, { seed: 209, ang: 0.6, wash: CL });
+  part(spline([[0.235, 0.995], [0.268, 1.0], [0.275, 1.04], [0.29, 1.09], [0.282, 1.095], [0.262, 1.05], [0.24, 1.035], [0.235, 0.995]], 4), 0.18, { seed: 210, ow: 0.9 });
+  // neck, head, beard, turban (jamana)
+  part([[-0.022, 0.86], [0.024, 0.86], [0.022, 0.82], [-0.022, 0.82]], 0.3, { seed: 211 });
+  const head = []; for (let i = 0; i < 28; i++) { const a = i / 28 * 2 * PI; head.push([0.004 + Math.cos(a) * 0.05, 0.915 + Math.sin(a) * 0.064]); }
+  part(head, 0.16, { seed: 212, ang: 0.9 });
+  part(spline([[-0.045, 0.9], [-0.03, 0.86], [0.0, 0.85], [0.035, 0.86], [0.05, 0.9], [0.03, 0.885], [0.0, 0.875], [-0.025, 0.885], [-0.045, 0.9]], 4), 0.62, { seed: 213, sp: 1.8 });
+  part(spline([[-0.058, 0.945], [-0.05, 0.985], [0.0, 1.0], [0.055, 0.99], [0.062, 0.945], [0.0, 0.955], [-0.058, 0.945]], 5), 0.35, { seed: 214, ang: 0.15, sp: 2.0, wash: '#c9c2ae' });
+  for (const yy of [0.965, 0.978]) outline(spline([[-0.052, yy], [0, yy + 0.008], [0.056, yy]], 6).map(at), { w: 0.6, runLen: 200 });
+  // shadow at the feet
+  const sh = spline([[-0.13, 0.0], [0.05, -0.015], [0.32, -0.005], [0.3, 0.012], [0.05, 0.01], [-0.13, 0.0]], 5).map(at);
+  hatch(sh, { ang: 0.05, sp: 2.0, tone: () => 0.8, w: 1.2, seed: 215, wav: 0 });
+}
+
+/* ---------------- magnifying roundel ---------------- */
+const RD = [1722, 812, 128];
+function roundel(target) {
+  const [cx, cy, R] = RD;
+  const circ = r => { const p = []; for (let i = 0; i <= 160; i++) { const a = i / 160 * 2 * PI; p.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); } return p; };
+  // leader from the part to the rim, with clearance
+  const ang = Math.atan2(target[1] - cy, target[0] - cx);
+  const rim = [cx + Math.cos(ang) * (R + 12), cy + Math.sin(ang) * (R + 12)];
+  ink.fillStyle = INK;
+  dashed(target, rim, 0.6, 8, 4);
+  ink.beginPath(); ink.arc(target[0], target[1], 3, 0, 2 * PI); ink.fill();
+  ink.font = 'italic 500 20px BodI'; ink.fillText('1', target[0] + 8, target[1] - 8);
+  occlude(circ(R + 10), 0, true);
+  // ruled machine ground
+  for (let y = cy - R; y < cy + R; y += 2.6) {
+    const hw = Math.sqrt(Math.max(0, R * R - (y - cy) ** 2));
+    band(ink, [[cx - hw, y], [cx + hw, y]], [0.45, 0.45]);
+  }
+  // subject: the steel rod, the clamp, the strap, the hem with its bolt
+  const sub1 = [];
+  const rod = [[cx - R - 10, cy - 78], [cx + R + 10, cy - 98], [cx + R + 10, cy - 52], [cx - R - 10, cy - 32]];
+  const strap = [[cx - 18, cy - 60], [cx + 18, cy - 62], [cx + 16, cy + 62], [cx - 16, cy + 62]];
+  const hem = []; for (let i = 0; i <= 40; i++) { const x = cx - R - 10 + i / 40 * (2 * R + 20); hem.push([x, cy + 50 + 14 * Math.sin((x - cx) / R * 1.4)]); }
+  for (let i = 40; i >= 0; i--) { const x = cx - R - 10 + i / 40 * (2 * R + 20); hem.push([x, cy + R + 20]); }
+  ink.save(); ink.beginPath(); circ(R).forEach((p, i) => i ? ink.lineTo(p[0], p[1]) : ink.moveTo(p[0], p[1])); ink.clip();
+  // white halo, then the parts
+  for (const poly of [hem, strap, rod]) occlude(poly, 16);
+  occlude(hem);
+  hatch(hem, { ang: 0.08, sp: 3.0, tone: (x, y) => 0.15 + (y - cy - 50) / 120 * 0.4, w: 1.3, seed: 300, wav: 0.4 });
+  const hemTop = hem.slice(0, 41); outline(hemTop, { w: 1.6, runLen: 120 });
+  outline(hemTop.map(([x, y]) => [x, y + 12]), { w: 0.7, runLen: 120 });
+  // stitches
+  for (let x = cx - R; x < cx + R; x += 9) { const y = cy + 50 + 14 * Math.sin((x - cx) / R * 1.4) + 18; band(ink, [[x, y], [x + 5, y]], [0.9, 0.9]); }
+  occlude(strap);
+  hatch(strap, { ang: PI / 2, sp: 2.2, tone: (x, y) => 0.45 + (x - cx) / 36 * 0.6, w: 1.3, seed: 301, wav: 0 });
+  outline(strap, { w: 1.4, closed: true, runLen: 80 });
+  occlude(rod);
+  const rodTone = (x, y) => { const yc = lerp(cy - 55, cy - 75, (x - cx + R) / (2 * R)); const s = (y - yc) / 23; return clamp(0.55 + 0.4 * s - 0.6 * Math.exp(-Math.pow((s + 0.45) / 0.15, 2))); };
+  hatch(rod, { ang: -0.07, sp: 2.4, tone: rodTone, w: 1.5, seed: 302, wav: 0 });
+  hatch(rod, { ang: 1.5, sp: 2.8, tone: rodTone, w: 1.1, th: 0.6, seed: 303, wav: 0 });
+  outline([rod[0], rod[1]], { w: 1.2 }); outline([rod[3], rod[2]], { w: 1.8 });
+  // clamp band wrapping the rod
+  const band1 = [[cx - 24, cy - 92], [cx + 24, cy - 96], [cx + 24, cy - 40], [cx - 24, cy - 36]];
+  occlude(band1, 6);
+  hatch(band1, { ang: PI / 2 - 0.05, sp: 2.2, tone: (x, y) => 0.35 + (y - cy + 66) / 30 * 0.4, w: 1.3, seed: 304, wav: 0 });
+  outline(band1, { w: 1.4, closed: true, runLen: 70 });
+  // bolts
+  for (const [bx, by] of [[cx, cy - 66], [cx, cy + 22], [cx, cy + 68]]) {
+    const b = []; for (let i = 0; i < 6; i++) { const a = i / 6 * 2 * PI + 0.3; b.push([bx + Math.cos(a) * 9, by + Math.sin(a) * 9]); }
+    occlude(b, 3); hatch(b, { ang: 0.8, sp: 1.8, tone: (x, y) => 0.3 + (x - bx + y - by) / 18 * 0.5, w: 1.1, seed: 305, step: 1 }); outline(b, { w: 1.0, closed: true, runLen: 40 });
+  }
+  ink.restore();
+  // double-ruled ring
+  outline(circ(R), { w: 2.0, runLen: 200 });
+  outline(circ(R + 7), { w: 0.6, runLen: 200 });
+}
+
+/* ---------------- lettering ---------------- */
+function cartouche() {
+  const x0 = 100, y0 = 96, x1 = 640, y1 = 300;
+  const box = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+  occlude(box, 10, true);
+  outline(box, { w: 2.2, closed: true, runLen: 220 });
+  outline([[x0 + 8, y0 + 8], [x1 - 8, y0 + 8], [x1 - 8, y1 - 8], [x0 + 8, y1 - 8]], { w: 0.6, closed: true, runLen: 220 });
+  // corner quarter-rounds
+  for (const [cx, cy, a] of [[x0 + 8, y0 + 8, 0], [x1 - 8, y0 + 8, PI / 2], [x1 - 8, y1 - 8, PI], [x0 + 8, y1 - 8, 1.5 * PI]]) {
+    const p = []; for (let i = 0; i <= 12; i++) { const t = a + i / 12 * PI / 2; p.push([cx + Math.cos(t) * 16, cy + Math.sin(t) * 16]); }
+    outline(p, { w: 0.9, runLen: 60 });
+  }
+  ink.fillStyle = INK; ink.textAlign = 'center';
+  const mx = (x0 + x1) / 2;
+  ink.font = '600 15px Bod'; spaced('PLATE  I', mx, y0 + 40, 4);
+  ink.font = '600 58px Nas'; ink.direction = 'rtl'; ink.fillText('کەپری ئۆتۆمبێل', mx, y0 + 112); ink.direction = 'ltr';
+  ink.font = '600 22px Bod'; spaced('CANTILEVER  CAR  SHADE', mx, y0 + 158, 4);
+  band(ink, [[mx - 120, y0 + 172], [mx + 120, y0 + 172]], [0.7, 0.7]);
+  ink.font = '22px Pin'; ink.fillText('a tensile membrane on steel posts', mx, y0 + 196);
+}
+function spaced(txt, x, y, tr) {
+  const ws = [...txt].map(ch => ink.measureText(ch).width + tr), tot = ws.reduce((a, b) => a + b, 0) - tr;
+  let cx = x - tot / 2; ink.textAlign = 'left';
+  [...txt].forEach((ch, i) => { ink.fillText(ch, cx, y); cx += ws[i]; });
+  ink.textAlign = 'center';
+}
+function scaleBar() {
+  // a real metric scale: metres at the front post plane
+  const a = P([-3, 0, -0.6]), b = P([2, 0, -0.6]); const m = (b[0] - a[0]) / 5;
+  const x0 = 110, y0 = 975;
+  occlude([[x0 - 14, y0 - 46], [x0 + 5 * m + 70, y0 - 46], [x0 + 5 * m + 70, y0 + 26], [x0 - 14, y0 + 26]]);
+  ink.fillStyle = INK;
+  for (let i = 0; i < 5; i++) { if (i % 2 === 0) ink.fillRect(x0 + i * m, y0, m, 6); }
+  band(ink, [[x0, y0], [x0 + 5 * m, y0]], [0.8, 0.8]); band(ink, [[x0, y0 + 6], [x0 + 5 * m, y0 + 6]], [0.8, 0.8]);
+  for (let i = 0; i <= 5; i++) band(ink, [[x0 + i * m, y0 - 4], [x0 + i * m, y0 + 10]], [0.8, 0.8]);
+  ink.font = '500 16px BodI'; ink.textAlign = 'center';
+  for (let i = 0; i <= 5; i++) ink.fillText(String(i), x0 + i * m, y0 + 26);
+  ink.font = '600 13px Bod'; spaced('SCALE  OF  METRES', x0 + 2.5 * m, y0 - 14, 3);
+  ink.font = '600 22px Nas'; ink.direction = 'rtl'; ink.fillText('مەتر', x0 + 5 * m + 40, y0 + 10); ink.direction = 'ltr';
+}
+function roundelLabel() {
+  const [cx, cy, R] = RD;
+  ink.fillStyle = INK; ink.textAlign = 'center';
+  ink.font = 'italic 500 20px BodI'; ink.fillText('Fig. 1', cx, cy + R + 40);
+  ink.font = '600 24px Nas'; ink.direction = 'rtl'; ink.fillText('گیرەی هەڵواسین', cx, cy + R + 72); ink.direction = 'ltr';
+}
+function credits() {
+  ink.fillStyle = INK; ink.font = 'italic 500 14px BodI';
+  ink.textAlign = 'left'; ink.fillText('del. ad vivum', IN.x0 + 14, IN.y0 + 22);
+  ink.textAlign = 'right'; ink.fillText('sculp.', IN.x1 - 14, IN.y1 - 12);
+}
+
+/* ---------------- compose ---------------- */
+function draw() {
+  makePaper();
+  ink.clearRect(0, 0, W, H); wash.clearRect(0, 0, W, H);
+  ink.fillStyle = INK;
+  graticule();
+  rhumbs();
+  hills();
+  tree(1380, HORIZON + 70, 210, 120, 401, 'cypress');
+  tree(1510, HORIZON + 80, 180, 140, 402);
+  tree(330, HORIZON + 80, 170, 150, 403);
+  tree(170, HORIZON + 86, 120, 110, 404, 'cypress');
+  ground();
+  canopyShadow();
+  SHIFT = [0, 0, -1.55]; car(); SHIFT = [0, 0, 0];
+  const { hanger } = canopy();
+  man([-2.3, 0, -1.9]);
+  for (const c of [ink, wash]) { c.save(); c.globalCompositeOperation = 'destination-out'; c.beginPath(); c.rect(-10, -10, W + 20, H + 20); c.rect(IN.x0, IN.y0, IN.x1 - IN.x0, IN.y1 - IN.y0); c.fill('evenodd'); c.restore(); }
+  compass();
+  cartouche();
+  scaleBar();
+  roundel(hanger);
+  roundelLabel();
+  credits();
+  frame();
+
+  const out = document.getElementById('c').getContext('2d');
+  out.setTransform(1, 0, 0, 1, 0, 0);
+  out.drawImage(paperC, 0, 0);
+  out.globalCompositeOperation = 'multiply'; out.drawImage(washC, 0, 0);
+  out.globalCompositeOperation = 'source-over';
+  // ink sits a little into the paper: slight warm spread
+  out.globalAlpha = 0.25; out.filter = 'blur(1.2px)'; out.drawImage(inkC, 0, 0);
+  out.globalAlpha = 0.95; out.filter = 'none'; out.drawImage(inkC, 0, 0);
+  out.globalAlpha = 1;
+}
+
+window.DUR = 1; window.__dbg = { P, memb, depth };
+let drawn = false;
+window.render = () => { if (!drawn) { draw(); drawn = true; } };
+document.fonts.load('600 20px Bod'); document.fonts.load('20px BodI'); document.fonts.load('20px Pin'); document.fonts.load('600 20px Nas');
+document.fonts.ready.then(() => { window.READY = true; });
+</script></body></html>
