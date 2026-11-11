@@ -1,182 +1,938 @@
 <!DOCTYPE html>
-<html lang="ckb" dir="rtl">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>WLAT SHADE — 3D Tasarım</title>
-<meta name="description" content="3D دیزاینی پەرگۆلای بایۆکلیماتیک — WLAT SHADE" />
-<meta name="theme-color" content="#070209" />
-<link rel="icon" type="image/png" href="icons/icon-192.png" />
-<link rel="manifest" href="manifest.webmanifest" />
-<link rel="apple-touch-icon" href="icons/apple-180.png" />
-<meta name="mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-title" content="3D دیزاین" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<link rel="preload" as="font" type="font/woff2" href="fonts/zain-arabic-700-normal.woff2" crossorigin />
-<style>
-  @font-face { font-family: 'Zain'; font-weight: 400; font-display: swap; src: url('fonts/zain-arabic-400-normal.woff2') format('woff2');
-    unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F; }
-  @font-face { font-family: 'Zain'; font-weight: 400; font-display: swap; src: url('fonts/zain-latin-400-normal.woff2') format('woff2'); }
-  @font-face { font-family: 'Zain'; font-weight: 700; font-display: swap; src: url('fonts/zain-arabic-700-normal.woff2') format('woff2');
-    unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F; }
-  @font-face { font-family: 'Zain'; font-weight: 700; font-display: swap; src: url('fonts/zain-latin-700-normal.woff2') format('woff2'); }
-  @font-face { font-family: 'Zain'; font-weight: 800; font-display: swap; src: url('fonts/zain-arabic-800-normal.woff2') format('woff2');
-    unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F; }
-  @font-face { font-family: 'Zain'; font-weight: 800; font-display: swap; src: url('fonts/zain-latin-800-normal.woff2') format('woff2'); }
-
-  /* Layout: دیمەنی 3D لە سەرەوە (مۆبایل) یان لای چەپ (کۆمپیوتەر)، پانێڵی ڕێکخستن بە تابەکان */
-  :root {
-    color-scheme: dark;
-    --bg: #070209;
-    --text: #f0e8ec;
-    --muted: rgba(240, 232, 236, 0.58);
-    --faint: rgba(240, 232, 236, 0.34);
-    --accent: #9A0D37;
-    --accent-hi: #c2184b;
-    --panel: #12060b;
-    --panel-line: rgba(154, 13, 55, 0.26);
-    --field: rgba(255, 255, 255, 0.04);
-    --field-line: rgba(255, 255, 255, 0.10);
-    --sys: 'Zain', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    --lat: Arial, 'Helvetica Neue', Helvetica, sans-serif;
-  }
-  *, *::before, *::after { box-sizing: border-box; }
-  [hidden] { display: none !important; }
-  html, body { margin: 0; height: 100%; }
-  body { background: var(--bg); color: var(--text); font-family: var(--sys); font-size: 15px; line-height: 1.45; overflow: hidden; }
-
-  .shell { height: 100%; display: flex; flex-direction: column; }
-  .top { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    padding: calc(env(safe-area-inset-top, 0px) + 8px) max(14px, env(safe-area-inset-right, 0px)) 8px max(14px, env(safe-area-inset-left, 0px));
-    background: linear-gradient(180deg, #120509, #0b0306); border-bottom: 1px solid var(--panel-line); z-index: 3; }
-  .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  .brand img { width: 34px; height: auto; filter: drop-shadow(0 0 6px rgba(194,24,75,.8)); }
-  .brand b { font-weight: 800; font-size: 17px; white-space: nowrap; }
-  .brand b span { color: var(--accent-hi); }
-  .brand small { display: block; font-family: var(--lat); font-size: 9px; letter-spacing: 2px; color: var(--faint); direction: ltr; text-align: right; }
-  .top .acts { display: flex; gap: 6px; }
-  .ib { border: 1px solid var(--field-line); background: var(--field); color: var(--text); border-radius: 10px; padding: 7px 11px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-  .ib:hover { border-color: var(--accent-hi); }
-  .ib:focus-visible { outline: 2px solid var(--accent-hi); outline-offset: 1px; }
-
-  .main { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-  .stage { position: relative; flex: 0 0 52%; min-height: 240px; background: #1a1418; touch-action: none; }
-  .stage canvas { display: block; width: 100%; height: 100%; }
-  .views { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 6px; direction: ltr; }
-  .views button { border: 0; border-radius: 999px; padding: 6px 11px; font: 700 12px var(--sys); color: #fff; background: rgba(10,3,6,.62); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); cursor: pointer; }
-  .views button.on { background: var(--accent); }
-  .badge { position: absolute; right: 10px; top: 10px; padding: 6px 11px; border-radius: 12px; background: rgba(10,3,6,.62); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    font-size: 12px; color: var(--muted); direction: rtl; pointer-events: none; }
-  .badge b { color: #fff; font-family: var(--lat); direction: ltr; display: inline-block; }
-  .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 14px; }
-
-  .panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; background: var(--panel); border-top: 1px solid var(--panel-line); }
-  .tabs { flex: 0 0 auto; display: flex; gap: 4px; overflow-x: auto; padding: 8px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; border-bottom: 1px solid var(--panel-line); }
-  .tabs::-webkit-scrollbar { display: none; }
-  .tabs button { flex: 0 0 auto; border: 1px solid transparent; background: transparent; color: var(--muted); border-radius: 999px; padding: 7px 14px; font: 700 14px var(--sys); cursor: pointer; }
-  .tabs button.on { background: rgba(154,13,55,.22); border-color: var(--accent-hi); color: #fff; }
-  .tabs button:focus-visible { outline: 2px solid var(--accent-hi); }
-  .body { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 22px) max(16px, env(safe-area-inset-left, 0px)); }
-  .pane { display: flex; flex-direction: column; gap: 22px; }
-
-  .f { display: flex; flex-direction: column; gap: 9px; }
-  .lbl { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-  .lbl b { font-size: 15px; font-weight: 700; }
-  .lbl b i { font-style: normal; display: block; font-family: var(--lat); font-size: 9.5px; letter-spacing: 1px; color: var(--faint); font-weight: 700; direction: ltr; text-align: right; margin-top: 2px; }
-  .lbl output { font-family: var(--lat); font-weight: 700; font-size: 15px; direction: ltr; color: #fff; background: var(--field); border: 1px solid var(--field-line); border-radius: 8px; padding: 2px 9px; font-variant-numeric: tabular-nums; }
-  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 30px; background: transparent; direction: ltr; }
-  input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--accent-hi) var(--p, 50%), rgba(255,255,255,.12) var(--p, 50%)); }
-  input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: rgba(255,255,255,.12); }
-  input[type=range]::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--accent-hi); }
-  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; margin-top: -9px; border-radius: 50%; background: #fff; border: 4px solid var(--accent-hi); box-shadow: 0 2px 8px rgba(0,0,0,.4); }
-  input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 4px solid var(--accent-hi); }
-  input[type=range]:focus-visible { outline: 2px solid var(--accent-hi); outline-offset: 2px; border-radius: 6px; }
-
-  .seg { display: flex; gap: 7px; flex-wrap: wrap; }
-  .seg label { flex: 1 1 0; min-width: 70px; position: relative; }
-  .seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-  .seg span { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; min-height: 50px; padding: 8px 6px; border-radius: 12px;
-    border: 1px solid var(--field-line); background: var(--field); color: var(--muted); font-size: 14px; line-height: 1.2; }
-  .seg span i { font-style: normal; font-family: var(--lat); font-size: 9px; letter-spacing: .8px; opacity: .65; direction: ltr; margin-top: 3px; }
-  .seg input:checked + span { border-color: var(--accent-hi); background: rgba(154,13,55,.22); color: #fff; }
-  .seg input:focus-visible + span { outline: 2px solid var(--accent-hi); }
-
-  .sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 10px; }
-  .sw label { position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
-  .sw input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-  .sw .chip { width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(255,255,255,.14); box-shadow: inset 0 -6px 12px rgba(0,0,0,.25); }
-  .sw input:checked + .chip { border-color: #fff; box-shadow: 0 0 0 3px var(--accent-hi), inset 0 -6px 12px rgba(0,0,0,.25); }
-  .sw input:focus-visible + .chip { outline: 2px solid #fff; outline-offset: 3px; }
-  .sw small { font-family: var(--lat); font-size: 10px; color: var(--muted); text-align: center; line-height: 1.2; direction: ltr; }
-
-  .row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn { flex: 1 1 auto; border: 0; border-radius: 12px; padding: 12px 16px; font: 800 15px var(--sys); cursor: pointer; background: var(--accent); color: #fff; }
-  .btn.ghost { background: var(--field); border: 1px solid var(--field-line); color: var(--text); font-weight: 700; }
-  .btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-  .tog { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--field-line); border-radius: 12px; background: var(--field); cursor: pointer; }
-  .tog b { font-weight: 700; }
-  .tog b i { font-style: normal; display: block; font-family: var(--lat); font-size: 9.5px; letter-spacing: 1px; color: var(--faint); direction: ltr; text-align: right; }
-  .tog input { appearance: none; -webkit-appearance: none; width: 46px; height: 28px; border-radius: 999px; background: rgba(255,255,255,.14); position: relative; flex: 0 0 auto; cursor: pointer; transition: background .2s; }
-  .tog input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: left .2s; }
-  .tog input:checked { background: var(--accent-hi); }
-  .tog input:checked::after { left: 21px; }
-  .tog input:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-  .side { border: 1px solid var(--field-line); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-  .side h3 { margin: 0; font-size: 15px; display: flex; justify-content: space-between; align-items: baseline; }
-  .side h3 i { font-style: normal; font-family: var(--lat); font-size: 9.5px; color: var(--faint); letter-spacing: 1px; }
-  .note { font-size: 13px; color: var(--muted); }
-  .sum { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
-  .sum div { border: 1px solid var(--field-line); background: var(--field); border-radius: 12px; padding: 9px 12px; }
-  .sum span { display: block; font-size: 12px; color: var(--muted); }
-  .sum b { font-family: var(--lat); font-size: 18px; direction: ltr; display: block; text-align: right; }
-  input[type=color] { width: 54px; height: 40px; border: 1px solid var(--field-line); border-radius: 10px; background: var(--field); padding: 3px; cursor: pointer; }
-
-  .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); transform: translate(-50%, 20px); opacity: 0; background: #fff; color: #200510;
-    padding: 10px 16px; border-radius: 12px; font-weight: 800; transition: opacity .2s, transform .2s; z-index: 9; pointer-events: none; }
-  .toast.show { opacity: 1; transform: translate(-50%, 0); }
-
-  @media (min-width: 900px) {
-    .main { flex-direction: row; }
-    .stage { flex: 1 1 auto; order: 2; }
-    .panel { flex: 0 0 390px; order: 1; border-top: 0; border-left: 1px solid var(--panel-line); }
-  }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
-</style>
-<script type="importmap">
-{ "imports": { "three": "./vendor/three.module.min.js", "three/addons/": "./vendor/addons/" } }
-</script>
-</head>
-<body>
-<div class="shell">
-  <header class="top">
-    <div class="brand"><img src="images/mark-white.webp" alt=""><div><b><span>3D</span> دیزاینی پەرگۆلا</b><small>WLAT SHADE · BIOCLIMATIC</small></div></div>
-    <div class="acts">
-      <button class="ib" id="shot" type="button">وێنە</button>
-      <button class="ib" id="share" type="button">لینک</button>
-    </div>
-  </header>
-  <div class="main">
-    <section class="stage" id="stage" aria-label="مۆدێلی 3D ی پەرگۆلا">
-      <div class="loading" id="loading">مۆدێلەکە ئامادە دەکرێت…</div>
-      <div class="badge" id="badge"></div>
-      <div class="views" id="views">
-        <button type="button" data-v="persp" class="on">3D</button>
-        <button type="button" data-v="front">پێشەوە</button>
-        <button type="button" data-v="top">سەرەوە</button>
-        <button type="button" data-v="inside">ژێرەوە</button>
-      </div>
-    </section>
-    <section class="panel">
-      <nav class="tabs" id="tabs" role="tablist"></nav>
-      <div class="body" id="body"></div>
-    </section>
-  </div>
-</div>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="app.js"></script>
-<script>
-  if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
-</script>
-</body>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>ستۆدیۆی 3D وڵات شەید | WLAT SHADE 3D Studio</title>
+        <meta name="description" content="Design your pergola, rolling roof or winter garden live in 3D with WLAT SHADE: choose dimensions, colour and side closures, download the image and request a quote.">
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="WLAT SHADE">
+        <meta property="og:title" content="ستۆدیۆی 3D وڵات شەید | WLAT SHADE 3D Studio">
+        <meta property="og:description" content="Design your pergola, rolling roof or winter garden live in 3D with WLAT SHADE: choose dimensions, colour and side closures, download the image and request a quote.">
+        <meta name="twitter:card" content="summary">
+        <link rel="icon" type="image/png" href="./favicon.png">
+        <link rel="apple-touch-icon" href="./favicon.png">
+        <meta name="theme-color" content="#33000c">
+        <script>
+            // Language: ?lang= in the URL, then the saved choice, then Kurdish (Sorani) by default.
+            (function () {
+                var l = null;
+                try { l = new URLSearchParams(location.search).get('lang') || localStorage.getItem('shad3d_lang'); } catch (e) {}
+                if (['ku', 'en', 'tr', 'ar'].indexOf(l) < 0) l = 'ku';
+                window.__lang = l;
+                var h = document.documentElement;
+                h.lang = { ku: 'ckb', en: 'en', tr: 'tr', ar: 'ar' }[l];
+                h.dir = (l === 'ku' || l === 'ar') ? 'rtl' : 'ltr';
+            })();
+        </script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&amp;display=swap">
+        <script>
+            document.documentElement.classList.add('js');
+            // JS'in ürettiği overlay butonları (lightbox/video) için çeviriler.
+            window.uiLabels = {
+                "close": "Close",
+                "prev": "Previous",
+                "next": "Next"
+            };
+            try {
+                if (sessionStorage.getItem('tkn_preloaded'))
+                    document.documentElement.classList.add('tkn-seen');
+            } catch (e) {}
+        </script>
+        <link rel="preload" as="style" href="./app-D6Qy8FMo.css"/>
+        <link rel="preload" as="style" href="./swiper-BoquALqy.css"/>
+        <link rel="modulepreload" as="script" href="./app-Pm6LbogF.js"/>
+        <link rel="modulepreload" as="script" href="./motion-B7PB-XZy.js"/>
+        <link rel="modulepreload" as="script" href="./swiper-CI083D-Y.js"/>
+        <link rel="stylesheet" href="./app-D6Qy8FMo.css" data-navigate-track="reload"/>
+        <link rel="stylesheet" href="./swiper-BoquALqy.css" data-navigate-track="reload"/>
+        <script type="module" src="./app-Pm6LbogF.js" data-navigate-track="reload"></script>
+    </head>
+    <body class="antialiased is-app">
+        <a href="#main" class="skip-link">Skip to content</a>
+        <div class="preloader" aria-hidden="true">
+            <div class="preloader__veil"></div>
+            <div class="preloader__brand">
+                <img src="./logo-white.png" alt="" class="h-12 w-auto" decoding="async" fetchpriority="high">
+            </div>
+        </div>
+        <header class="site-header">
+            <div class="container-site">
+                <div class="site-header__bar">
+                    <a href="./" class="brand flex items-center shrink-0" aria-label="WLAT SHADE">
+                        <img src="./logo-white.png" alt="WLAT SHADE" class="h-10 md:h-11 w-auto shrink-0" decoding="async">
+                    </a>
+                    <div class="flex items-center gap-4">
+                        <div class="lang-switch" role="group" aria-label="Language">
+                            <a role="button" tabindex="0" data-lang="ku" lang="ckb">کوردی</a>
+                            <a role="button" tabindex="0" data-lang="en" lang="en">EN</a>
+                            <a role="button" tabindex="0" data-lang="tr" lang="tr">TR</a>
+                            <a role="button" tabindex="0" data-lang="ar" lang="ar">AR</a>
+                        </div>
+                        <a href="https://wa.me/9647701559272" target="_blank" rel="noopener noreferrer" class="btn btn-primary !py-3 !px-5 text-sm whitespace-nowrap" data-magnetic>
+                    Request a Quote
+                </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main id="main">
+            <section class="studio studio--app dark-section" data-studio3d="studio" data-config='{&quot;labels&quot;:{&quot;system&quot;:&quot;System&quot;,&quot;system_bio&quot;:&quot;Bioclimatic Pergola&quot;,&quot;system_rolling&quot;:&quot;Rolling Roof&quot;,&quot;system_glass&quot;:&quot;Winter Garden (Glass Roof)&quot;,&quot;mount&quot;:&quot;Mounting&quot;,&quot;mount_free&quot;:&quot;Freestanding (4 posts)&quot;,&quot;mount_wall&quot;:&quot;Wall-mounted&quot;,&quot;size&quot;:&quot;Size&quot;,&quot;colour&quot;:&quot;Profile colour (RAL)&quot;,&quot;sides&quot;:&quot;Side closures&quot;,&quot;side_front&quot;:&quot;Front&quot;,&quot;side_back&quot;:&quot;Back&quot;,&quot;side_left&quot;:&quot;Left&quot;,&quot;side_right&quot;:&quot;Right&quot;,&quot;kind_none&quot;:&quot;Open&quot;,&quot;kind_zip&quot;:&quot;Zip screen&quot;,&quot;kind_giy&quot;:&quot;Giyotinyum® Standard&quot;,&quot;kind_giyc&quot;:&quot;Giyotinyum® Wipeable&quot;,&quot;summary_title&quot;:&quot;Project summary and technical drawing&quot;,&quot;on&quot;:&quot;Yes&quot;,&quot;off&quot;:&quot;No&quot;,&quot;modules&quot;:&quot;modules&quot;,&quot;led_perimeter&quot;:&quot;Gutter LED attachment (perimeter / ambient)&quot;,&quot;led_panels&quot;:&quot;Panel edge LED (ceiling)&quot;,&quot;led_posts&quot;:&quot;Post LED (3rd direction)&quot;,&quot;led_giy&quot;:&quot;Giyotinyum top LED&quot;,&quot;led_mode_warm&quot;:&quot;Warm white&quot;,&quot;led_mode_white&quot;:&quot;White&quot;,&quot;led_mode_day&quot;:&quot;Daylight&quot;,&quot;led_mode_rgb&quot;:&quot;RGB cycle&quot;,&quot;led_mode_custom&quot;:&quot;Custom colour&quot;,&quot;comp_post&quot;:&quot;Rennu Column&quot;,&quot;comp_drain&quot;:&quot;hidden water drainage&quot;,&quot;comp_rail&quot;:&quot;Rennu Rail&quot;,&quot;comp_gutter&quot;:&quot;Rennu Gutter + LED attachment&quot;,&quot;comp_panel&quot;:&quot;Rennu Panel&quot;,&quot;comp_panel_sub&quot;:&quot;edge-axis rotation, double skin, edge LED&quot;,&quot;comp_piston&quot;:&quot;Linear piston + T12 timing belt&quot;,&quot;comp_piston_sub&quot;:&quot;95–115° panel angle&quot;,&quot;comp_scissor&quot;:&quot;Scissor linkage + 608 ZZ bearing wheels&quot;,&quot;comp_scissor_sub&quot;:&quot;panels stack on the motor side&quot;,&quot;comp_motor&quot;:&quot;Motor cover · Somfy / Mosel / Cuppon 120 Nm&quot;,&quot;comp_zip&quot;:&quot;Zip screen cassette&quot;,&quot;comp_zip_sub&quot;:&quot;zipped side guides + bottom bar · motorised&quot;,&quot;comp_giy&quot;:&quot;Giyotinyum® Standard&quot;,&quot;comp_giyc&quot;:&quot;Giyotinyum® Wipeable&quot;,&quot;comp_giy_sub&quot;:&quot;inox chain · top motor box · hidden top LED&quot;,&quot;giy_up&quot;:&quot;Stacks at top (standard)&quot;,&quot;giy_down&quot;:&quot;Stacks at bottom (reverse)&quot;,&quot;share_copied&quot;:&quot;Link copied&quot;,&quot;share&quot;:&quot;Share&quot;,&quot;system_pergola&quot;:&quot;Fabric Pergola (Awning)&quot;,&quot;kind_slide&quot;:&quot;Sliding glass&quot;,&quot;panel_sep&quot;:&quot;Separate louvre colour&quot;,&quot;slat_sep&quot;:&quot;Separate batten colour&quot;,&quot;panel_colour&quot;:&quot;Louvre colour (RAL)&quot;,&quot;slat_colour&quot;:&quot;Batten colour (RAL)&quot;,&quot;fabric_colour&quot;:&quot;Fabric colour&quot;,&quot;blades&quot;:&quot;Louvres&quot;,&quot;slats&quot;:&quot;Battens&quot;,&quot;comp_slide&quot;:&quot;Sliding glass system&quot;,&quot;comp_slide_sub&quot;:&quot;multi-track · panels stack to one side&quot;,&quot;comp_slat&quot;:&quot;Thick cornice batten (full LED)&quot;,&quot;comp_slat_sub&quot;:&quot;82 × 60 mm · T10 timing belt · fabric keder&quot;,&quot;comp_fabric&quot;:&quot;Blackout fabric&quot;,&quot;comp_fabric_sub&quot;:&quot;300 g/m² · fire retardant&quot;,&quot;kind_door&quot;:&quot;Glass door&quot;,&quot;comp_door&quot;:&quot;Double-leaf glass door&quot;,&quot;comp_door_sub&quot;:&quot;fixed side lights · opens outward&quot;,&quot;months&quot;:&quot;Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec&quot;,&quot;sun_below&quot;:&quot;below the horizon&quot;,&quot;project_name&quot;:&quot;Project name&quot;,&quot;dims&quot;:&quot;Dimensions&quot;,&quot;area&quot;:&quot;Area&quot;,&quot;plan_title&quot;:&quot;Plan view: tap an edge to cycle open → zip → Giyotinyum → wipeable → sliding glass → glass door; on wide structures each module is set separately.&quot;,&quot;dr_weight&quot;:&quot;Approx. weight&quot;,&quot;dr_same&quot;:&quot;same as frame&quot;,&quot;dr_motor&quot;:&quot;Motor&quot;,&quot;dr_motor_val&quot;:&quot;Somfy / Mosel / Cuppon 120 Nm · remote control&quot;,&quot;dr_plan&quot;:&quot;PLAN · TOP VIEW&quot;,&quot;dr_front&quot;:&quot;FRONT VIEW&quot;,&quot;dr_left&quot;:&quot;LEFT VIEW&quot;,&quot;dr_right&quot;:&quot;RIGHT VIEW&quot;,&quot;dr_project&quot;:&quot;Project&quot;,&quot;dr_date&quot;:&quot;Date&quot;,&quot;dr_code&quot;:&quot;Code&quot;,&quot;dr_note&quot;:&quot;Dimensions in mm. Preliminary design drawing attached to the quotation; not a production drawing.&quot;,&quot;dr_colour_frame&quot;:&quot;Frame colour&quot;,&quot;ctx_lost&quot;:&quot;The 3D view was interrupted; please reload the page.&quot;},&quot;defaults&quot;:{&quot;width&quot;:5,&quot;depth&quot;:4.5,&quot;height&quot;:2.7,&quot;angle&quot;:45},&quot;logo&quot;:&quot;./logo-red.png&quot;,&quot;saveUrl&quot;:&quot;&quot;,&quot;designBase&quot;:&quot;&quot;,&quot;csrf&quot;:&quot;&quot;,&quot;code&quot;:null,&quot;projectName&quot;:null}'>
+                <div class="studio__layout">
+                    <div class="studio__stage">
+                        <div class="studio__canvas" data-studio-canvas data-lenis-prevent></div>
+                        <div class="studio__loader" aria-hidden="true">
+                            <span class="studio__loader-ring"></span>
+                            <span>Preparing the 3D scene…</span>
+                        </div>
+                        <div class="studio__hud studio__hud--top">
+                            <div class="studio__title">
+                                <span class="studio__live">
+                                    <i></i>Real-time
+                                </span>
+                                <h1>WLAT SHADE 3D Studio</h1>
+                                <p>Live configurator · RENNU® · Giyotinyum® · Zip</p>
+                            </div>
+                            <div class="studio__views" role="group" aria-label="Kamera">
+                                <button type="button" data-view="corner" class="is-active">Corner</button>
+                                <button type="button" data-view="front">Front</button>
+                                <button type="button" data-view="top">Top</button>
+                                <button type="button" data-view="inside">Inside</button>
+                                <button type="button" data-view="detail">Detail</button>
+                            </div>
+                        </div>
+                        <div class="studio__hud studio__hud--bottom">
+                            <div class="studio__readout mono-data">
+                                <span>
+                                    <span data-out="blades_label">Louvres</span>: <b data-out="blades">—</b>
+                                </span>
+                                <span>
+                                    modules: <b data-out="modules">—</b>
+                                </span>
+                                <span>
+                                    Motors: <b data-out="motors">—</b>
+                                </span>
+                                <span>
+                                    System: <b data-out="system">—</b>
+                                </span>
+                            </div>
+                            <p class="studio__hint">Drag to rotate · scroll or pinch to zoom</p>
+                        </div>
+                    </div>
+                    <form class="studio__panel panel" data-studio-form data-lenis-prevent onsubmit="return false">
+                        <header class="panel__head">
+                            <div class="panel__brand">
+                                <b>Configurator</b>
+                                <span>RENNU® · Giyotinyum® · Zip</span>
+                            </div>
+                            <div class="panel__tools">
+                                <button type="button" class="panel__tool panel__tool--accent" data-summary title="Project summary and technical drawing">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M8 6h13M8 12h13M8 18h13"/>
+                                        <path d="M3 6h.01M3 12h.01M3 18h.01"/>
+                                    </svg>
+                                    <span>Summary</span>
+                                </button>
+                                <button type="button" class="panel__tool" data-share title="Share">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/>
+                                        <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>
+                                    </svg>
+                                    <span data-share-label>Share</span>
+                                </button>
+                                <button type="button" class="panel__tool" data-reset title="Reset">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M3 12a9 9 0 1 0 3-6.7"/>
+                                        <path d="M3 3v6h6"/>
+                                    </svg>
+                                    <span>Reset</span>
+                                </button>
+                            </div>
+                        </header>
+                        <nav class="panel__tabs" role="tablist" aria-label="Step">
+                            <button type="button" role="tab" data-tab="system" class="is-active" aria-selected="true">
+                                <i>1</i>System
+                            </button>
+                            <button type="button" role="tab" data-tab="size" class="" aria-selected="false">
+                                <i>2</i>Size
+                            </button>
+                            <button type="button" role="tab" data-tab="colour" class="" aria-selected="false">
+                                <i>3</i>Colour
+                            </button>
+                            <button type="button" role="tab" data-tab="sides" class="" aria-selected="false">
+                                <i>4</i>Sides
+                            </button>
+                            <button type="button" role="tab" data-tab="light" class="" aria-selected="false">
+                                <i>5</i>Light
+                            </button>
+                            <button type="button" role="tab" data-tab="scene" class="" aria-selected="false">
+                                <i>6</i>Scene
+                            </button>
+                        </nav>
+                        <div class="panel__body" data-lenis-prevent>
+                            <section class="panel__tab is-active" data-tab-panel="system">
+                                <div class="panel__section">
+                                    <h2 class="panel__h">System</h2>
+                                    <div class="syscards" role="radiogroup">
+                                        <label class="syscard">
+                                            <input type="radio" name="system" value="bio" checked>
+                                            <svg viewBox="0 0 64 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M4 42h56M9 42V16M55 42V16M6 16h52"/>
+                                                <path d="M13 16l7-7M23 16l7-7M33 16l7-7M43 16l7-7"/>
+                                            </svg>
+                                            <span>
+                                                <b>Bioclimatic Pergola</b>
+                                                <small>Louvres rotate 0–115°; full rain protection when closed</small>
+                                            </span>
+                                        </label>
+                                        <label class="syscard">
+                                            <input type="radio" name="system" value="rolling">
+                                            <svg viewBox="0 0 64 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M4 42h56M9 42V16M55 42V16M6 16h52"/>
+                                                <path d="M11 13h12M13 10h12M15 7h12"/>
+                                                <path d="M32 10h20M46 6l6 4-6 4"/>
+                                            </svg>
+                                            <span>
+                                                <b>Rolling Roof</b>
+                                                <small>Panels stack with a scissor linkage, roof opens fully</small>
+                                            </span>
+                                        </label>
+                                        <label class="syscard">
+                                            <input type="radio" name="system" value="pergola">
+                                            <svg viewBox="0 0 64 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M4 42h56M9 42V16M55 42V16M6 16h52"/>
+                                                <path d="M12 16c3 4 6 4 9 0s6-4 9 0 6 4 9 0 6-4 9 0" stroke-width="1.8"/>
+                                                <path d="M16 11v5M26 11v5M36 11v5M46 11v5" stroke-width="1.6"/>
+                                            </svg>
+                                            <span>
+                                                <b>Fabric Pergola (Awning)</b>
+                                                <small>Motorised fabric roof: the fabric folds between LED cornice battens; fabric and batten colours chosen separately</small>
+                                            </span>
+                                        </label>
+                                        <label class="syscard">
+                                            <input type="radio" name="system" value="glass">
+                                            <svg viewBox="0 0 64 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M4 42h56M9 42V16M55 42V16M6 16h52"/>
+                                                <path d="M12 16l6-9h28l6 9M24 7v9M40 7v9" stroke-width="1.6"/>
+                                            </svg>
+                                            <span>
+                                                <b>Winter Garden (Glass Roof)</b>
+                                                <small>Fixed glass roof, four-season winter garden</small>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="panel__section">
+                                    <h2 class="panel__h">Mounting</h2>
+                                    <div class="syscards syscards--2" role="radiogroup">
+                                        <label class="syscard">
+                                            <input type="radio" name="mount" value="free" checked>
+                                            <svg viewBox="0 0 64 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                                                <path d="M6 14h52M10 42V14M22 42V14M42 42V14M54 42V14"/>
+                                            </svg>
+                                            <span>
+                                                <b>Freestanding (4 posts)</b>
+                                                <small>Freestanding, 4 posts per module</small>
+                                            </span>
+                                        </label>
+                                        <label class="syscard">
+                                            <input type="radio" name="mount" value="wall">
+                                            <svg viewBox="0 0 64 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                                                <path d="M6 46V4M6 14h52M24 42V14M54 42V14"/>
+                                                <path d="M2 10l4-4M2 20l4-4M2 30l4-4M2 40l4-4" stroke-width="1.4"/>
+                                            </svg>
+                                            <span>
+                                                <b>Wall-mounted</b>
+                                                <small>Rear edge fixed to the wall, front posts only</small>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </section>
+                            <section class="panel__tab" data-tab-panel="size">
+                                <div class="panel__section">
+                                    <h2 class="panel__h">Quick sizes</h2>
+                                    <div class="chips">
+                                        <button type="button" class="chip-btn" data-preset="4000x3000">4,0 × 3,0 m</button>
+                                        <button type="button" class="chip-btn" data-preset="5000x4000">5,0 × 4,0 m</button>
+                                        <button type="button" class="chip-btn" data-preset="6000x4500">6,0 × 4,5 m</button>
+                                        <button type="button" class="chip-btn" data-preset="8000x5000">8,0 × 5,0 m</button>
+                                        <button type="button" class="chip-btn" data-preset="12000x7000">12,0 × 7,0 m</button>
+                                    </div>
+                                </div>
+                                <div class="panel__section">
+                                    <h2 class="panel__h">Dimensions</h2>
+                                    <div class="studio__slider">
+                                        <div class="studio__slider-head">
+                                            <label for="st-width">Width</label>
+                                            <span class="studio__num">
+                                                <input type="number" data-num="width" min="2000" max="12000" step="10" value="5000" inputmode="numeric" aria-label="Width (mm)">
+                                                <i>mm</i>
+                                            </span>
+                                        </div>
+                                        <input type="range" id="st-width" name="width" min="2000" max="12000" step="10" value="5000">
+                                        <span class="studio__limits mono-data" aria-hidden="true">
+                                            <span>2000</span>
+                                            <span>12000</span>
+                                        </span>
+                                    </div>
+                                    <div class="studio__slider">
+                                        <div class="studio__slider-head">
+                                            <label for="st-depth">Projection</label>
+                                            <span class="studio__num">
+                                                <input type="number" data-num="depth" min="2000" max="7600" step="10" value="4500" inputmode="numeric" aria-label="Projection (mm)">
+                                                <i>mm</i>
+                                            </span>
+                                        </div>
+                                        <input type="range" id="st-depth" name="depth" min="2000" max="7600" step="10" value="4500">
+                                        <span class="studio__limits mono-data" aria-hidden="true">
+                                            <span>2000</span>
+                                            <span>7600</span>
+                                        </span>
+                                    </div>
+                                    <div class="studio__slider">
+                                        <div class="studio__slider-head">
+                                            <label for="st-height">Height</label>
+                                            <span class="studio__num">
+                                                <input type="number" data-num="height" min="2200" max="4000" step="10" value="2700" inputmode="numeric" aria-label="Height (mm)">
+                                                <i>mm</i>
+                                            </span>
+                                        </div>
+                                        <input type="range" id="st-height" name="height" min="2200" max="4000" step="10" value="2700">
+                                        <span class="studio__limits mono-data" aria-hidden="true">
+                                            <span>2200</span>
+                                            <span>4000</span>
+                                        </span>
+                                    </div>
+                                    <p class="studio__note">Drag or type the size in millimetres; values snap to 10 mm steps. 1 module = max. 4000 mm front; wider sizes add an intermediate rail and post automatically.</p>
+                                </div>
+                                <div class="panel__section" data-only="bio rolling pergola">
+                                    <h2 class="panel__h">Roof</h2>
+                                    <div class="studio__slider" data-only="bio">
+                                        <div class="studio__slider-head">
+                                            <label for="st-angle">Louvre angle</label>
+                                            <b class="mono-data text-(--color-brand)" data-out="angle">45°</b>
+                                        </div>
+                                        <input type="range" id="st-angle" name="angle" min="0" max="115" step="1" value="45">
+                                        <span class="studio__limits mono-data" aria-hidden="true">
+                                            <span>0°</span>
+                                            <span>115°</span>
+                                        </span>
+                                    </div>
+                                    <div class="studio__slider" data-only="rolling pergola" hidden>
+                                        <div class="studio__slider-head">
+                                            <label for="st-open">Roof opening</label>
+                                            <b class="mono-data text-(--color-brand)" data-out="open">35%</b>
+                                        </div>
+                                        <input type="range" id="st-open" name="open" min="0" max="100" step="1" value="35">
+                                        <span class="studio__limits mono-data" aria-hidden="true">
+                                            <span>0%</span>
+                                            <span>100%</span>
+                                        </span>
+                                    </div>
+                                    <div class="chips">
+                                        <button type="button" class="chip-btn" data-roof="open">Open roof</button>
+                                        <button type="button" class="chip-btn" data-roof="close">Close roof</button>
+                                    </div>
+                                </div>
+                            </section>
+                            <section class="panel__tab" data-tab-panel="colour">
+                                <div class="panel__section">
+                                    <h2 class="panel__h">
+                                        Profile colour (RAL) <b class="mono-data font-normal text-(--color-cloud)" data-out="colour">RAL 7016</b>
+                                    </h2>
+                                    <div class="swatches swatches--named" role="radiogroup">
+                                        <label class="swatch " title="RAL 7016 · Antrasit">
+                                            <input type="radio" name="colour" value="RAL 7016" data-hex="#383e42" checked>
+                                            <span style="--sw: #383e42"></span>
+                                            <small>RAL 7016</small>
+                                        </label>
+                                        <label class="swatch " title="RAL 9005 · Siyah">
+                                            <input type="radio" name="colour" value="RAL 9005" data-hex="#101113">
+                                            <span style="--sw: #101113"></span>
+                                            <small>RAL 9005</small>
+                                        </label>
+                                        <label class="swatch " title="RAL 9016 · Beyaz">
+                                            <input type="radio" name="colour" value="RAL 9016" data-hex="#f1f0ea">
+                                            <span style="--sw: #f1f0ea"></span>
+                                            <small>RAL 9016</small>
+                                        </label>
+                                        <label class="swatch " title="RAL 9006 · Gümüş">
+                                            <input type="radio" name="colour" value="RAL 9006" data-hex="#a7aaa9">
+                                            <span style="--sw: #a7aaa9"></span>
+                                            <small>RAL 9006</small>
+                                        </label>
+                                        <label class="swatch " title="RAL 7035 · Açık gri">
+                                            <input type="radio" name="colour" value="RAL 7035" data-hex="#c9cbc8">
+                                            <span style="--sw: #c9cbc8"></span>
+                                            <small>RAL 7035</small>
+                                        </label>
+                                        <label class="swatch " title="RAL 8017 · Kahve">
+                                            <input type="radio" name="colour" value="RAL 8017" data-hex="#46322d">
+                                            <span style="--sw: #46322d"></span>
+                                            <small>RAL 8017</small>
+                                        </label>
+                                        <label class="swatch " title="RAL 1013 · Krem">
+                                            <input type="radio" name="colour" value="RAL 1013" data-hex="#e6dcc6">
+                                            <span style="--sw: #e6dcc6"></span>
+                                            <small>RAL 1013</small>
+                                        </label>
+                                        <label class="swatch " title="RAL 6005 · Yeşil">
+                                            <input type="radio" name="colour" value="RAL 6005" data-hex="#12452f">
+                                            <span style="--sw: #12452f"></span>
+                                            <small>RAL 6005</small>
+                                        </label>
+                                        <label class="swatch " title="RAL 3004 · Bordo">
+                                            <input type="radio" name="colour" value="RAL 3004" data-hex="#6c1f26">
+                                            <span style="--sw: #6c1f26"></span>
+                                            <small>RAL 3004</small>
+                                        </label>
+                                        <label class="swatch " title="RAL 5010 · Lacivert">
+                                            <input type="radio" name="colour" value="RAL 5010" data-hex="#0f2b4e">
+                                            <span style="--sw: #0f2b4e"></span>
+                                            <small>RAL 5010</small>
+                                        </label>
+                                        <label class="swatch " title="RAL 7024 · Grafit">
+                                            <input type="radio" name="colour" value="RAL 7024" data-hex="#474a51">
+                                            <span style="--sw: #474a51"></span>
+                                            <small>RAL 7024</small>
+                                        </label>
+                                        <label class="swatch swatch--wood" title="Ahşap · Ahşap doku">
+                                            <input type="radio" name="colour" value="Ahşap" data-hex="#8a5a2b">
+                                            <span style="--sw: #8a5a2b"></span>
+                                            <small>Ahşap</small>
+                                        </label>
+                                    </div>
+                                    <p class="studio__note">All RAL colours and wood effect are applied as electrostatic powder coating (min. 60 µm).</p>
+                                </div>
+                                <div class="panel__section" data-only="bio rolling pergola">
+                                    <label class="lightrow lightrow--sep">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <rect x="3" y="4" width="18" height="16" rx="2"/>
+                                            <path d="M3 10h18M3 15h18"/>
+                                        </svg>
+                                        <span data-label-panelsep>Separate louvre colour</span>
+                                        <span class="toggle">
+                                            <input type="checkbox" name="panel_sep">
+                                            <i></i>
+                                        </span>
+                                    </label>
+                                    <div class="panel__sub" data-if-panelsep hidden>
+                                        <h2 class="panel__h">
+                                            <span data-label-panel>Louvre colour (RAL)</span>
+                                            <b class="mono-data font-normal text-(--color-cloud)" data-out="panel_colour">RAL 7016</b>
+                                        </h2>
+                                        <div class="swatches swatches--named" role="radiogroup">
+                                            <label class="swatch " title="RAL 7016 · Antrasit">
+                                                <input type="radio" name="panel_colour" value="RAL 7016" data-hex="#383e42" checked>
+                                                <span style="--sw: #383e42"></span>
+                                                <small>RAL 7016</small>
+                                            </label>
+                                            <label class="swatch " title="RAL 9005 · Siyah">
+                                                <input type="radio" name="panel_colour" value="RAL 9005" data-hex="#101113">
+                                                <span style="--sw: #101113"></span>
+                                                <small>RAL 9005</small>
+                                            </label>
+                                            <label class="swatch " title="RAL 9016 · Beyaz">
+                                                <input type="radio" name="panel_colour" value="RAL 9016" data-hex="#f1f0ea">
+                                                <span style="--sw: #f1f0ea"></span>
+                                                <small>RAL 9016</small>
+                                            </label>
+                                            <label class="swatch " title="RAL 9006 · Gümüş">
+                                                <input type="radio" name="panel_colour" value="RAL 9006" data-hex="#a7aaa9">
+                                                <span style="--sw: #a7aaa9"></span>
+                                                <small>RAL 9006</small>
+                                            </label>
+                                            <label class="swatch " title="RAL 7035 · Açık gri">
+                                                <input type="radio" name="panel_colour" value="RAL 7035" data-hex="#c9cbc8">
+                                                <span style="--sw: #c9cbc8"></span>
+                                                <small>RAL 7035</small>
+                                            </label>
+                                            <label class="swatch " title="RAL 8017 · Kahve">
+                                                <input type="radio" name="panel_colour" value="RAL 8017" data-hex="#46322d">
+                                                <span style="--sw: #46322d"></span>
+                                                <small>RAL 8017</small>
+                                            </label>
+                                            <label class="swatch " title="RAL 1013 · Krem">
+                                                <input type="radio" name="panel_colour" value="RAL 1013" data-hex="#e6dcc6">
+                                                <span style="--sw: #e6dcc6"></span>
+                                                <small>RAL 1013</small>
+                                            </label>
+                                            <label class="swatch " title="RAL 6005 · Yeşil">
+                                                <input type="radio" name="panel_colour" value="RAL 6005" data-hex="#12452f">
+                                                <span style="--sw: #12452f"></span>
+                                                <small>RAL 6005</small>
+                                            </label>
+                                            <label class="swatch " title="RAL 3004 · Bordo">
+                                                <input type="radio" name="panel_colour" value="RAL 3004" data-hex="#6c1f26">
+                                                <span style="--sw: #6c1f26"></span>
+                                                <small>RAL 3004</small>
+                                            </label>
+                                            <label class="swatch " title="RAL 5010 · Lacivert">
+                                                <input type="radio" name="panel_colour" value="RAL 5010" data-hex="#0f2b4e">
+                                                <span style="--sw: #0f2b4e"></span>
+                                                <small>RAL 5010</small>
+                                            </label>
+                                            <label class="swatch " title="RAL 7024 · Grafit">
+                                                <input type="radio" name="panel_colour" value="RAL 7024" data-hex="#474a51">
+                                                <span style="--sw: #474a51"></span>
+                                                <small>RAL 7024</small>
+                                            </label>
+                                            <label class="swatch swatch--wood" title="Ahşap · Ahşap doku">
+                                                <input type="radio" name="panel_colour" value="Ahşap" data-hex="#8a5a2b">
+                                                <span style="--sw: #8a5a2b"></span>
+                                                <small>Ahşap</small>
+                                            </label>
+                                        </div>
+                                        <p class="studio__note">When on, frame and louvres are coated in different colours, e.g. a black frame with white or cream louvres.</p>
+                                    </div>
+                                </div>
+                                <div class="panel__section" data-only="pergola" hidden>
+                                    <h2 class="panel__h">
+                                        Fabric colour <b class="mono-data font-normal text-(--color-cloud)" data-out="fabric_colour">Krem</b>
+                                    </h2>
+                                    <div class="swatches swatches--named swatches--fabric" role="radiogroup">
+                                        <label class="swatch" title="Krem">
+                                            <input type="radio" name="fabric" value="Krem" data-hex="#e9e1cf" checked>
+                                            <span style="--sw: #e9e1cf"></span>
+                                            <small>Krem</small>
+                                        </label>
+                                        <label class="swatch" title="Beyaz">
+                                            <input type="radio" name="fabric" value="Beyaz" data-hex="#f3f2ee">
+                                            <span style="--sw: #f3f2ee"></span>
+                                            <small>Beyaz</small>
+                                        </label>
+                                        <label class="swatch" title="Bej">
+                                            <input type="radio" name="fabric" value="Bej" data-hex="#d8c9a6">
+                                            <span style="--sw: #d8c9a6"></span>
+                                            <small>Bej</small>
+                                        </label>
+                                        <label class="swatch" title="Gri">
+                                            <input type="radio" name="fabric" value="Gri" data-hex="#a3a7ac">
+                                            <span style="--sw: #a3a7ac"></span>
+                                            <small>Gri</small>
+                                        </label>
+                                        <label class="swatch" title="Antrasit">
+                                            <input type="radio" name="fabric" value="Antrasit" data-hex="#4b5058">
+                                            <span style="--sw: #4b5058"></span>
+                                            <small>Antrasit</small>
+                                        </label>
+                                        <label class="swatch" title="Siyah">
+                                            <input type="radio" name="fabric" value="Siyah" data-hex="#202326">
+                                            <span style="--sw: #202326"></span>
+                                            <small>Siyah</small>
+                                        </label>
+                                        <label class="swatch" title="Bordo">
+                                            <input type="radio" name="fabric" value="Bordo" data-hex="#7b2733">
+                                            <span style="--sw: #7b2733"></span>
+                                            <small>Bordo</small>
+                                        </label>
+                                        <label class="swatch" title="Lacivert">
+                                            <input type="radio" name="fabric" value="Lacivert" data-hex="#1f3a5f">
+                                            <span style="--sw: #1f3a5f"></span>
+                                            <small>Lacivert</small>
+                                        </label>
+                                        <label class="swatch" title="Yeşil">
+                                            <input type="radio" name="fabric" value="Yeşil" data-hex="#355f47">
+                                            <span style="--sw: #355f47"></span>
+                                            <small>Yeşil</small>
+                                        </label>
+                                        <label class="swatch" title="Kahve">
+                                            <input type="radio" name="fabric" value="Kahve" data-hex="#5b4334">
+                                            <span style="--sw: #5b4334"></span>
+                                            <small>Kahve</small>
+                                        </label>
+                                    </div>
+                                    <p class="studio__note">Blackout fabric: 300 g/m², fire retardant (FR), 2800 mm width; held in the cornice battens by keder.</p>
+                                </div>
+                            </section>
+                            <section class="panel__tab" data-tab-panel="sides">
+                                <div class="panel__section">
+                                    <h2 class="panel__h">Side closures</h2>
+                                    <p class="studio__note !mt-0">Plan view: tap an edge to cycle open → zip → Giyotinyum → wipeable → sliding glass → glass door; on wide structures each module is set separately.</p>
+                                    <div class="plan" aria-label="Plan view: tap an edge to cycle open → zip → Giyotinyum → wipeable → sliding glass → glass door; on wide structures each module is set separately.">
+                                        <div class="plan__box">
+                                            <span data-out="system">—</span>
+                                        </div>
+                                        <div class="plan__edge plan__edge--back" data-plan-edge="back"></div>
+                                        <div class="plan__edge plan__edge--left" data-plan-edge="left"></div>
+                                        <div class="plan__edge plan__edge--right" data-plan-edge="right"></div>
+                                        <div class="plan__edge plan__edge--front" data-plan-edge="front"></div>
+                                    </div>
+                                    <div class="plan__legend">
+                                        <span class="k-none">Open</span>
+                                        <span class="k-zip">Zip screen</span>
+                                        <span class="k-giy">Giyotinyum® Standard</span>
+                                        <span class="k-giyc">Giyotinyum® Wipeable</span>
+                                        <span class="k-slide">Sliding glass</span>
+                                        <span class="k-door">Glass door</span>
+                                    </div>
+                                    <div class="chips mt-2">
+                                        <button type="button" class="chip-btn" data-sides-all="zip">All zip</button>
+                                        <button type="button" class="chip-btn" data-sides-all="giy">All glass</button>
+                                        <button type="button" class="chip-btn" data-sides-all="slide">All sliding glass</button>
+                                        <button type="button" class="chip-btn" data-sides-all="none">Remove all</button>
+                                    </div>
+                                </div>
+                                <div class="panel__section" data-if-giy hidden>
+                                    <h2 class="panel__h">Guillotine stacking</h2>
+                                    <div class="seg-grid seg-grid--2" role="radiogroup">
+                                        <label class="seg">
+                                            <input type="radio" name="giy_dir" value="up" checked>
+                                            <span>Stacks at top (standard)</span>
+                                        </label>
+                                        <label class="seg">
+                                            <input type="radio" name="giy_dir" value="down">
+                                            <span>Stacks at bottom (reverse)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="panel__section" data-if-sides hidden>
+                                    <div class="studio__slider">
+                                        <div class="studio__slider-head">
+                                            <label for="st-side">Closure opening</label>
+                                            <b class="mono-data text-(--color-brand)" data-out="side">0%</b>
+                                        </div>
+                                        <input type="range" id="st-side" name="side_open" min="0" max="100" step="1" value="0">
+                                    </div>
+                                    <label class="toggle" data-if-giyc hidden>
+                                        <input type="checkbox" name="clean">
+                                        <i></i>
+                                        <span>Cleaning position (pane tilts inward)</span>
+                                    </label>
+                                </div>
+                            </section>
+                            <section class="panel__tab" data-tab-panel="light">
+                                <div class="panel__section">
+                                    <label class="lightrow lightrow--master">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                            <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.6 1 1.3 1 2.5h6c0-1.2.3-1.9 1-2.5A6 6 0 0 0 12 3Z"/>
+                                        </svg>
+                                        <span>Lights</span>
+                                        <span class="toggle">
+                                            <input type="checkbox" name="led_master" checked>
+                                            <i></i>
+                                        </span>
+                                    </label>
+                                    <h2 class="panel__h mt-3">Scenes</h2>
+                                    <div class="chips">
+                                        <button type="button" class="chip-btn" data-light-preset="dinner">Dinner</button>
+                                        <button type="button" class="chip-btn" data-light-preset="party">Party (RGB)</button>
+                                        <button type="button" class="chip-btn" data-light-preset="day">Daytime</button>
+                                        <button type="button" class="chip-btn" data-light-preset="off">Lights off</button>
+                                    </div>
+                                </div>
+                                <div class="panel__section">
+                                    <h2 class="panel__h">Light zones</h2>
+                                    <div class="lightrows">
+                                        <label class="lightrow">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                                <rect x="3" y="5" width="18" height="14" rx="2"/>
+                                                <path d="M3 15h18" stroke-dasharray="2 2"/>
+                                            </svg>
+                                            <span>Gutter LED attachment (perimeter / ambient)</span>
+                                            <span class="toggle">
+                                                <input type="checkbox" name="led_perimeter" checked>
+                                                <i></i>
+                                            </span>
+                                        </label>
+                                        <label class="lightrow">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                                <path d="M4 7h16M4 12h16M4 17h16"/>
+                                            </svg>
+                                            <span>Panel edge LED (ceiling)</span>
+                                            <span class="toggle">
+                                                <input type="checkbox" name="led_panels" checked>
+                                                <i></i>
+                                            </span>
+                                        </label>
+                                        <label class="lightrow">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                                <path d="M8 3v18M16 3v18M5 21h6M13 21h6"/>
+                                            </svg>
+                                            <span>Post LED (3rd direction)</span>
+                                            <span class="toggle">
+                                                <input type="checkbox" name="led_posts">
+                                                <i></i>
+                                            </span>
+                                        </label>
+                                        <label class="lightrow" data-if-giy hidden>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                                <rect x="4" y="3" width="16" height="4" rx="1"/>
+                                                <path d="M8 7v14M16 7v14M8 14h8"/>
+                                            </svg>
+                                            <span>Giyotinyum top LED</span>
+                                            <span class="toggle">
+                                                <input type="checkbox" name="led_giy" checked>
+                                                <i></i>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="panel__section">
+                                    <h2 class="panel__h">Light mode</h2>
+                                    <div class="ledmodes" role="radiogroup">
+                                        <label class="ledmode" title="Warm white">
+                                            <input type="radio" name="led_mode" value="warm" checked>
+                                            <span style="--sw:#ffd38a"></span>
+                                            <small>Warm white</small>
+                                        </label>
+                                        <label class="ledmode" title="White">
+                                            <input type="radio" name="led_mode" value="white">
+                                            <span style="--sw:#ffffff"></span>
+                                            <small>White</small>
+                                        </label>
+                                        <label class="ledmode" title="Daylight">
+                                            <input type="radio" name="led_mode" value="day">
+                                            <span style="--sw:#dfeeff"></span>
+                                            <small>Daylight</small>
+                                        </label>
+                                        <label class="ledmode ledmode--rgb" title="RGB cycle">
+                                            <input type="radio" name="led_mode" value="rgb">
+                                            <span></span>
+                                            <small>RGB cycle</small>
+                                        </label>
+                                        <label class="ledmode" title="Custom colour">
+                                            <input type="radio" name="led_mode" value="custom">
+                                            <span class="ledmode__custom">
+                                                <input type="color" name="led_custom" value="#ff4fd8" aria-label="Custom colour">
+                                            </span>
+                                            <small>Custom colour</small>
+                                        </label>
+                                    </div>
+                                    <div class="studio__slider mt-3">
+                                        <div class="studio__slider-head">
+                                            <label for="st-dim">Dimmer</label>
+                                            <b class="mono-data text-(--color-brand)" data-out="dim">100%</b>
+                                        </div>
+                                        <input type="range" id="st-dim" name="led_dim" min="10" max="100" step="1" value="100">
+                                    </div>
+                                    <p class="studio__note">Catalogue: 12V Samsung silicone LED, single/double/triple-direction ambient lighting, RGB and dimmer control; hidden 24V dimmable top lamp on Giyotinyum.</p>
+                                </div>
+                            </section>
+                            <section class="panel__tab" data-tab-panel="scene">
+                                <div class="panel__section">
+                                    <h2 class="panel__h">Scene</h2>
+                                    <div class="icotoggles">
+                                        <label class="icotoggle">
+                                            <input type="checkbox" name="night">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                                <path d="M21 13A8 8 0 1 1 11 3a6 6 0 0 0 10 10Z"/>
+                                            </svg>
+                                            <span>Night</span>
+                                        </label>
+                                        <label class="icotoggle">
+                                            <input type="checkbox" name="rain">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                                <path d="M7 15a4 4 0 0 1-.5-8A6 6 0 0 1 18 8a3.5 3.5 0 0 1 0 7H7Z"/>
+                                                <path d="M8 18l-1 3M12 18l-1 3M16 18l-1 3"/>
+                                            </svg>
+                                            <span>Rain</span>
+                                        </label>
+                                        <label class="icotoggle">
+                                            <input type="checkbox" name="furniture" checked>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                                <path d="M4 12V8a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v4"/>
+                                                <path d="M3 13a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5H3v-5ZM5 18v2M19 18v2"/>
+                                            </svg>
+                                            <span>Furniture</span>
+                                        </label>
+                                        <label class="icotoggle">
+                                            <input type="checkbox" name="env" checked>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M12 3l4 6h-2l3 5h-3l2 4H8l2-4H7l3-5H8z"/>
+                                                <path d="M12 18v3"/>
+                                            </svg>
+                                            <span>Surroundings</span>
+                                        </label>
+                                        <label class="icotoggle">
+                                            <input type="checkbox" name="dims" checked>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                                <path d="M3 17h18M3 14v6M21 14v6M7 17v-2M11 17v-3M15 17v-2M4 7h16"/>
+                                            </svg>
+                                            <span>Dimension lines</span>
+                                        </label>
+                                        <label class="icotoggle icotoggle--tech">
+                                            <input type="checkbox" name="tech">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="m21 16-9 5-9-5V8l9-5 9 5Z"/>
+                                                <path d="m3.3 8.3 8.7 4.9 8.7-4.9M12 13.2V21M12 3v10"/>
+                                            </svg>
+                                            <span>Technical view</span>
+                                        </label>
+                                        <label class="icotoggle">
+                                            <input type="checkbox" name="autorotate">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                                <path d="M3 12a9 9 0 1 0 3-6.7"/>
+                                                <path d="M3 3v6h6"/>
+                                                <circle cx="12" cy="12" r="2"/>
+                                            </svg>
+                                            <span>Auto-rotate</span>
+                                        </label>
+                                    </div>
+                                    <p class="studio__note">Edge lines, hidden mechanism (piston, belt, chain, drainage) and part callouts</p>
+                                </div>
+                                <div class="panel__section">
+                                    <label class="lightrow lightrow--sun">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                            <circle cx="12" cy="12" r="4"/>
+                                            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+                                        </svg>
+                                        <span>Sun and shadow simulation</span>
+                                        <span class="toggle">
+                                            <input type="checkbox" name="sun">
+                                            <i></i>
+                                        </span>
+                                    </label>
+                                    <div class="panel__sub" data-if-sun hidden>
+                                        <div class="studio__slider">
+                                            <div class="studio__slider-head">
+                                                <label for="st-sunh">Time</label>
+                                                <b class="mono-data text-(--color-brand)" data-out="sun_hour">14:00</b>
+                                            </div>
+                                            <input type="range" id="st-sunh" name="sun_hour" min="5" max="21" step="0.5" value="14">
+                                        </div>
+                                        <div class="studio__slider">
+                                            <div class="studio__slider-head">
+                                                <label for="st-sunm">Month</label>
+                                                <b class="mono-data text-(--color-brand)" data-out="sun_month">—</b>
+                                            </div>
+                                            <input type="range" id="st-sunm" name="sun_month" min="1" max="12" step="1" value="6">
+                                        </div>
+                                        <div class="studio__slider">
+                                            <div class="studio__slider-head">
+                                                <label for="st-north">North direction</label>
+                                                <b class="mono-data text-(--color-brand)" data-out="north">0°</b>
+                                            </div>
+                                            <input type="range" id="st-north" name="north" min="0" max="355" step="5" value="0">
+                                        </div>
+                                        <label class="studio__select">
+                                            <span>Location</span>
+                                            <select name="city">
+                                                <option value="adana">Adana</option>
+                                                <option value="istanbul">İstanbul</option>
+                                                <option value="ankara">Ankara</option>
+                                                <option value="izmir">İzmir</option>
+                                                <option value="antalya">Antalya</option>
+                                                <option value="bursa">Bursa</option>
+                                                <option value="gaziantep">Gaziantep</option>
+                                                <option value="trabzon">Trabzon</option>
+                                            </select>
+                                        </label>
+                                        <p class="studio__note">
+                                            0° when the back of the structure faces north; rotate to see the real shadow. Sun elevation / azimuth: <b class="mono-data" data-out="sun_el"></b>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="panel__section">
+                                    <h2 class="panel__h">Corner · Front · Top</h2>
+                                    <div class="chips">
+                                        <button type="button" class="chip-btn" data-view="corner">Corner</button>
+                                        <button type="button" class="chip-btn" data-view="front">Front</button>
+                                        <button type="button" class="chip-btn" data-view="top">Top</button>
+                                        <button type="button" class="chip-btn" data-view="inside">Inside</button>
+                                        <button type="button" class="chip-btn" data-view="detail">Detail</button>
+                                    </div>
+                                    <p class="studio__note">The model is representative; final dimensions and details are confirmed at the technical design stage.</p>
+                                </div>
+                            </section>
+                        </div>
+                        <footer class="panel__foot">
+                            <div class="panel__summary mono-data">
+                                <b data-out="size">—</b>
+                                <span>
+                                    <span data-out="area">—</span> · <span data-out="weight">—</span>
+                                </span>
+                            </div>
+                            <div class="panel__foot-actions">
+                                <button type="button" class="panel__navbtn" data-tab-prev aria-label="Back">‹</button>
+                                <button type="button" class="panel__navbtn" data-tab-next aria-label="Next">›</button>
+                                <a href="https://wa.me/9647701559272" class="btn btn-primary btn--chip" target="_blank" rel="noopener noreferrer" data-studio-quote data-product="2">
+                                    <span>Request quote</span>
+                                    <span class="btn__chip">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M5 12h14M13 5l7 7-7 7"/>
+                                        </svg>
+                                    </span>
+                                </a>
+                                <button type="button" class="panel__tool panel__tool--icon" data-studio-download title="Download image" aria-label="Download image">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <a class="panel__credit" href="https://instagram.com/sh_adlll" target="_blank" rel="noopener noreferrer">
+                                Built &amp; developed by: <b>sh_adlll</b> | <b>WLAT SHADE</b>
+                            </a>
+                        </footer>
+                    </form>
+                </div>
+                <div class="studio__sheet" data-sheet hidden>
+                    <div class="sheet">
+                        <header class="sheet__head">
+                            <div>
+                                <p class="sheet__eyebrow">Summary</p>
+                                <h2>Project summary and technical drawing</h2>
+                            </div>
+                            <button type="button" class="panel__tool panel__tool--icon" data-sheet-close aria-label="Back">✕</button>
+                        </header>
+                        <div class="sheet__grid">
+                            <div class="sheet__col">
+                                <label class="sheet__field">
+                                    <span>Project name</span>
+                                    <input type="text" name="project_name" maxlength="120" placeholder="e.g. Villa terrace" autocomplete="off">
+                                </label>
+                                <div class="sheet__rows" data-sheet-list></div>
+                                <p class="studio__note">
+                                    Code: <b class="mono-data" data-out="design_code">—</b> · Dimensions in mm. Preliminary design drawing attached to the quotation; not a production drawing.
+                                </p>
+                            </div>
+                            <div class="sheet__col">
+                                <img class="sheet__img" data-sheet-img alt="" width="640" height="360">
+                                <div class="sheet__drawing" data-print-host></div>
+                            </div>
+                        </div>
+                        <footer class="sheet__foot">
+                            <button type="button" class="btn btn-primary btn--chip" data-drawing-pdf>
+                                <span>Download technical drawing (PDF)</span>
+                                <span class="btn__chip">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                                    </svg>
+                                </span>
+                            </button>
+                            <button type="button" class="panel__tool" data-drawing-print>
+                                <span>Print</span>
+                            </button>
+                            <button type="button" class="panel__tool" data-drawing-png>
+                                <span>Download drawing (PNG)</span>
+                            </button>
+                            <button type="button" class="panel__tool" data-sheet-share>
+                                <span>Copy design link</span>
+                            </button>
+                            <button type="button" class="panel__tool" data-sheet-close>
+                                <span>Back</span>
+                            </button>
+                        </footer>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <script>
+            // Send the configured design to WLAT SHADE on WhatsApp.
+            // app-*.js keeps the summary in the link's "message" parameter; WhatsApp reads "text".
+            document.addEventListener('click', function (e) {
+                var a = e.target.closest && e.target.closest('[data-studio-quote]');
+                if (!a) return;
+                var msg = '';
+                try { msg = new URL(a.href).searchParams.get('message') || ''; } catch (err) {}
+                e.preventDefault();
+                window.open('https://wa.me/9647701559272' + (msg ? '?text=' + encodeURIComponent(msg) : ''), '_blank', 'noopener');
+            }, true);
+        </script>
+        <script src="./i18n.js"></script>
+        <div class="cursor-dot" aria-hidden="true"></div>
+    </body>
 </html>
