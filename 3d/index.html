@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>WLAT SHADE — 3D Tasarım</title>
+<meta name="description" content="3D دیزاینی پەرگۆلای بایۆکلیماتیک — WLAT SHADE" />
+<meta name="theme-color" content="#070209" />
+<link rel="icon" type="image/png" href="icons/icon-192.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/apple-180.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="3D دیزاین" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="preload" as="font" type="font/woff2" href="fonts/zain-arabic-700-normal.woff2" crossorigin />
+<style>
+  @font-face { font-family: 'Zain'; font-weight: 400; font-display: swap; src: url('fonts/zain-arabic-400-normal.woff2') format('woff2');
+    unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F; }
+  @font-face { font-family: 'Zain'; font-weight: 400; font-display: swap; src: url('fonts/zain-latin-400-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Zain'; font-weight: 700; font-display: swap; src: url('fonts/zain-arabic-700-normal.woff2') format('woff2');
+    unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F; }
+  @font-face { font-family: 'Zain'; font-weight: 700; font-display: swap; src: url('fonts/zain-latin-700-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Zain'; font-weight: 800; font-display: swap; src: url('fonts/zain-arabic-800-normal.woff2') format('woff2');
+    unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F; }
+  @font-face { font-family: 'Zain'; font-weight: 800; font-display: swap; src: url('fonts/zain-latin-800-normal.woff2') format('woff2'); }
+
+  /* Layout: دیمەنی 3D لە سەرەوە (مۆبایل) یان لای چەپ (کۆمپیوتەر)، پانێڵی ڕێکخستن بە تابەکان */
+  :root {
+    color-scheme: dark;
+    --bg: #070209;
+    --text: #f0e8ec;
+    --muted: rgba(240, 232, 236, 0.58);
+    --faint: rgba(240, 232, 236, 0.34);
+    --accent: #9A0D37;
+    --accent-hi: #c2184b;
+    --panel: #12060b;
+    --panel-line: rgba(154, 13, 55, 0.26);
+    --field: rgba(255, 255, 255, 0.04);
+    --field-line: rgba(255, 255, 255, 0.10);
+    --sys: 'Zain', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --lat: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sys); font-size: 15px; line-height: 1.45; overflow: hidden; }
+
+  .shell { height: 100%; display: flex; flex-direction: column; }
+  .top { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: calc(env(safe-area-inset-top, 0px) + 8px) max(14px, env(safe-area-inset-right, 0px)) 8px max(14px, env(safe-area-inset-left, 0px));
+    background: linear-gradient(180deg, #120509, #0b0306); border-bottom: 1px solid var(--panel-line); z-index: 3; }
+  .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .brand img { width: 34px; height: auto; filter: drop-shadow(0 0 6px rgba(194,24,75,.8)); }
+  .brand b { font-weight: 800; font-size: 17px; white-space: nowrap; }
+  .brand b span { color: var(--accent-hi); }
+  .brand small { display: block; font-family: var(--lat); font-size: 9px; letter-spacing: 2px; color: var(--faint); direction: ltr; text-align: right; }
+  .top .acts { display: flex; gap: 6px; }
+  .ib { border: 1px solid var(--field-line); background: var(--field); color: var(--text); border-radius: 10px; padding: 7px 11px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .ib:hover { border-color: var(--accent-hi); }
+  .ib:focus-visible { outline: 2px solid var(--accent-hi); outline-offset: 1px; }
+
+  .main { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+  .stage { position: relative; flex: 0 0 52%; min-height: 240px; background: #1a1418; touch-action: none; }
+  .stage canvas { display: block; width: 100%; height: 100%; }
+  .views { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 6px; direction: ltr; }
+  .views button { border: 0; border-radius: 999px; padding: 6px 11px; font: 700 12px var(--sys); color: #fff; background: rgba(10,3,6,.62); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); cursor: pointer; }
+  .views button.on { background: var(--accent); }
+  .badge { position: absolute; right: 10px; top: 10px; padding: 6px 11px; border-radius: 12px; background: rgba(10,3,6,.62); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    font-size: 12px; color: var(--muted); direction: rtl; pointer-events: none; }
+  .badge b { color: #fff; font-family: var(--lat); direction: ltr; display: inline-block; }
+  .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 14px; }
+
+  .panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; background: var(--panel); border-top: 1px solid var(--panel-line); }
+  .tabs { flex: 0 0 auto; display: flex; gap: 4px; overflow-x: auto; padding: 8px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; border-bottom: 1px solid var(--panel-line); }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs button { flex: 0 0 auto; border: 1px solid transparent; background: transparent; color: var(--muted); border-radius: 999px; padding: 7px 14px; font: 700 14px var(--sys); cursor: pointer; }
+  .tabs button.on { background: rgba(154,13,55,.22); border-color: var(--accent-hi); color: #fff; }
+  .tabs button:focus-visible { outline: 2px solid var(--accent-hi); }
+  .body { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 22px) max(16px, env(safe-area-inset-left, 0px)); }
+  .pane { display: flex; flex-direction: column; gap: 22px; }
+
+  .f { display: flex; flex-direction: column; gap: 9px; }
+  .lbl { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .lbl b { font-size: 15px; font-weight: 700; }
+  .lbl b i { font-style: normal; display: block; font-family: var(--lat); font-size: 9.5px; letter-spacing: 1px; color: var(--faint); font-weight: 700; direction: ltr; text-align: right; margin-top: 2px; }
+  .lbl output { font-family: var(--lat); font-weight: 700; font-size: 15px; direction: ltr; color: #fff; background: var(--field); border: 1px solid var(--field-line); border-radius: 8px; padding: 2px 9px; font-variant-numeric: tabular-nums; }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 30px; background: transparent; direction: ltr; }
+  input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--accent-hi) var(--p, 50%), rgba(255,255,255,.12) var(--p, 50%)); }
+  input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: rgba(255,255,255,.12); }
+  input[type=range]::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--accent-hi); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; margin-top: -9px; border-radius: 50%; background: #fff; border: 4px solid var(--accent-hi); box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+  input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 4px solid var(--accent-hi); }
+  input[type=range]:focus-visible { outline: 2px solid var(--accent-hi); outline-offset: 2px; border-radius: 6px; }
+
+  .seg { display: flex; gap: 7px; flex-wrap: wrap; }
+  .seg label { flex: 1 1 0; min-width: 70px; position: relative; }
+  .seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .seg span { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; min-height: 50px; padding: 8px 6px; border-radius: 12px;
+    border: 1px solid var(--field-line); background: var(--field); color: var(--muted); font-size: 14px; line-height: 1.2; }
+  .seg span i { font-style: normal; font-family: var(--lat); font-size: 9px; letter-spacing: .8px; opacity: .65; direction: ltr; margin-top: 3px; }
+  .seg input:checked + span { border-color: var(--accent-hi); background: rgba(154,13,55,.22); color: #fff; }
+  .seg input:focus-visible + span { outline: 2px solid var(--accent-hi); }
+
+  .sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 10px; }
+  .sw label { position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
+  .sw input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .sw .chip { width: 46px; height: 46px; border-radius: 50%; border: 2px solid rgba(255,255,255,.14); box-shadow: inset 0 -6px 12px rgba(0,0,0,.25); }
+  .sw input:checked + .chip { border-color: #fff; box-shadow: 0 0 0 3px var(--accent-hi), inset 0 -6px 12px rgba(0,0,0,.25); }
+  .sw input:focus-visible + .chip { outline: 2px solid #fff; outline-offset: 3px; }
+  .sw small { font-family: var(--lat); font-size: 10px; color: var(--muted); text-align: center; line-height: 1.2; direction: ltr; }
+
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn { flex: 1 1 auto; border: 0; border-radius: 12px; padding: 12px 16px; font: 800 15px var(--sys); cursor: pointer; background: var(--accent); color: #fff; }
+  .btn.ghost { background: var(--field); border: 1px solid var(--field-line); color: var(--text); font-weight: 700; }
+  .btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .tog { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--field-line); border-radius: 12px; background: var(--field); cursor: pointer; }
+  .tog b { font-weight: 700; }
+  .tog b i { font-style: normal; display: block; font-family: var(--lat); font-size: 9.5px; letter-spacing: 1px; color: var(--faint); direction: ltr; text-align: right; }
+  .tog input { appearance: none; -webkit-appearance: none; width: 46px; height: 28px; border-radius: 999px; background: rgba(255,255,255,.14); position: relative; flex: 0 0 auto; cursor: pointer; transition: background .2s; }
+  .tog input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: left .2s; }
+  .tog input:checked { background: var(--accent-hi); }
+  .tog input:checked::after { left: 21px; }
+  .tog input:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .side { border: 1px solid var(--field-line); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .side h3 { margin: 0; font-size: 15px; display: flex; justify-content: space-between; align-items: baseline; }
+  .side h3 i { font-style: normal; font-family: var(--lat); font-size: 9.5px; color: var(--faint); letter-spacing: 1px; }
+  .note { font-size: 13px; color: var(--muted); }
+  .sum { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+  .sum div { border: 1px solid var(--field-line); background: var(--field); border-radius: 12px; padding: 9px 12px; }
+  .sum span { display: block; font-size: 12px; color: var(--muted); }
+  .sum b { font-family: var(--lat); font-size: 18px; direction: ltr; display: block; text-align: right; }
+  input[type=color] { width: 54px; height: 40px; border: 1px solid var(--field-line); border-radius: 10px; background: var(--field); padding: 3px; cursor: pointer; }
+
+  .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); transform: translate(-50%, 20px); opacity: 0; background: #fff; color: #200510;
+    padding: 10px 16px; border-radius: 12px; font-weight: 800; transition: opacity .2s, transform .2s; z-index: 9; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (min-width: 900px) {
+    .main { flex-direction: row; }
+    .stage { flex: 1 1 auto; order: 2; }
+    .panel { flex: 0 0 390px; order: 1; border-top: 0; border-left: 1px solid var(--panel-line); }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js", "three/addons/": "./vendor/addons/" } }
+</script>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <div class="brand"><img src="images/mark-white.webp" alt=""><div><b><span>3D</span> دیزاینی پەرگۆلا</b><small>WLAT SHADE · BIOCLIMATIC</small></div></div>
+    <div class="acts">
+      <button class="ib" id="shot" type="button">وێنە</button>
+      <button class="ib" id="share" type="button">لینک</button>
+    </div>
+  </header>
+  <div class="main">
+    <section class="stage" id="stage" aria-label="مۆدێلی 3D ی پەرگۆلا">
+      <div class="loading" id="loading">مۆدێلەکە ئامادە دەکرێت…</div>
+      <div class="badge" id="badge"></div>
+      <div class="views" id="views">
+        <button type="button" data-v="persp" class="on">3D</button>
+        <button type="button" data-v="front">پێشەوە</button>
+        <button type="button" data-v="top">سەرەوە</button>
+        <button type="button" data-v="inside">ژێرەوە</button>
+      </div>
+    </section>
+    <section class="panel">
+      <nav class="tabs" id="tabs" role="tablist"></nav>
+      <div class="body" id="body"></div>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="app.js"></script>
+<script>
+  if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+</script>
+</body>
+</html>
