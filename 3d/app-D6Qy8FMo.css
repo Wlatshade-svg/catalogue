@@ -2871,3 +2871,7 @@
 @font-face{font-family:"NRT";src:url(./NRT-Bd.ttf) format("truetype");font-weight:600 900;font-style:normal;font-display:swap}
 html[lang=ckb]{--font-sans:"NRT","Vazirmatn","Noto Sans Arabic",ui-sans-serif,system-ui,sans-serif;--font-display:"NRT","Vazirmatn","Noto Sans Arabic",ui-sans-serif,system-ui,sans-serif;--font-mono:ui-monospace,"SF Mono",Menlo,Consolas,"NRT","Vazirmatn",monospace}
 .lang-switch a[lang=ckb]{font-family:"NRT","Vazirmatn",sans-serif}
+/* The 3D overlay labels are placed with pixel offsets from the left edge, so keep that layer left-to-right in RTL languages. */
+.studio3d__labels{direction:ltr}
+.studio3d__labels>*{left:0;top:0}
+.studio3d__callout{unicode-bidi:plaintext}

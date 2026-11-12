@@ -28075,7 +28075,7 @@ function Wf(t) {
             transparent: !0,
             opacity: .9
         })
-          , D = (e, t) => B.add(new ra(new Or().setFromPoints([e, t]),E))
+          , D = (e, t) => { let l = new ra(new Or().setFromPoints([e, t]),E); l.userData.dimLine = !0, l.visible = ut, B.add(l) }
           , O = .12
           , k = .05
           , A = s + .65
@@ -28396,6 +28396,7 @@ function Wf(t) {
     let ut = n === `studio`;
     function dt(e) {
         ut = e,
+        B.traverse(t => { t.userData.dimLine && (t.visible = e) }),
         ze.forEach(t => {
             t.visible = e,
             t.element.style.display = e ? `` : `none`
