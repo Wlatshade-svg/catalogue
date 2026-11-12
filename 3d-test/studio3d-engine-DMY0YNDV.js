@@ -27250,7 +27250,10 @@ var Hf = {
     sunMonth: 6,
     north: 0,
     city: `adana`,
-    env: !0
+    env: !0,
+    rise: 0,
+    wedge: !0,
+    valance: `wave`
 }
   , Uf = {
     day: {
@@ -27755,6 +27758,8 @@ function Wf(t) {
         s
     }
     ;
+    let AWp = null
+      , AWy = null;
     function G() {
         Ze(B),
         Ze(je),
@@ -27767,10 +27772,15 @@ function Wf(t) {
         ze = [],
         Be = [],
         Ve = [];
+        AWp = null;
+        if (c.system === `awning` || c.system === `winawn`) {
+            AWN();
+            return
+        }
         let e = c.width
           , t = c.depth
           , r = c.height
-          , i = c.mount === `wall`
+          , i = c.mount !== `free`
           , a = e / 2
           , s = t / 2
           , l = Rf.post
@@ -27785,14 +27795,26 @@ function Wf(t) {
           , v = r - u.h
           , y = v
           , b = v
-          , x = [];
+          , x = []
+          , Rz = c.system === `glass` || c.system === `pergola` ? Math.min(2.5, Math.max(0, +c.rise || 0)) : 0
+          , Hg = c.mount === `hang` && c.system === `pergola`
+          , TH = Math.atan2(Rz, t)
+          , RG = new si
+          , RI = new si;
+        RG.position.set(0, _, s),
+        RG.rotation.x = TH,
+        RG.scale.z = 1 / Math.cos(TH),
+        RI.position.set(0, -_, -s),
+        RG.add(RI),
+        B.add(RG),
         m.forEach( (e, t) => {
             let n = e + (t === 0 ? l.w / 2 : t === f ? -l.w / 2 : 0);
-            x.push([n, s - l.d / 2]),
+            Hg || x.push([n, s - l.d / 2]),
             i || x.push([n, -s + l.d / 2])
         }
         ),
         x.forEach( ([e,t], n) => {
+            let b = v + (t < 0 ? Rz : 0);
             H(B, V(l.w, b, l.d, F), e, b / 2, t).name = `post`;
             let r = t > 0 ? 1 : -1;
             H(B, V(l.w - .02, b - .1, .012, ae, !1), e, b / 2, t + r * (l.d / 2 + .006)),
@@ -27810,20 +27832,41 @@ function Wf(t) {
         ),
         m.forEach( (e, n) => {
             let r = e + (n === 0 ? u.w / 2 : n === f ? -u.w / 2 : 0);
-            H(B, V(u.w, u.h, t, F), r, v + u.h / 2, 0).name = `rail`,
+            H(RI, V(u.w, u.h, t, F), r, v + u.h / 2, 0).name = `rail`,
             [-1, 1].forEach(e => {
-                n === 0 && e < 0 || n === f && e > 0 || H(B, V(.012, .05, t - .1, I, !1), r + e * (u.w / 2 - .004), _ - .065, 0)
+                n === 0 && e < 0 || n === f && e > 0 || H(RI, V(.012, .05, t - .1, I, !1), r + e * (u.w / 2 - .004), _ - .065, 0)
             }
             ),
-            [-1, 1].forEach(e => H(B, V(u.w + .01, u.h + .01, .012, ae, !1), r, v + u.h / 2, e * (t / 2 + .006)));
+            [-1, 1].forEach(e => H(RI, V(u.w + .01, u.h + .01, .012, ae, !1), r, v + u.h / 2, e * (t / 2 + .006)));
             let i = n === 0 ? 1 : n === f ? -1 : 0;
-            tt(B, `perimeter`, `z`, t - .1, r + i * (u.w / 2 + .003), i ? v + .03 : v - .003, 0),
+            tt(RI, `perimeter`, `z`, t - .1, r + i * (u.w / 2 + .003), i ? v + .03 : v - .003, 0),
             n === 0 && $e(o.comp_rail || `Rennu Ray`, `238 × 156 mm`, new Y(r,_,-t * .25))
         }
         ),
+        Hg && m.forEach( (e, n) => {
+            let xr = e + (n === 0 ? u.w / 2 : n === f ? -u.w / 2 : 0)
+              , ah = Math.min(2, t * .42)
+              , pa = new Y(xr,_ + Rz + ah,-s)
+              , pb = new Y(xr,_ + .02,s - d.w / 2)
+              , dv = pb.clone().sub(pa)
+              , ln = dv.length()
+              , rod = Ge(.011, ln, ce, `y`, 10);
+            rod.position.copy(pa).add(pb).multiplyScalar(.5),
+            rod.quaternion.setFromUnitVectors(new Y(0,1,0), dv.normalize()),
+            rod.name = `tierod`,
+            B.add(rod),
+            H(B, V(.1, .16, .03, F), xr, _ + Rz + ah, -s + .015),
+            H(B, V(.07, .06, .07, F), xr, _ + .03, s - d.w / 2),
+            n === 0 && $e(o.comp_rod || `Tie rod`, o.comp_rod_sub || `stainless steel · wall anchor`, pa.clone().add(pb).multiplyScalar(.5))
+        }
+        ),
         [s - d.w / 2, -s + d.w / 2].forEach( (t, n) => {
+            let GB = B;
+            n === 1 && Rz && (GB = new si,
+            GB.position.y = Rz,
+            B.add(GB));
             if (n === 1 && i) {
-                H(B, V(e, u.h, d.w, F), 0, _ - u.h / 2, t).name = `gutter`;
+                H(GB, V(e, u.h, d.w, F), 0, _ - u.h / 2, t).name = `gutter`;
                 return
             }
             let r = new Q(qe(e),F);
@@ -27831,12 +27874,12 @@ function Wf(t) {
             r.receiveShadow = !0,
             r.position.set(0, y, t),
             r.name = `gutter`,
-            B.add(r),
-            H(B, V(e - .02, .025, d.w - .03, ae, !1), 0, y - .0125, t);
+            GB.add(r),
+            H(GB, V(e - .02, .025, d.w - .03, ae, !1), 0, y - .0125, t);
             let a = _ - (y + d.h);
-            H(B, V(e, a, d.w, F), 0, _ - a / 2, t).name = `gutter`,
-            tt(B, `perimeter`, `x`, e - .06, 0, y + .03, t - Math.sign(t) * (d.w / 2 + .003)),
-            [-1, 1].forEach(n => H(B, V(.012, u.h + .01, d.w + .01, ae, !1), n * (e / 2 + .006), _ - u.h / 2, t)),
+            H(GB, V(e, a, d.w, F), 0, _ - a / 2, t).name = `gutter`,
+            tt(GB, `perimeter`, `x`, e - .06, 0, y + .03, t - Math.sign(t) * (d.w / 2 + .003)),
+            [-1, 1].forEach(n => H(GB, V(.012, u.h + .01, d.w + .01, ae, !1), n * (e / 2 + .006), _ - u.h / 2, t)),
             n === 0 && $e(o.comp_gutter || `Rennu Oluk + LED eki`, `150 × 160 mm · 12V Samsung LED`, new Y(e * .3,y,t))
         }
         ),
@@ -27845,7 +27888,7 @@ function Wf(t) {
             t.distance = r * .62
         }
         ),
-        i && H(B, V(e + 3, r + 1.2, .25, pe, !1), 0, (r + 1.2) / 2, -s - .125);
+        i && H(B, V(e + 3, r + Rz + (Hg ? Math.min(2, t * .42) + .6 : 1.2), .25, pe, !1), 0, (r + Rz + (Hg ? Math.min(2, t * .42) + .6 : 1.2)) / 2, -s - .125);
         let S = t - 2 * d.w - .01;
         if (c.system === `glass`)
             for (let e = 0; e < f; e++) {
@@ -27853,11 +27896,11 @@ function Wf(t) {
                   , n = m[e + 1] - (e === f - 1 ? u.w : u.w / 2)
                   , r = n - t
                   , i = (t + n) / 2;
-                H(B, new Q(new Hr(r,.012,S),ue), i, _ - .05, 0);
+                H(RI, new Q(new Hr(r,.012,S),ue), i, _ - .05, 0);
                 let a = Math.max(2, Math.round(r / .7));
                 for (let e = 0; e <= a; e++)
-                    H(B, V(.05, .08, S, F), t + r / a * e, _ - .05, 0);
-                H(B, V(r, .06, .05, F), i, _ - .05, 0)
+                    H(RI, V(.05, .08, S, F), t + r / a * e, _ - .05, 0);
+                H(RI, V(r, .06, .05, F), i, _ - .05, 0)
             }
         else {
             if (c.system === `pergola`) {
@@ -27893,7 +27936,7 @@ function Wf(t) {
                         let u = tt(o, `panels`, `x`, s - .24, 0, -e.h / 2 - .004, 0);
                         u.userData.w = s,
                         Ne.push(u),
-                        B.add(o),
+                        RI.add(o),
                         Fe.push(o),
                         l.push(o)
                     }
@@ -27909,7 +27952,7 @@ function Wf(t) {
                             a: l[n],
                             b: l[n + 1]
                         },
-                        B.add(t),
+                        RI.add(t),
                         Ie.push(t)
                     }
                     [i + .03, a - .03].forEach(e => H(je, V(.01, .012, S - .1, we, !1), e, _ - .06, 0)),
@@ -27940,7 +27983,7 @@ function Wf(t) {
                             w: a
                         },
                         i.name = `panel`,
-                        B.add(i),
+                        RI.add(i),
                         Me.push(i);
                         let u = tt(i, `panels`, `x`, a - .24, 0, -.04, .06);
                         u.userData.w = a,
@@ -27984,11 +28027,11 @@ function Wf(t) {
             }
             for (let e = 0; e < f; e++) {
                 let t = m[e] + (e === 0 ? u.w / 2 : 0)
-                  , n = H(B, new Q(new Zd(Rf.motor.w,Rf.motor.h,Rf.motor.len,2,.008),ae), t, _ + Rf.motor.h / 2 - .004, -s + Rf.motor.len / 2);
+                  , n = H(RI, new Q(new Zd(Rf.motor.w,Rf.motor.h,Rf.motor.len,2,.008),ae), t, _ + Rf.motor.h / 2 - .004, -s + Rf.motor.len / 2);
                 n.castShadow = !0,
                 n.receiveShadow = !0,
                 n.name = `motor`,
-                H(B, Ge(.02, .02, I, `y`), t, _ + Rf.motor.h + .005, -s + .12),
+                H(RI, Ge(.02, .02, I, `y`), t, _ + Rf.motor.h + .005, -s + .12),
                 e === 0 && $e(o.comp_motor || `Motor kapağı · Somfy / Mosel / Cuppon 120 Nm`, `89 × 141 mm`, n.position.clone().add(new Y(0,.1,0)))
             }
         }
@@ -28018,6 +28061,7 @@ function Wf(t) {
         Object.entries(w).forEach( ([e,t]) => {
             if (e === `back` && i)
                 return;
+            let C2 = Rz > .05 && c.wedge && e !== `front` ? C - .08 : C;
             let n = (e === `front` || e === `back`) && f > 1 ? Array.from({
                 length: f
             }, (e, t) => [m[t] + (t === 0 ? l.w : l.w / 2), m[t + 1] - (t === f - 1 ? l.w : l.w / 2)]) : [[-t.len / 2, t.len / 2]]
@@ -28031,12 +28075,58 @@ function Wf(t) {
                 s.rotation.y = t.rot;
                 let c = i - n
                   , l = (n + i) / 2;
-                o === `zip` ? ot(s, c, l, C, a === 0) : o === `slide` ? ct(s, c, l, C, e, a === 0) : o === `door` ? lt(s, c, l, C, e, a === 0) : st(s, c, l, C, o === `giyc`, e, a === 0),
+                o === `zip` ? ot(s, c, l, C2, a === 0) : o === `slide` ? ct(s, c, l, C2, e, a === 0) : o === `door` ? lt(s, c, l, C2, e, a === 0) : st(s, c, l, C2, o === `giyc`, e, a === 0),
                 B.add(s)
             }
             )
         }
         );
+        if (Rz > .05 && c.wedge) {
+            let wl = t - 2 * l.d
+              , h0 = Rz * l.d / t
+              , h1 = Rz * (t - l.d) / t
+              , sh = new eo;
+            sh.moveTo(0, 0),
+            sh.lineTo(wl, 0),
+            sh.lineTo(wl, h1),
+            sh.lineTo(0, h0),
+            sh.lineTo(0, 0);
+            let wg = new zo(sh,{
+                depth: .008,
+                bevelEnabled: !1
+            })
+              , nm = Math.max(1, Math.round(wl / 1.2))
+              , wn = 0;
+            [-1, 1].forEach(sx => {
+                if (g(sx < 0 ? `left` : `right`, 1)[0] === `none`)
+                    return;
+                wn++;
+                let x0 = sx * (a - l.w / 2);
+                H(B, V(.06, .08, wl, F), x0, v - .04, 0).name = `transom`;
+                let gm = new Q(wg,ue);
+                gm.rotation.y = Math.PI / 2,
+                gm.position.set(x0 - .004, v, s - l.d),
+                gm.name = `wedge`,
+                B.add(gm);
+                for (let k = 1; k <= nm; k++) {
+                    let uu = wl * k / nm - (k === nm ? .02 : 0)
+                      , hh = h0 + (h1 - h0) * uu / wl;
+                    H(B, V(.04, hh, .05, F), x0, v + hh / 2, s - l.d - uu)
+                }
+            }
+            );
+            if (!i && g(`back`, f).some(k => k !== `none`)) {
+                wn++;
+                let bw = e - 2 * l.w
+                  , bz = -s + l.d / 2
+                  , nb = Math.max(1, Math.round(bw / 1.2));
+                H(B, V(bw, .08, .06, F), 0, v - .04, bz).name = `transom`,
+                H(B, new Q(new Hr(bw,Rz,.008),ue), 0, v + Rz / 2, bz).name = `wedge`;
+                for (let k = 1; k < nb; k++)
+                    H(B, V(.04, Rz, .05, F), -bw / 2 + bw * k / nb, v + Rz / 2, bz)
+            }
+            wn && $e(o.comp_wedge || `Fixed wedge glazing`, o.comp_wedge_sub || `8 mm tempered glass above the side closure`, new Y(a - l.w / 2,v + h1 * .5,-s * .5))
+        }
         let T = new Q(new Ho(e + 1.6,t + 1.6),se);
         if (T.rotation.x = -Math.PI / 2,
         T.position.y = .004,
@@ -28088,6 +28178,8 @@ function Wf(t) {
         D(new Y(j - O,k,s), new Y(j + O,k,s)),
         D(new Y(-a - .5,0,s + .1), new Y(-a - .5,r,s + .1)),
         D(new Y(-a - .5 - O,r,s + .1), new Y(-a - .5 + O,r,s + .1)),
+        Rz > .05 && (D(new Y(-a - .5,0,-s + .1), new Y(-a - .5,r + Rz,-s + .1)),
+        D(new Y(-a - .5 - O,r + Rz,-s + .1), new Y(-a - .5 + O,r + Rz,-s + .1))),
         f > 1 && m.slice(1, -1).forEach(e => D(new Y(e,k,A - O), new Y(e,k,A + O)));
         let N = Qe(et(e) + (f > 1 ? ` · ${f} ${o.modules || `modül`}` : ``));
         N.position.set(0, .05, A + .05),
@@ -28099,6 +28191,13 @@ function Wf(t) {
         P.position.set(-a - .5, r / 2, s + .1),
         B.add(P),
         ze.push(N, ee, P),
+        Rz > .05 && ( () => {
+            let bl = Qe(et(r + Rz));
+            bl.position.set(-a - .5, (r + Rz) / 2, -s + .1),
+            B.add(bl),
+            ze.push(bl)
+        }
+        )(),
         dt(ut),
         nt = !1,
         c.tech && rt();
@@ -28119,6 +28218,268 @@ function Wf(t) {
         X(),
         Xt(),
         h()
+    }
+    function AWseg(mesh, p1, p2) {
+        let dv = p2.clone().sub(p1)
+          , ln = Math.max(.001, dv.length());
+        mesh.position.copy(p1).add(p2).multiplyScalar(.5),
+        mesh.scale.y = ln,
+        mesh.quaternion.setFromUnitVectors(AWy, dv.divideScalar(ln))
+    }
+    function AWN() {
+        AWy ||= new Y(0,1,0);
+        let win = c.system === `winawn`
+          , aw = Math.min(win ? 6 : 7, Math.max(win ? 1 : 2, c.width))
+          , ah = Math.min(4, Math.max(win ? 1.2 : 2.2, c.height))
+          , bx = win ? .13 : .2
+          , al = win ? Math.max(.3, (ah - bx - .2) / 2) : 0
+          , ap = win ? al : Math.min(4, Math.max(1.5, c.depth))
+          , hw = aw / 2
+          , hd = ap / 2
+          , zw = -hd
+          , wallH = ah + (win ? 1 : 1.3);
+        H(B, V(aw + 3, wallH, .25, pe, !1), 0, wallH / 2, zw - .125);
+        if (win) {
+            let gw = aw - .16
+              , gh = ah - bx - .14
+              , nmu = Math.max(1, Math.round(gw / 1));
+            H(B, V(gw + .1, gh + .1, .06, F), 0, .1 + gh / 2, zw + .012),
+            H(B, new Q(new Hr(gw,gh,.02),xe), 0, .1 + gh / 2, zw + .04);
+            for (let k = 1; k < nmu; k++)
+                H(B, V(.04, gh, .03, F), -gw / 2 + gw * k / nmu, .1 + gh / 2, zw + .05)
+        } else {
+            let dw = Math.min(aw - .8, 3.4)
+              , dh = Math.min(2.15, ah - bx - .25);
+            H(B, V(dw + .1, dh + .05, .06, I), 0, dh / 2, zw + .012),
+            H(B, new Q(new Hr(dw,dh - .05,.02),xe), 0, dh / 2, zw + .04),
+            [-1, 1].forEach(k => H(B, V(.05, dh, .03, I), k * dw / 6, dh / 2, zw + .05))
+        }
+        let cy = ah - bx / 2
+          , cz = zw + bx / 2 + .02
+          , cas = H(B, new Q(new Zd(aw,bx,bx,3,.03),F), 0, cy, cz);
+        cas.castShadow = !0,
+        cas.receiveShadow = !0,
+        cas.name = `cassette`,
+        [-1, 1].forEach(k => H(B, V(.02, bx + .012, bx + .012, I, !1), k * (hw + .008), cy, cz)),
+        [-1, 1].forEach(k => H(B, V(.09, bx + .08, .03, ae, !1), k * Math.max(.2, hw - .4), cy, zw + .015));
+        let pg = new Ho(1,1);
+        pg.rotateX(-Math.PI / 2);
+        let fab = new Q(pg,fe);
+        fab.castShadow = !0,
+        fab.receiveShadow = !0,
+        fab.name = `cloth`,
+        B.add(fab);
+        let bar = V(aw + (win ? .04 : 0), .06, .07, F);
+        bar.name = `frontbar`,
+        B.add(bar);
+        let vt = c.valance
+          , hv = win ? .16 : .22;
+        if (vt && vt !== `none`) {
+            let w2 = aw - .03
+              , sh = new eo;
+            sh.moveTo(-w2 / 2, 0),
+            sh.lineTo(w2 / 2, 0);
+            if (vt === `straight`)
+                sh.lineTo(w2 / 2, -hv),
+                sh.lineTo(-w2 / 2, -hv);
+            else {
+                let nt2 = Math.max(4, Math.round(w2 / .28))
+                  , tw = w2 / nt2;
+                sh.lineTo(w2 / 2, -hv + .07);
+                for (let k = 0; k < nt2; k++) {
+                    let x1 = w2 / 2 - tw * k
+                      , x2 = x1 - tw;
+                    vt === `zigzag` ? (sh.lineTo((x1 + x2) / 2, -hv),
+                    sh.lineTo(x2, -hv + .07)) : sh.quadraticCurveTo((x1 + x2) / 2, -hv - .07, x2, -hv + .07)
+                }
+            }
+            sh.lineTo(-w2 / 2, 0);
+            let vm = new Q(new zo(sh,{
+                depth: .003,
+                bevelEnabled: !1
+            }),fe);
+            vm.name = `cloth`,
+            vm.castShadow = !0,
+            vm.position.set(0, -.025, .037),
+            bar.add(vm)
+        }
+        let arms = []
+          , tan = Math.tan(q.degToRad(13))
+          , rs = new Y(0,ah - bx * .55,zw + bx + .03)
+          , re2 = new Y(0,rs.y - (ap - bx - .03) * tan,zw + ap)
+          , py = al + .12
+          , pz = zw + .05;
+        if (win)
+            [-1, 1].forEach(k => {
+                let m1 = V(.035, 1, .035, F);
+                B.add(m1),
+                H(B, V(.05, .12, .05, ae), k * (hw + .02), py, pz - .02),
+                arms.push({
+                    x: k * (hw + .02),
+                    m1
+                })
+            }
+            );
+        else {
+            let xs = aw > 5.2 ? [-(hw - .4), 0, hw - .4] : [-(hw - .4), hw - .4]
+              , sy = ah - bx - .04
+              , sz = zw + .09
+              , dmax = Math.hypot(re2.y - .03 - sy, re2.z - .04 - sz);
+            xs.forEach( (x0, k) => {
+                let m1 = V(.05, 1, .04, F)
+                  , m2 = V(.045, 1, .035, F)
+                  , el = Ge(.032, .07, ae, `y`, 12);
+                B.add(m1),
+                B.add(m2),
+                B.add(el),
+                H(B, V(.09, .09, .1, ae), x0, sy, sz - .03),
+                arms.push({
+                    x: x0,
+                    dir: x0 < 0 || x0 === 0 && k === 1 ? 1 : -1,
+                    m1,
+                    m2,
+                    el,
+                    sy,
+                    sz,
+                    len: dmax / 2 + .02
+                })
+            }
+            )
+        }
+        AWp = {
+            win,
+            aw,
+            ah,
+            ap,
+            al,
+            bx,
+            zw,
+            py,
+            pz,
+            rs,
+            re2,
+            fab,
+            bar,
+            arms,
+            area: win ? aw * (ah - bx) : aw * ap
+        };
+        if (c.furniture && !win && aw >= 3 && ap >= 2.4) {
+            He = new si;
+            let rb = (w1, h1, d1, r1, mt1) => {
+                let m1 = new Q(new Zd(w1,h1,d1,3,r1),mt1);
+                return m1.castShadow = !0,
+                m1.receiveShadow = !0,
+                m1
+            }
+              , fx = -hw + 1.4
+              , fz = hd - .55;
+            H(He, rb(2.1, .36, .9, .06, me), fx, .2, fz),
+            H(He, rb(2, .12, .8, .05, he), fx, .44, fz),
+            H(He, rb(2.1, .46, .14, .05, me), fx, .62, fz + .38),
+            H(He, rb(1.1, .03, .65, .01, ge), fx, .42, fz - 1.05),
+            [[-.5, -.28], [.5, -.28], [-.5, .28], [.5, .28]].forEach( ([ox,oz]) => H(He, Ge(.012, .41, I, `y`, 8), fx + ox, .205, fz - 1.05 + oz)),
+            H(He, new Q(new ya(.26,.22,.55,24),ve), hw - .5, .275, zw + .55).castShadow = !0,
+            H(He, rb(.62, .55, .62, .18, _e), hw - .5, .86, zw + .55),
+            B.add(He)
+        } else
+            He = null;
+        c.env && n === `studio` && at(aw, Math.max(ap, 2.4), ah, !0);
+        let dm = new Yi({
+            color: 10361652,
+            transparent: !0,
+            opacity: .9
+        })
+          , dl = (p1, p2) => {
+            let ln = new ra(new Or().setFromPoints([p1, p2]),dm);
+            ln.userData.dimLine = !0,
+            ln.visible = ut,
+            B.add(ln)
+        }
+          , tk = .12
+          , dz = hd + .65
+          , dx = hw + .65;
+        dl(new Y(-hw,.05,dz), new Y(hw,.05,dz)),
+        dl(new Y(-hw,.05,dz - tk), new Y(-hw,.05,dz + tk)),
+        dl(new Y(hw,.05,dz - tk), new Y(hw,.05,dz + tk)),
+        dl(new Y(-hw - .5,0,zw + .1), new Y(-hw - .5,ah,zw + .1)),
+        dl(new Y(-hw - .5 - tk,ah,zw + .1), new Y(-hw - .5 + tk,ah,zw + .1));
+        let l1 = Qe(et(aw))
+          , l3 = Qe(et(ah));
+        l1.position.set(0, .05, dz + .05),
+        l3.position.set(-hw - .5, ah / 2, zw + .1),
+        B.add(l1),
+        B.add(l3),
+        ze.push(l1, l3);
+        if (!win) {
+            dl(new Y(dx,.05,-hd), new Y(dx,.05,hd)),
+            dl(new Y(dx - tk,.05,-hd), new Y(dx + tk,.05,-hd)),
+            dl(new Y(dx - tk,.05,hd), new Y(dx + tk,.05,hd));
+            let l2 = Qe(et(ap));
+            l2.position.set(dx + .05, .05, 0),
+            B.add(l2),
+            ze.push(l2)
+        }
+        $e(o.comp_cassette || `Cassette box`, o.comp_cassette_sub || `full cassette · tubular motor · remote control`, new Y(aw * .25,ah,zw + bx)),
+        $e(win ? o.comp_droparm || `Drop arms` : o.comp_arm || `Folding arms`, win ? o.comp_droparm_sub || `2 arms · swing 0–170°` : o.comp_arm_sub || `spring-loaded · stainless cable`, new Y(-hw + .4,ah - (win ? ah * .5 : .45),zw + ap * .45)),
+        $e(o.comp_awnfabric || `Acrylic fabric`, o.comp_awnfabric_sub || `300 g/m² · UV resistant`, new Y(0,ah - .35,zw + ap * .55)),
+        dt(ut),
+        nt = !1,
+        c.tech && rt();
+        let sc = Math.max(aw, ap) * .9 + 3;
+        ne.shadow.camera.left = -sc,
+        ne.shadow.camera.right = sc,
+        ne.shadow.camera.top = sc,
+        ne.shadow.camera.bottom = -sc,
+        ne.shadow.camera.updateProjectionMatrix(),
+        M.target.set(0, ah * .5, 0),
+        We.modules = 1,
+        We.panels = 0,
+        We.postCount = 0,
+        We.weight = Math.round(aw * (win ? 6.5 : 13) + AWp.area * .4 + (win ? 4 : 14)),
+        ft(),
+        pt(),
+        _t(),
+        X(),
+        Xt(),
+        h()
+    }
+    function AWu() {
+        h();
+        let p = AWp;
+        if (!p)
+            return;
+        let k = 1 - q.clamp(K.open, 0, 1)
+          , ps = p.rs.clone()
+          , pe2;
+        if (p.win) {
+            let an = q.degToRad(q.lerp(172, 5, k));
+            pe2 = new Y(0,p.py - p.al * Math.cos(an),p.pz + p.al * Math.sin(an)),
+            ps.set(0, p.ah - p.bx + .01, p.zw + p.bx * .75)
+        } else
+            pe2 = ps.clone().lerp(p.re2, Math.max(.03, k));
+        let dy = ps.y - pe2.y
+          , dzz = pe2.z - ps.z
+          , ln = Math.max(.02, Math.hypot(dy, dzz));
+        p.fab.position.set(0, (ps.y + pe2.y) / 2 + .004, (ps.z + pe2.z) / 2),
+        p.fab.rotation.x = Math.atan2(dy, dzz),
+        p.fab.scale.set(p.aw - .04, 1, ln),
+        p.bar.position.set(0, pe2.y - .03, pe2.z + .02),
+        p.arms.forEach(a1 => {
+            if (p.win) {
+                AWseg(a1.m1, new Y(a1.x,p.py,p.pz), new Y(a1.x,pe2.y - .03,pe2.z + .02));
+                return
+            }
+            let s1 = new Y(a1.x,a1.sy,a1.sz)
+              , w1 = new Y(a1.x,pe2.y - .03,pe2.z - .02)
+              , dd = s1.distanceTo(w1)
+              , off = Math.sqrt(Math.max(0, a1.len * a1.len - dd * dd / 4))
+              , el = s1.clone().add(w1).multiplyScalar(.5);
+            el.x += a1.dir * off,
+            AWseg(a1.m1, s1, el),
+            AWseg(a1.m2, el, w1),
+            a1.el.position.copy(el)
+        }
+        )
     }
     let nt = !1;
     function rt() {
@@ -28415,6 +28776,8 @@ function Wf(t) {
     };
     function ft() {
         h();
+        if (AWp)
+            return AWu();
         let e = c.height;
         if (c.system === `bio`) {
             let t = q.degToRad(Math.min(Rf.maxAngle, K.angle));
@@ -28702,7 +29065,7 @@ function Wf(t) {
             onUpdate: bt
         }),
         t && (c.system === `bio` && Pt(0),
-        (c.system === `rolling` || c.system === `pergola`) && Ft(0))
+        (c.system === `rolling` || c.system === `pergola` || AWp) && Ft(0))
     }
     function Nt(e) {
         if (!jt.visible)
@@ -28916,8 +29279,8 @@ function Wf(t) {
         e(`blades_label`, c.system === `pergola` ? o.slats || `Çıta` : o.blades || `Lamel`),
         e(`panel_colour`, c.panelColourName),
         e(`fabric_colour`, c.fabricName),
-        e(`area`, (c.width * c.depth).toFixed(1).replace(`.`, `,`) + ` m²`),
-        e(`blades`, c.system === `glass` ? `—` : `${We.panels} × ${We.modules}`),
+        e(`area`, (AWp ? AWp.area : c.width * c.depth).toFixed(1).replace(`.`, `,`) + ` m²`),
+        e(`blades`, c.system === `glass` || AWp ? `—` : `${We.panels} × ${We.modules}`),
         e(`motors`, c.system === `glass` ? `—` : String(We.modules)),
         e(`modules`, String(We.modules)),
         e(`weight`, `≈ ${We.weight.toLocaleString(`tr-TR`)} kg`),
@@ -28925,7 +29288,7 @@ function Wf(t) {
         e(`open`, `${Math.round(c.open * 100)}%`),
         e(`side`, `${Math.round(c.sideOpen * 100)}%`),
         e(`dim`, `${Math.round(c.ledDim * 100)}%`),
-        e(`size`, `${et(c.width)} × ${et(c.depth)}`),
+        e(`size`, `${et(c.width)} × ${et(c.system === `winawn` ? c.height : c.depth)}`),
         e(`colour`, c.colourName),
         e(`system`, o[`system_` + c.system] || c.system),
         t.dispatchEvent(new CustomEvent(`studio:change`,{
@@ -29203,15 +29566,16 @@ function Wf(t) {
             M.autoRotateSpeed = .8
         },
         applyConfig(e) {
-            `system.mount.width.depth.height.angle.open.colour.colourName.panelSep.panelColour.panelColourName.fabricColour.fabricName.sideOpen.clean.giyDir.ledMode.ledColour.ledDim.night.rain.furniture.tech.sun.sunHour.sunMonth.north.city.env`.split(`.`).forEach(t => {
+            `system.mount.width.depth.height.angle.open.colour.colourName.panelSep.panelColour.panelColourName.fabricColour.fabricName.sideOpen.clean.giyDir.ledMode.ledColour.ledDim.night.rain.furniture.tech.sun.sunHour.sunMonth.north.city.env.rise.wedge.valance`.split(`.`).forEach(t => {
                 e[t] !== void 0 && e[t] !== null && (c[t] = e[t])
             }
             ),
             e.sides && Object.assign(c.sides, e.sides),
             e.led && Object.assign(c.led, e.led),
-            c.width = Math.min(12, Math.max(2, +c.width)),
-            c.depth = Math.min(7.6, Math.max(2, +c.depth)),
-            c.height = Math.min(4, Math.max(2.2, +c.height)),
+            c.width = Math.min(12, Math.max(1, +c.width)),
+            c.depth = Math.min(7.6, Math.max(1.5, +c.depth)),
+            c.height = Math.min(4, Math.max(1.2, +c.height)),
+            c.rise = Math.min(2.5, Math.max(0, +c.rise || 0)),
             K.angle = c.angle,
             K.open = c.open,
             K.sideOpen = c.sideOpen,

@@ -2875,3 +2875,6 @@ html[lang=ckb]{--font-sans:"NRT","Vazirmatn","Noto Sans Arabic",ui-sans-serif,sy
 .studio3d__labels{direction:ltr}
 .studio3d__labels>*{left:0;top:0}
 .studio3d__callout{unicode-bidi:plaintext}
+
+/* test build: conditional blocks must really hide, whatever their display rule */
+[data-only][hidden],[data-x-notawn][data-x-hide]{display:none!important}

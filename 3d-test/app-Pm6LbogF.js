@@ -1241,7 +1241,7 @@ var ee = `modulepreload`
     )
 }
   , X = [`none`, `zip`, `giy`, `giyc`, `slide`, `door`]
-  , ne = `system.mount.width.depth.height.angle.open.colour.colourName.panelSep.panelColour.panelColourName.fabricColour.fabricName.sideOpen.clean.giyDir.ledMode.ledColour.ledDim.night.rain.furniture.tech.sun.sunHour.sunMonth.north.city.env`.split(`.`);
+  , ne = `system.mount.width.depth.height.angle.open.colour.colourName.panelSep.panelColour.panelColourName.fabricColour.fabricName.sideOpen.clean.giyDir.ledMode.ledColour.ledDim.night.rain.furniture.tech.sun.sunHour.sunMonth.north.city.env.rise.wedge.valance`.split(`.`);
 function re() {
     let e = document.querySelectorAll(`[data-studio3d]`);
     if (!e.length)
@@ -1444,7 +1444,7 @@ function oe(e, t) {
     s(`input[name="side_open"]`)?.addEventListener(`input`, e => t.setSideOpen(l(e.target.value, 0) / 100, !0)),
     c(`[data-roof]`).forEach(e => e.addEventListener(`click`, () => {
         let n = e.dataset.roof === `open`;
-        r.system === `rolling` || r.system === `pergola` ? (t.setOpen(+!!n),
+        [`rolling`, `pergola`, `awning`, `winawn`].includes(r.system) ? (t.setOpen(+!!n),
         u(`open`, n ? 100 : 0)) : (t.setAngle(n ? 105 : 0),
         u(`angle`, n ? 105 : 0))
     }
@@ -1475,7 +1475,7 @@ function oe(e, t) {
               , s = t.sideKinds(e, o);
             i.innerHTML = ``,
             i.dataset.segs = o;
-            let c = e === `back` && r.mount === `wall`;
+            let c = e === `back` && r.mount !== `free`;
             s.forEach( (n, r) => {
                 let s = document.createElement(`button`);
                 s.type = `button`,
@@ -1790,7 +1790,8 @@ function oe(e, t) {
             }
             ).filter(Boolean).join(`, `)
               , s = [`perimeter`, `panels`, `posts`, `giy`].filter(e => r.led.master && r.led[e]).map(e => a[`led_` + e] || e).join(`, `)
-              , c = [a.summary_title || `3D Tasarım Stüdyosu seçimi`, D?.value ? `${a.project_name || `Proje`}: ${D.value}` : null, `${a.system || `Sistem`}: ${a[`system_` + r.system] || r.system}`, `${a.mount || `Montaj`}: ${a[`mount_` + r.mount] || r.mount}`, `${a.size || `Ölçü`}: ${Math.round(r.width * 1e3)} × ${Math.round(r.depth * 1e3)} × ${Math.round(r.height * 1e3)} mm (${e} ${a.modules || `modül`})`, `${a.colour || `Renk`}: ${r.colourName}`, r.panelSep && r.system !== `glass` ? `${(r.system === `pergola` ? a.slat_colour : a.panel_colour) || `Panel rengi`}: ${r.panelColourName}` : null, r.system === `pergola` ? `${a.fabric_colour || `Kumaş`}: ${r.fabricName}` : null, o ? `${a.sides || `Yan kapamalar`}: ${o}` : null, `LED: ${s || a.off || `Yok`}${s ? ` · ${a[`led_mode_` + r.ledMode] || r.ledMode}` : ``}`, `${a.share || `Link`}: ${k ? `${i.designBase}/${k}` : `${window.location.origin}${window.location.pathname}?cfg=${Q(r)}`}`].filter(Boolean).join(`
+              , aw = [`awning`, `winawn`].includes(r.system)
+              , c = [a.summary_title || `3D Tasarım Stüdyosu seçimi`, D?.value ? `${a.project_name || `Proje`}: ${D.value}` : null, `${a.system || `Sistem`}: ${a[`system_` + r.system] || r.system}`, aw ? null : `${a.mount || `Montaj`}: ${a[`mount_` + r.mount] || r.mount}`, aw ? `${a.size || `Ölçü`}: ${Math.round(r.width * 1e3)}${r.system === `awning` ? ` × ` + Math.round(r.depth * 1e3) : ``} × ${Math.round(r.height * 1e3)} mm` : `${a.size || `Ölçü`}: ${Math.round(r.width * 1e3)} × ${Math.round(r.depth * 1e3)} × ${Math.round(r.height * 1e3)} mm (${e} ${a.modules || `modül`})`, (r.system === `glass` || r.system === `pergola`) && r.rise > .05 ? `${a.back_height || `Back height`}: ${Math.round((r.height + r.rise) * 1e3)} mm${r.wedge !== !1 && o ? ` · ` + (a.wedge || `Wedge glazing`) : ``}` : null, aw ? `${a.valance || `Valance`}: ${a[`valance_` + r.valance] || r.valance}` : null, `${a.colour || `Renk`}: ${r.colourName}`, r.panelSep && r.system !== `glass` && !aw ? `${(r.system === `pergola` ? a.slat_colour : a.panel_colour) || `Panel rengi`}: ${r.panelColourName}` : null, r.system === `pergola` || aw ? `${a.fabric_colour || `Kumaş`}: ${r.fabricName}` : null, o && !aw ? `${a.sides || `Yan kapamalar`}: ${o}` : null, aw ? null : `LED: ${s || a.off || `Yok`}${s ? ` · ${a[`led_mode_` + r.ledMode] || r.ledMode}` : ``}`, `${a.share || `Link`}: ${k ? `${i.designBase}/${k}` : `${window.location.origin}${window.location.pathname}?cfg=${Q(r)}`}`].filter(Boolean).join(`
 `)
               , l = new URLSearchParams({
                 project_size: `${r.width.toFixed(1)} m × ${r.depth.toFixed(1)} m`,
