@@ -56,6 +56,7 @@ function i(i, a, o, s, c={}) {
       , HG = i.mount === `hang` && i.system === `pergola`
       , WG = RZ > .05 && i.wedge !== !1
       , AH = HG ? Math.min(2, u * .42) : 0
+      , MR = i.system === `pergola` && !HG && u > 8 ? Math.ceil(u / 7) - 1 : 0
       , LG = i.system === `pergola` && +i.legs >= 2 ? Math.min(f + 1, Math.round(i.legs)) : f + 1
       , PS = new Set(Array.from({
         length: LG
@@ -114,7 +115,10 @@ function i(i, a, o, s, c={}) {
     w.forEach( (t, n) => {
         let r = n === 0 ? t : n === f ? t - e.post * h : t - e.post * h / 2;
         PS.has(n) && (HG || D.push([r, 22 + C - e.postD * h]),
-        m || D.push([r, 22]))
+        m || D.push([r, 22]),
+        Array.from({
+            length: MR
+        }, (z, k) => D.push([r, 22 + C * (k + 1) / (MR + 1) - e.postD * h / 2])))
     }
     ),
     D.forEach( ([t,n]) => v(t, n, e.post * h, e.postD * h, `#222`, `#111`, .2));
@@ -176,6 +180,13 @@ function i(i, a, o, s, c={}) {
         o.forEach( (t, n) => {
             let up = a && n === 0 ? RZ * h : 0;
             a && m && n === 0 || HG && (!a || n === 1) || !a && !PS.has(n) || v(t, N - up, (a ? e.postD : e.post) * h, 234 - N + up, `#333`, `#111`, .2)
+        }
+        ),
+        a && Array.from({
+            length: MR
+        }, (z, k) => {
+            let fk = (k + 1) / (MR + 1);
+            v(t + n * h * fk - e.postD * h / 2, N - RZ * h * (1 - fk), e.postD * h, 234 - N + RZ * h * (1 - fk), `#333`, `#111`, .2)
         }
         ),
         a && WG && r[0] !== `none` && (g.push(`<polygon points="${(t + e.postD * h).toFixed(2)},${N.toFixed(2)} ${(t + n * h - e.postD * h).toFixed(2)},${N.toFixed(2)} ${(t + n * h - e.postD * h).toFixed(2)},${(N - RZ * h * e.postD / n).toFixed(2)} ${(t + e.postD * h).toFixed(2)},${(N - RZ * h * (n - e.postD) / n).toFixed(2)}" fill="url(#glass)" stroke="#235" stroke-width="0.25"/>`),

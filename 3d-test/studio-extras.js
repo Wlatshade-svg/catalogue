@@ -13,7 +13,7 @@
         other: { width: [2000, 12000], depth: [2000, 7600], height: [2200, 4000] },
         awning: { width: [2000, 7000], depth: [1500, 4000], height: [2200, 4000] },
         winawn: { width: [1000, 6000], depth: [2000, 7600], height: [1200, 3000] },
-        pergola: { width: [2000, 25000], depth: [2000, 7600], height: [2200, 4000] }
+        pergola: { width: [2000, 25000], depth: [2000, 25000], height: [2200, 4000] }
     };
     var MAX_RISE = 2500;
     var AWNINGS = { awning: 1, winawn: 1 };
