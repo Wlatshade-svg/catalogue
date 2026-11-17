@@ -5,6 +5,14 @@
 <style>[hidden]{display:none!important} body{margin:0;font-size:14px} :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}</style>
 <meta name="claude:viewport-fit-sides" content="cover">
 <title>Sweet Sarayi 3D</title>
+<meta name="theme-color" content="#070209">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="سویت سرای">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 /* Layout: one-screen viewer. Title strip on top, the 3D scene fills the middle, a compact control sheet at the bottom. */
 @font-face { font-family: "NRT"; src: url("./NRT-Reg.ttf") format("truetype"); font-weight: 400; font-display: swap; }
@@ -698,4 +706,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; direc
   requestAnimationFrame(frame);
   window.__scene = { go: go, setRoof: setRoof, setGiy: setGiy, door: DOOR };
 })();
+</script>
+<script>
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 </script>
