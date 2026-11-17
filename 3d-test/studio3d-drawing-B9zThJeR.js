@@ -34,7 +34,8 @@ function r(e, n, r, i) {
     ).filter(Boolean)
       , c = [`perimeter`, `panels`, `posts`, `giy`].filter(t => e.led.master && e.led[t]).map(e => r[`led_` + e] || e)
       , l = [[r.system || `Sistem`, a], [r.mount || `Montaj`, r[`mount_` + e.mount] || e.mount], [r.dims || `Ölçüler`, `${t(e.width)} × ${t(e.depth)} × ${t(e.height)} mm`], [r.modules || `Modül`, `${o} × ${t(e.width / o)} mm`], [e.system === `pergola` ? r.slats || `Çıta` : r.blades || `Lamel`, e.system === `glass` ? `—` : `${n.panels} × ${o}`], [r.area || `Alan`, `${(e.width * e.depth).toFixed(1).replace(`.`, `,`)} m²`], [r.dr_weight || `Yaklaşık ağırlık`, `≈ ${(n.weight || 0).toLocaleString(`tr-TR`)} kg`], [r.dr_colour_frame || `İskelet`, e.colourName]];
-    return (e.system === `glass` || e.system === `pergola`) && e.rise > .05 && l.splice(3, 0, [r.back_height || `Back height`, `${t(e.height + e.rise)} mm` + (e.wedge !== !1 && s.length ? ` · ` + (r.wedge || `Wedge glazing`) : ``)]),
+    return l.splice(4, 0, [r.posts || `Legs`, String(n.postCount ?? `—`)]),
+    (e.system === `glass` || e.system === `pergola`) && e.rise > .05 && l.splice(3, 0, [r.back_height || `Back height`, `${t(e.height + e.rise)} mm` + (e.wedge !== !1 && s.length ? ` · ` + (r.wedge || `Wedge glazing`) : ``)]),
     e.system !== `glass` && l.push([e.system === `pergola` ? r.slat_colour || `Çıta` : r.panel_colour || `Panel`, e.panelSep ? e.panelColourName : r.dr_same || `iskelet ile aynı`]),
     e.system === `pergola` && l.push([r.fabric_colour || `Kumaş`, e.fabricName]),
     l.push([r.sides || `Kapamalar`, s.length ? s.join(` · `) : r.kind_none || `Açık`]),
@@ -55,6 +56,10 @@ function i(i, a, o, s, c={}) {
       , HG = i.mount === `hang` && i.system === `pergola`
       , WG = RZ > .05 && i.wedge !== !1
       , AH = HG ? Math.min(2, u * .42) : 0
+      , LG = i.system === `pergola` && +i.legs >= 2 ? Math.min(f + 1, Math.round(i.legs)) : f + 1
+      , PS = new Set(Array.from({
+        length: LG
+    }, (e, t) => Math.round(t * f / (LG - 1))))
       , h = Math.min(372 / (l + 2 * u), 110 / u, 300 / l, 66 / (d + RZ + AH + .5))
       , g = []
       , _ = (e, t, n, r, i=`#111`, a=.25, o=``) => g.push(`<line x1="${e.toFixed(2)}" y1="${t.toFixed(2)}" x2="${n.toFixed(2)}" y2="${r.toFixed(2)}" stroke="${i}" stroke-width="${a}" ${o}/>`)
@@ -108,8 +113,8 @@ function i(i, a, o, s, c={}) {
     let D = [];
     w.forEach( (t, n) => {
         let r = n === 0 ? t : n === f ? t - e.post * h : t - e.post * h / 2;
-        HG || D.push([r, 22 + C - e.postD * h]),
-        m || D.push([r, 22])
+        PS.has(n) && (HG || D.push([r, 22 + C - e.postD * h]),
+        m || D.push([r, 22]))
     }
     ),
     D.forEach( ([t,n]) => v(t, n, e.post * h, e.postD * h, `#222`, `#111`, .2));
@@ -170,7 +175,7 @@ function i(i, a, o, s, c={}) {
         !a && RZ > .05 && o.forEach(x1 => v(x1, 234 - M - RZ * h, e.post * h, RZ * h, `#d6d6d6`, `#111`, .2)),
         o.forEach( (t, n) => {
             let up = a && n === 0 ? RZ * h : 0;
-            a && m && n === 0 || HG && (!a || n === 1) || v(t, N - up, (a ? e.postD : e.post) * h, 234 - N + up, `#333`, `#111`, .2)
+            a && m && n === 0 || HG && (!a || n === 1) || !a && !PS.has(n) || v(t, N - up, (a ? e.postD : e.post) * h, 234 - N + up, `#333`, `#111`, .2)
         }
         ),
         a && WG && r[0] !== `none` && (g.push(`<polygon points="${(t + e.postD * h).toFixed(2)},${N.toFixed(2)} ${(t + n * h - e.postD * h).toFixed(2)},${N.toFixed(2)} ${(t + n * h - e.postD * h).toFixed(2)},${(N - RZ * h * e.postD / n).toFixed(2)} ${(t + e.postD * h).toFixed(2)},${(N - RZ * h * (n - e.postD) / n).toFixed(2)}" fill="url(#glass)" stroke="#235" stroke-width="0.25"/>`),

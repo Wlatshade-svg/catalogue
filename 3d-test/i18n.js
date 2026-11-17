@@ -254,7 +254,14 @@
         'UV resistant': ['بەرگری تیشکی خۆر', 'UV dayanımlı', 'مقاوم للأشعة فوق البنفسجية'],
         'Drop height': ['بەرزیی دابەزین', 'Düşüş yüksekliği', 'ارتفاع الإسدال'],
         'Arms': ['قۆڵەکان', 'Kollar', 'الأذرع'],
-        'SIDE VIEW': ['دیمەنی لاتەنیشت', 'YAN GÖRÜNÜŞ', 'منظر جانبي']
+        'SIDE VIEW': ['دیمەنی لاتەنیشت', 'YAN GÖRÜNÜŞ', 'منظر جانبي'],
+        'Sections and legs': ['بەشەکان و قاچەکان', 'Bölümler ve ayaklar', 'الأقسام والأرجل'],
+        'Sections (rails)': ['ژمارەی بەش (ڕەیل)', 'Bölüm sayısı (ray)', 'عدد الأقسام (السكك)'],
+        'Legs in the front row': ['ژمارەی قاچ لە ڕیزی پێشەوە', 'Ön sıradaki ayak sayısı', 'عدد الأرجل في الصف الأمامي'],
+        'Automatic': ['خۆکار', 'Otomatik', 'تلقائي'],
+        'Total legs:': ['کۆی قاچەکان:', 'Toplam ayak:', 'مجموع الأرجل:'],
+        'Legs': ['قاچەکان', 'Ayaklar', 'الأرجل'],
+        'Each section has its own rail and motor. Legs always stand under a rail; a wall-mounted pergola has the front row only, a freestanding one has a front and a back row.': ['هەر بەشێک ڕەیل و ماتۆڕی خۆی هەیە. قاچەکان هەمیشە لە ژێر ڕەیلێکدان؛ پەرگۆلای دیواری تەنها ڕیزی پێشەوەی هەیە، سەربەخۆ ڕیزی پێشەوە و دواوەی هەیە.', 'Her bölümün kendi rayı ve motoru vardır. Ayaklar her zaman bir rayın altında durur; duvara monte pergolada yalnızca ön sıra, bağımsız pergolada ön ve arka sıra bulunur.', 'لكل قسم سكته ومحركه. تقف الأرجل دائماً تحت سكة؛ البرجولا المثبتة على الجدار لها الصف الأمامي فقط، والقائمة بذاتها لها صف أمامي وخلفي.']
     };
 
     // Studio labels whose English text means something else elsewhere on the page.

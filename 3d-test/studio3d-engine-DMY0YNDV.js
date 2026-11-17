@@ -27253,7 +27253,9 @@ var Hf = {
     env: !0,
     rise: 0,
     wedge: !0,
-    valance: `wave`
+    valance: `wave`,
+    mods: 0,
+    legs: 0
 }
   , Uf = {
     day: {
@@ -27423,7 +27425,7 @@ function Wf(t) {
     M.dampingFactor = .06,
     M.maxPolarAngle = Math.PI / 2 - .02,
     M.minDistance = 2.2,
-    M.maxDistance = 34,
+    M.maxDistance = 62,
     M.target.set(0, 1.2, 0),
     M.enablePan = n === `studio`,
     M.autoRotate = n === `ambient` && !l,
@@ -27786,7 +27788,7 @@ function Wf(t) {
           , l = Rf.post
           , u = Rf.rail
           , d = Rf.gutter
-          , f = Math.max(1, Math.ceil((e - .001) / Rf.moduleMax))
+          , f = c.system === `pergola` && +c.mods >= 1 ? Math.max(Math.ceil((e - .001) / 7), Math.min(Math.max(Math.ceil((e - .001) / 7), Math.min(16, Math.floor(e / 1.2))), Math.round(c.mods))) : Math.max(1, Math.ceil((e - .001) / Rf.moduleMax))
           , p = e / f
           , m = Array.from({
             length: f + 1
@@ -27800,7 +27802,11 @@ function Wf(t) {
           , Hg = c.mount === `hang` && c.system === `pergola`
           , TH = Math.atan2(Rz, t)
           , RG = new si
-          , RI = new si;
+          , RI = new si
+          , LG = c.system === `pergola` && +c.legs >= 2 ? Math.min(f + 1, Math.round(c.legs)) : f + 1
+          , PS = new Set(Array.from({
+            length: LG
+        }, (e, t) => Math.round(t * f / (LG - 1))));
         RG.position.set(0, _, s),
         RG.rotation.x = TH,
         RG.scale.z = 1 / Math.cos(TH),
@@ -27809,8 +27815,8 @@ function Wf(t) {
         B.add(RG),
         m.forEach( (e, t) => {
             let n = e + (t === 0 ? l.w / 2 : t === f ? -l.w / 2 : 0);
-            Hg || x.push([n, s - l.d / 2]),
-            i || x.push([n, -s + l.d / 2])
+            PS.has(t) && (Hg || x.push([n, s - l.d / 2]),
+            i || x.push([n, -s + l.d / 2]))
         }
         ),
         x.forEach( ([e,t], n) => {
@@ -29566,13 +29572,15 @@ function Wf(t) {
             M.autoRotateSpeed = .8
         },
         applyConfig(e) {
-            `system.mount.width.depth.height.angle.open.colour.colourName.panelSep.panelColour.panelColourName.fabricColour.fabricName.sideOpen.clean.giyDir.ledMode.ledColour.ledDim.night.rain.furniture.tech.sun.sunHour.sunMonth.north.city.env.rise.wedge.valance`.split(`.`).forEach(t => {
+            `system.mount.width.depth.height.angle.open.colour.colourName.panelSep.panelColour.panelColourName.fabricColour.fabricName.sideOpen.clean.giyDir.ledMode.ledColour.ledDim.night.rain.furniture.tech.sun.sunHour.sunMonth.north.city.env.rise.wedge.valance.mods.legs`.split(`.`).forEach(t => {
                 e[t] !== void 0 && e[t] !== null && (c[t] = e[t])
             }
             ),
             e.sides && Object.assign(c.sides, e.sides),
             e.led && Object.assign(c.led, e.led),
-            c.width = Math.min(12, Math.max(1, +c.width)),
+            c.width = Math.min(c.system === `pergola` ? 25 : 12, Math.max(1, +c.width)),
+            c.mods = Math.max(0, Math.round(+c.mods || 0)),
+            c.legs = Math.max(0, Math.round(+c.legs || 0)),
             c.depth = Math.min(7.6, Math.max(1.5, +c.depth)),
             c.height = Math.min(4, Math.max(1.2, +c.height)),
             c.rise = Math.min(2.5, Math.max(0, +c.rise || 0)),
