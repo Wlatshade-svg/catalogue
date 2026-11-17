@@ -27803,7 +27803,6 @@ function Wf(t) {
           , TH = Math.atan2(Rz, t)
           , RG = new si
           , RI = new si
-          , MR = c.system === `pergola` && t > 8 ? Math.ceil(t / 7) - 1 : 0
           , LG = c.system === `pergola` && +c.legs >= 2 ? Math.min(f + 1, Math.round(c.legs)) : f + 1
           , PS = new Set(Array.from({
             length: LG
@@ -27817,14 +27816,11 @@ function Wf(t) {
         m.forEach( (e, t) => {
             let n = e + (t === 0 ? l.w / 2 : t === f ? -l.w / 2 : 0);
             PS.has(t) && (Hg || x.push([n, s - l.d / 2]),
-            i || x.push([n, -s + l.d / 2]),
-            Hg || Array.from({
-                length: MR
-            }, (e, k) => x.push([n, s - 2 * s * (k + 1) / (MR + 1)])))
+            i || x.push([n, -s + l.d / 2]))
         }
         ),
         x.forEach( ([e,t], n) => {
-            let b = v + (Math.abs(t) > s - l.d ? t < 0 ? Rz : 0 : Rz * (s - t) / (2 * s));
+            let b = v + (t < 0 ? Rz : 0);
             H(B, V(l.w, b, l.d, F), e, b / 2, t).name = `post`;
             let r = t > 0 ? 1 : -1;
             H(B, V(l.w - .02, b - .1, .012, ae, !1), e, b / 2, t + r * (l.d / 2 + .006)),

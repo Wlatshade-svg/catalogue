@@ -259,7 +259,6 @@
         'Sections (rails)': ['ژمارەی بەش (ڕەیل)', 'Bölüm sayısı (ray)', 'عدد الأقسام (السكك)'],
         'Legs in the front row': ['ژمارەی قاچ لە ڕیزی پێشەوە', 'Ön sıradaki ayak sayısı', 'عدد الأرجل في الصف الأمامي'],
         'Automatic': ['خۆکار', 'Otomatik', 'تلقائي'],
-        'When the pergola is longer than 8 m, middle rows of legs are added automatically, one row for about every 7 m.': ['کاتێک درێژیی پەرگۆلاکە لە ٨ مەتر زیاتر بێت، ڕیزی قاچی ناوەڕاست خۆکارانە زیاد دەبێت، نزیکەی هەر ٧ مەتر ڕیزێک.', 'Pergola 8 m\'den uzun olduğunda ara ayak sıraları otomatik eklenir; yaklaşık her 7 m için bir sıra.', 'عندما يزيد طول البرجولا عن 8 م تُضاف صفوف أرجل وسطية تلقائياً، صف لكل 7 م تقريباً.'],
         'Total legs:': ['کۆی قاچەکان:', 'Toplam ayak:', 'مجموع الأرجل:'],
         'Legs': ['قاچەکان', 'Ayaklar', 'الأرجل'],
         'Each section has its own rail and motor. Legs always stand under a rail; a wall-mounted pergola has the front row only, a freestanding one has a front and a back row.': ['هەر بەشێک ڕەیل و ماتۆڕی خۆی هەیە. قاچەکان هەمیشە لە ژێر ڕەیلێکدان؛ پەرگۆلای دیواری تەنها ڕیزی پێشەوەی هەیە، سەربەخۆ ڕیزی پێشەوە و دواوەی هەیە.', 'Her bölümün kendi rayı ve motoru vardır. Ayaklar her zaman bir rayın altında durur; duvara monte pergolada yalnızca ön sıra, bağımsız pergolada ön ve arka sıra bulunur.', 'لكل قسم سكته ومحركه. تقف الأرجل دائماً تحت سكة؛ البرجولا المثبتة على الجدار لها الصف الأمامي فقط، والقائمة بذاتها لها صف أمامي وخلفي.']
