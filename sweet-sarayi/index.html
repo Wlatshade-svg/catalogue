@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="ckb" dir="rtl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important} body{margin:0;font-size:14px} :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}</style>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Sweet Sarayi 3D</title>
+<style>
+/* Layout: one-screen viewer. Title strip on top, the 3D scene fills the middle, a compact control sheet at the bottom. */
+@font-face { font-family: "NRT"; src: url("./NRT-Reg.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "NRT"; src: url("./NRT-Bd.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+:root {
+  --bg: #ece8e3;
+  --panel: #fbfaf8;
+  --line: #d9d2c9;
+  --fg: #2a211c;
+  --muted: #6f625a;
+  --accent: #d9480f;
+  --accent-fg: #ffffff;
+  --chip: #efeae4;
+  --font: "NRT", "Noto Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171412; --panel: #221d1a; --line: #3a322d; --fg: #f1ebe5; --muted: #a99c92;
+    --accent: #ff7a3d; --accent-fg: #1b120c; --chip: #2e2723; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171412; --panel: #221d1a; --line: #3a322d; --fg: #f1ebe5; --muted: #a99c92;
+  --accent: #ff7a3d; --accent-fg: #1b120c; --chip: #2e2723; color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 14px; overflow: hidden; }
+.app { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; direction: rtl; }
+.bar, .sheet {
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--panel);
+}
+.bar { padding-block: 10px; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; }
+.bar h1 { margin: 0; font-size: 17px; font-weight: 700; }
+.bar p { margin: 0; color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.stage { position: relative; min-height: 0; background: #cdd5db; }
+.stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.views { position: absolute; top: 10px; inset-inline-start: max(12px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 6px; }
+.hint { position: absolute; bottom: 8px; inset-inline-end: 12px; font-size: 11.5px; color: #2a211c; background: rgba(255,255,255,.72); padding: 3px 8px; border-radius: 6px; pointer-events: none; }
+.err { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: #2a211c; }
+button { font: inherit; color: var(--fg); background: var(--chip); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.views button { background: var(--panel); padding: 6px 10px; font-size: 12.5px; box-shadow: 0 1px 4px rgba(0,0,0,.18); }
+.sheet { padding-block: 10px; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px 22px; align-items: center; }
+.ctl { display: grid; gap: 4px; min-width: 0; }
+.ctl label, .ctl .lab { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--muted); }
+.ctl output { color: var(--fg); font-variant-numeric: tabular-nums; }
+input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; direction: ltr; }
+.row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.sw { width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 2px solid var(--line); }
+.sw[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--panel) inset; }
+.seg button { padding: 4px 10px; font-size: 12.5px; }
+.act { font-weight: 700; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #e03131; vertical-align: middle; }
+#rec[aria-pressed="true"] { background: #e03131; border-color: #e03131; color: #fff; }
+#rec[aria-pressed="true"] .dot { background: #fff; animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+@media (prefers-reduced-motion: reduce) { #rec[aria-pressed="true"] .dot { animation: none; } }
+.toast { position: absolute; top: 10px; inset-inline-end: 12px; background: rgba(20,16,14,.86); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 12.5px; max-width: calc(100% - 140px); }
+.recbadge { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: #e03131; color: #fff; padding: 4px 12px; border-radius: 999px; font-size: 12.5px; font-variant-numeric: tabular-nums; direction: ltr; }
+</style>
+
+<div class="app">
+  <header class="bar">
+    <h1>سویت سرای · تەسمیمی حەوشە</h1>
+    <p>پەرگۆلا 21 × 10 م · ساندویچ پانێڵ 21 × 3 م · بەرزی پێشەوە 3.20 م · پشتەوە 4.20 م</p>
+  </header>
+
+  <div class="stage" id="stage">
+    <div class="views" role="group" aria-label="دیمەنەکان">
+      <button type="button" data-view="corner" id="v-corner">گۆشە</button>
+      <button type="button" data-view="front" id="v-front">پێشەوە</button>
+      <button type="button" data-view="top" id="v-top">سەرەوە</button>
+      <button type="button" data-view="inside" id="v-inside">ناوەوە</button>
+    </div>
+    <div class="hint">بیسووڕێنە · نزیکی بکەرەوە</div>
+    <div class="recbadge" id="recbadge" hidden>● REC 00:00</div>
+    <div class="toast" id="toast" role="status" hidden></div>
+  </div>
+
+  <section class="sheet" aria-label="کۆنترۆڵەکان">
+    <div class="ctl">
+      <label for="roof">سەقفی پەرگۆلا <output id="roof-out">داخراو</output></label>
+      <input type="range" id="roof" min="0" max="100" value="0">
+    </div>
+    <div class="ctl">
+      <label for="giy">گیۆتین جام <output id="giy-out">داخراو</output></label>
+      <input type="range" id="giy" min="0" max="100" value="0">
+      <div class="row seg" role="group" aria-label="شێوازی کرانەوەی گیۆتین">
+        <button type="button" id="giy-up" data-dir="up" aria-pressed="true">بەرەو سەرەوە</button>
+        <button type="button" id="giy-down" data-dir="down" aria-pressed="false">بەرەو خوارەوە</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <span class="lab">ڕەنگی قوماش</span>
+      <div class="row" role="group" aria-label="ڕەنگی قوماش">
+        <button type="button" class="sw" id="sw-cream" data-fab="#e9e1d2" style="background:#e9e1d2" aria-pressed="true" aria-label="کرێمی"></button>
+        <button type="button" class="sw" id="sw-grey" data-fab="#aeb2b6" style="background:#aeb2b6" aria-pressed="false" aria-label="خۆڵەمێشی"></button>
+        <button type="button" class="sw" id="sw-brown" data-fab="#6b4a3a" style="background:#6b4a3a" aria-pressed="false" aria-label="قاوەیی"></button>
+        <button type="button" class="sw" id="sw-red" data-fab="#7d2a26" style="background:#7d2a26" aria-pressed="false" aria-label="سووری تۆخ"></button>
+      </div>
+    </div>
+    <div class="row">
+      <button type="button" id="leds" aria-pressed="true">لیدەکان</button>
+      <button type="button" id="night" aria-pressed="false">شەو</button>
+      <button type="button" id="dims" aria-pressed="true">قیاسەکان</button>
+      <button type="button" id="furn" aria-pressed="true">مێز و کورسی</button>
+      <button type="button" id="shot" class="act">📷 ڕەسم</button>
+      <button type="button" id="rec" class="act" aria-pressed="false"><span class="dot" aria-hidden="true"></span> <span id="rec-label">ڕیکۆرد</span></button>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function () {
+  'use strict';
+  var stage = document.getElementById('stage');
+  if (!window.THREE || !THREE.OrbitControls) {
+    var e = document.createElement('div'); e.className = 'err';
+    e.textContent = 'مۆدێلە 3D ـەکە بار نەبوو. تکایە پەڕەکە نوێ بکەرەوە.';
+    stage.appendChild(e); return;
+  }
+
+  /* ---------- measurements (metres), from the client's sketch ---------- */
+  var W = 21;          // yard / pergola width
+  var L = 10;          // pergola length
+  var B = 3;           // sandwich-panel strip at the building
+  var HF = 3.2;        // front height incl. gutter
+  var HG = 2.9;        // guillotine glass height
+  var HB = 4.2;        // back posts height
+  var POST = 0.10;     // guillotine post / profile width
+  var GW = 3;          // one guillotine bay
+  var BAYS = ['g', 'g', 'g', 'g', 'd', 'g', 'g'];      // street view, left to right
+  var DOOR = W - 6 * GW - (BAYS.length + 1) * POST;    // what is left of 21 m -> 2.20
+  var PLAT = 0.5;      // yard floor above the pavement
+
+  /* ---------- renderer ---------- */
+  var renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  stage.insertBefore(renderer.domElement, stage.firstChild);
+
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xcdd5db);
+  scene.fog = new THREE.Fog(0xcdd5db, 70, 190);
+
+  var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 400);
+  var controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.maxPolarAngle = Math.PI * 0.497;
+  controls.minDistance = 1.5;
+  controls.maxDistance = 75;
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8478, 0.85));
+  var sun = new THREE.DirectionalLight(0xfff4e2, 0.95);
+  sun.position.set(-18, 30, 22);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  var sc = sun.shadow.camera;
+  sc.left = -26; sc.right = 26; sc.top = 26; sc.bottom = -26; sc.near = 1; sc.far = 90;
+  sun.shadow.bias = -0.0006;
+  sun.target.position.set(0, 0, -6);
+  scene.add(sun, sun.target);
+
+  /* ---------- helpers ---------- */
+  function std(color, rough, metal, extra) {
+    var m = new THREE.MeshStandardMaterial({ color: color, roughness: rough == null ? 0.8 : rough, metalness: metal || 0 });
+    if (extra) for (var k in extra) m[k] = extra[k];
+    return m;
+  }
+  function box(parent, w, h, d, mat, x, y, z, noShadow) {
+    var m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+    m.position.set(x, y, z);
+    if (!noShadow) { m.castShadow = true; m.receiveShadow = true; }
+    parent.add(m);
+    return m;
+  }
+  function canvasTex(w, h, draw) {
+    var c = document.createElement('canvas'); c.width = w; c.height = h;
+    draw(c.getContext('2d'), w, h);
+    var t = new THREE.CanvasTexture(c);
+    t.encoding = THREE.sRGBEncoding;
+    t.anisotropy = 4;
+    return t;
+  }
+
+  var M = {
+    alu: std(0x2a2c30, 0.45, 0.55),
+    aluLite: std(0x3a3d42, 0.5, 0.5),
+    glass: std(0xa9cbd8, 0.05, 0.1, { transparent: true, opacity: 0.22, depthWrite: false, side: THREE.DoubleSide }),
+    darkGlass: std(0x14181c, 0.12, 0.6),
+    brownDark: std(0x3b2a22, 0.85),
+    brown: std(0x4a342a, 0.85),
+    brownLite: std(0x8c5f45, 0.8),
+    cream: std(0xe6dfd2, 0.9),
+    plat: std(0xd9d2c4, 0.95),
+    road: std(0x55585c, 0.95),
+    pave: std(0x8e9297, 0.9),
+    white: std(0xf2f2f0, 0.7),
+    fabric: std(0xe9e1d2, 0.9, 0, { side: THREE.DoubleSide }),
+    leaf: std(0x3c6a3a, 0.95),
+    leafDark: std(0x2c4f30, 0.95),
+    trunk: std(0x5a4030, 0.9),
+    wood: std(0x7a5a44, 0.8),
+    seat: std(0x4b3a33, 0.9),
+    person: std(0x5d6b7a, 0.9),
+    ledBody: std(0x9a9a98, 0.4, 0.6),
+    led: new THREE.MeshStandardMaterial({ color: 0xfff1d6, emissive: 0xffc27a, emissiveIntensity: 1.8, roughness: 0.3 })
+  };
+
+  /* ---------- surroundings ---------- */
+  var ground = new THREE.Mesh(new THREE.PlaneGeometry(260, 260), M.road);
+  ground.rotation.x = -Math.PI / 2; ground.position.y = -PLAT - 0.12; ground.receiveShadow = true;
+  scene.add(ground);
+  box(scene, 44, 0.12, 4.2, M.pave, 0, -PLAT - 0.06, 2.3);                 // pavement in front
+  box(scene, 60, 0.1, 30, std(0x9b9a92, 0.95), 0, -PLAT - 0.07, -15);      // plot around the building
+
+  var tiles = canvasTex(512, 512, function (g, w, h) {
+    g.fillStyle = '#b9b3a8'; g.fillRect(0, 0, w, h);
+    g.strokeStyle = 'rgba(70,62,55,.45)'; g.lineWidth = 3;
+    for (var i = 0; i <= 4; i++) {
+      g.beginPath(); g.moveTo(i * 128, 0); g.lineTo(i * 128, h); g.stroke();
+      g.beginPath(); g.moveTo(0, i * 128); g.lineTo(w, i * 128); g.stroke();
+    }
+  });
+  tiles.wrapS = tiles.wrapT = THREE.RepeatWrapping; tiles.repeat.set(W / 2.4, (L + B) / 2.4);
+  box(scene, W + 0.3, PLAT, L + B + 0.15, M.plat, 0, -PLAT / 2 - 0.005, -(L + B) / 2 + 0.075);
+  var floor = new THREE.Mesh(new THREE.PlaneGeometry(W, L + B), std(0xffffff, 0.85, 0, { map: tiles }));
+  floor.rotation.x = -Math.PI / 2; floor.position.set(0, 0.002, -(L + B) / 2); floor.receiveShadow = true;
+  scene.add(floor);
+
+  // bay layout along the front
+  var bays = [], postX = [], cx = -W / 2;
+  BAYS.forEach(function (kind) {
+    postX.push(cx + POST / 2); cx += POST;
+    var w = kind === 'g' ? GW : DOOR;
+    bays.push({ kind: kind, x: cx + w / 2, w: w }); cx += w;
+  });
+  postX.push(cx + POST / 2);
+  var doorBay = bays.filter(function (b) { return b.kind === 'd'; })[0];
+
+  // steps up to the automatic door
+  for (var s = 0; s < 3; s++) {
+    box(scene, DOOR + 0.5, PLAT / 3, 0.32, M.cream, doorBay.x, -PLAT + (PLAT / 3) * (s + 0.5) - (PLAT / 3), 0.25 + (2 - s) * 0.32 + 0.16 - 0.32);
+  }
+
+  // greenery on the right, like the site
+  function cypress(x, z, h) {
+    var m = new THREE.Mesh(new THREE.ConeGeometry(h * 0.13, h, 10), M.leafDark);
+    m.position.set(x, -PLAT + h / 2, z); m.castShadow = true; scene.add(m);
+  }
+  function tree(x, z, r) {
+    box(scene, 0.22, 2.2, 0.22, M.trunk, x, -PLAT + 1.1, z);
+    var m = new THREE.Mesh(new THREE.SphereGeometry(r, 12, 10), M.leaf);
+    m.position.set(x, -PLAT + 2.2 + r * 0.7, z); m.scale.y = 0.85; m.castShadow = true; scene.add(m);
+  }
+  cypress(12.2, -2.5, 5.2); cypress(12.6, -9.5, 4.6); cypress(13.4, -5.5, 4.2);
+  tree(13.8, -1.2, 1.7); tree(14.6, -7.8, 2.0); tree(12.9, -12.2, 1.5);
+  box(scene, 0.25, 2.1, L + B, M.cream, -W / 2 - 0.9, -PLAT + 1.05, -(L + B) / 2);     // neighbour wall, left
+
+  /* ---------- the building, approximately as it stands ---------- */
+  var bz = -(L + B);                       // façade line
+  var bld = new THREE.Group(); scene.add(bld);
+  var cladding = canvasTex(256, 256, function (g, w, h) {
+    g.fillStyle = '#3f2d25'; g.fillRect(0, 0, w, h);
+    g.strokeStyle = 'rgba(0,0,0,.4)'; g.lineWidth = 3;
+    for (var i = 0; i < 8; i++) { g.beginPath(); g.moveTo(i * 32 + 16, 0); g.lineTo(i * 32 + 16, h); g.stroke(); }
+  });
+  cladding.wrapS = cladding.wrapT = THREE.RepeatWrapping; cladding.repeat.set(9, 1);
+  var cladMat = std(0xffffff, 0.85, 0, { map: cladding });
+  box(bld, 13.4, 7.0 + PLAT, 11, M.brownDark, 4.9, (7.0 - PLAT) / 2, bz - 5.5);        // right + centre block
+  box(bld, 9.6, 5.9 + PLAT, 11, M.brownDark, -6.6, (5.9 - PLAT) / 2, bz - 5.5);        // lower left block
+  // ground floor glazing with mullions
+  box(bld, 22.6, 3.15, 0.06, M.darkGlass, 0, 1.72, bz + 0.03, true);
+  for (var gx = -11.3; gx <= 11.31; gx += 1.883) box(bld, 0.09, 3.3, 0.1, M.brown, gx, 1.65, bz + 0.06);
+  box(bld, 22.9, 0.16, 0.14, M.brown, 0, 0.08, bz + 0.07);
+  box(bld, 23, 0.45, 0.5, M.brownLite, 0, 3.52, bz + 0.25);                            // band above the glazing
+  // left: ribbed cladding, diagonal band, open frame on the roof
+  box(bld, 9.2, 2.15, 0.06, cladMat, -6.9, 4.83, bz + 0.03, true);
+  var diag = box(bld, 5.2, 0.42, 0.22, M.brownLite, -4.35, 5.3, bz + 0.13);
+  diag.rotation.z = Math.atan2(2.9, 4.2);
+  box(bld, 4.9, 0.3, 0.2, M.cream, -8.9, 4.25, bz + 0.12);
+  box(bld, 0.4, 1.9, 0.5, M.brownDark, -11.2, 6.85, bz - 0.3);
+  box(bld, 9.3, 0.4, 0.5, M.brownDark, -6.75, 7.6, bz - 0.3);
+  [-9.2, -7.2, -5.2].forEach(function (x) { box(bld, 0.35, 1.5, 0.35, M.cream, x, 6.65, bz - 0.3); });
+  // centre: column with the oval sign and four fins
+  box(bld, 3.5, 3.4, 0.4, M.brown, -0.55, 5.45, bz + 0.2);
+  [-1.6, -0.9, -0.2, 0.5].forEach(function (x) { box(bld, 0.24, 1.0, 0.5, M.brownDark, x, 7.5, bz + 0.05); });
+  // right: framed sign wall
+  box(bld, 10.4, 0.32, 0.3, M.brownLite, 6.4, 6.84, bz + 0.15);
+  box(bld, 0.32, 3.25, 0.3, M.brownLite, 11.44, 5.37, bz + 0.15);
+  box(bld, 9.9, 0.26, 0.1, M.cream, 6.3, 5.05, bz + 0.06);
+
+  function textPlane(text, w, h, font, color, x, y) {
+    var cw = 1024, ch = Math.round(1024 * h / w);
+    var tex = canvasTex(cw, ch, function () {});
+    function paint() {
+      var g = tex.image.getContext('2d');
+      g.clearRect(0, 0, cw, ch);
+      g.direction = 'rtl'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = font.replace('$', Math.round(ch * 0.74));
+      g.fillStyle = color; g.fillText(text, cw / 2, ch / 2, cw * 0.96);
+      tex.needsUpdate = true;
+    }
+    paint();
+    var m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, transparent: true }));
+    m.position.set(x, y, bz + 0.09); bld.add(m);
+    return paint;
+  }
+  var repaint = [
+    textPlane('سویت سرای', 6.6, 1.35, '700 $px NRT, "Noto Sans Arabic", Tahoma, sans-serif', '#ff5a1f', 6.4, 6.0),
+    textPlane('کافتریای سویت سرای', 7.6, 0.8, '700 $px NRT, "Noto Sans Arabic", Tahoma, sans-serif', '#ff5a1f', 6.4, 4.42)
+  ];
+  if (document.fonts && document.fonts.load) {
+    document.fonts.load('700 40px NRT').then(function () { repaint.forEach(function (f) { f(); }); }).catch(function () {});
+  }
+  var ovalTex = canvasTex(768, 320, function (g, w, h) {
+    g.fillStyle = '#5a1512'; g.fillRect(0, 0, w, h);
+    g.strokeStyle = '#d9b36a'; g.lineWidth = 10;
+    g.beginPath(); g.ellipse(w / 2, h / 2, w / 2 - 22, h / 2 - 20, 0, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = '#f3d9a4'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = 'italic 700 92px Georgia, "Times New Roman", serif'; g.fillText('Sweet Sarayi', w / 2, h / 2 - 8);
+    g.font = '600 22px Georgia, serif'; g.fillText('CHOCOLATE · SWEETS · COFFEE', w / 2, h / 2 + 62);
+  });
+  var oval = new THREE.Mesh(new THREE.CircleGeometry(1, 48), new THREE.MeshBasicMaterial({ map: ovalTex }));
+  oval.scale.set(1.55, 0.64, 1); oval.position.set(-0.55, 5.5, bz + 0.42); bld.add(oval);
+
+  /* ---------- the design ---------- */
+  var design = new THREE.Group(); scene.add(design);
+
+  // front: 8 posts, gutter beam on top
+  postX.forEach(function (x) { box(design, POST, HG, 0.12, M.alu, x, HG / 2, -0.06); });
+  box(design, W, HF - HG, 0.2, M.alu, 0, (HF + HG) / 2, -0.1);
+  box(design, W + 0.02, 0.03, 0.22, M.aluLite, 0, HF - 0.015, -0.1, true);
+
+  // guillotine bays: two ways of opening.
+  //  up   = motor box on top, the lower panes rise and stack under it
+  //  down = motor box at the sill, the upper panes drop and stack on it
+  var giyGroup = new THREE.Group(); design.add(giyGroup);
+  var panes = [], giyDir = 'up', giyOpen = 0;
+  var TOPBOX = 0.16, ROWS = 3, rowH = (HG - TOPBOX) / ROWS;
+  function buildGiy(dir) {
+    while (giyGroup.children.length) {
+      var ch = giyGroup.children.pop();
+      ch.traverse(function (o) { if (o.geometry) o.geometry.dispose(); });
+    }
+    panes = [];
+    var down = dir === 'down';
+    bays.forEach(function (b) {
+      if (b.kind !== 'g') return;
+      var boxY = down ? TOPBOX / 2 : HG - TOPBOX / 2;
+      box(giyGroup, b.w, TOPBOX, 0.14, M.alu, b.x, boxY, -0.06);                        // motor box
+      if (down) box(giyGroup, b.w, 0.05, 0.08, M.alu, b.x, HG - 0.025, -0.06);         // top rail
+      else box(giyGroup, b.w, 0.04, 0.07, M.alu, b.x, 0.02, -0.06);                    // sill
+      for (var r = 0; r < ROWS; r++) {                                                 // r = 0 is the fixed pane at the box
+        var g = new THREE.Group();
+        var pw = b.w - 0.012, f = 0.03;
+        g.add(new THREE.Mesh(new THREE.BoxGeometry(pw - 2 * f, rowH - 2 * f, 0.008), M.glass));
+        box(g, pw, 0.045, 0.035, M.alu, 0, rowH / 2 - 0.0225, 0, true);
+        box(g, pw, f, 0.035, M.alu, 0, -rowH / 2 + f / 2, 0, true);
+        box(g, f, rowH, 0.035, M.alu, -pw / 2 + f / 2, 0, 0, true);
+        box(g, f, rowH, 0.035, M.alu, pw / 2 - f / 2, 0, 0, true);
+        var y0 = down ? TOPBOX + rowH * (r + 0.5) : HG - TOPBOX - rowH * (r + 0.5);
+        g.position.set(b.x, y0, -0.06 - r * 0.03 + 0.03);
+        g.userData = { r: r, y0: y0, s: down ? -1 : 1 };
+        giyGroup.add(g); panes.push(g);
+      }
+    });
+    setGiy(giyOpen);
+  }
+
+  // the 2.20 m bay stays an open entrance: the photocell door is removed
+
+  // back: five posts with a beam at 4.20, sandwich-panel roof to the building
+  var BEAM = 0.24;
+  for (var i = 0; i < 5; i++) {
+    var px = -W / 2 + 0.085 + i * (W - 0.17) / 4;
+    box(design, 0.17, HB - BEAM, 0.16, M.alu, px, (HB - BEAM) / 2, -L);
+    box(design, 0.08, 0.14, B, M.alu, px, HB + 0.02, -L - B / 2).rotation.x = -Math.atan2(0.16, B);  // rafters
+  }
+  box(design, W, BEAM, 0.16, M.alu, 0, HB - BEAM / 2, -L);
+  box(design, W, 0.14, 0.08, M.alu, 0, HB + 0.1, bz + 0.05);                                    // wall ledger
+  var ribs = canvasTex(256, 64, function (g, w, h) {
+    g.fillStyle = '#eceded'; g.fillRect(0, 0, w, h);
+    g.fillStyle = 'rgba(0,0,0,.16)'; for (var i = 0; i < 8; i++) g.fillRect(i * 32 + 13, 0, 6, h);
+  });
+  ribs.wrapS = ribs.wrapT = THREE.RepeatWrapping; ribs.repeat.set(26, 1);
+  var sand = new THREE.Group();
+  sand.position.set(0, HB + 0.1, -L + 0.12); sand.rotation.x = Math.atan2(0.16, B);
+  var sLen = Math.sqrt(B * B + 0.16 * 0.16) + 0.12;
+  box(sand, W + 0.2, 0.06, sLen, std(0xffffff, 0.6, 0.1, { map: ribs }), 0, 0.03, -sLen / 2);
+  box(sand, W + 0.24, 0.1, 0.04, M.alu, 0, 0.03, 0.02);                                         // front trim
+  design.add(sand);
+
+  // fabric pergola: 9 rails (8 sections), slats with cloth between them
+  var roof = new THREE.Group();
+  var ZF = -0.2, RUN = L + ZF - 0.08, RISE = HB - HF;
+  var TH = Math.atan2(RISE, RUN), LR = Math.sqrt(RUN * RUN + RISE * RISE);
+  roof.position.set(0, HF, ZF); roof.rotation.x = TH; design.add(roof);
+  // full-size rails (12 × 20 cm) raised so they stand above the fabric; from below only the
+  // strip of the rail bottom that the gathered fabric does not cover shows
+  var RAILS = 9, RW = 0.12, RH = 0.2, railX = [];
+  var COVER = 0.2 * RW;      // the fabric laps over each side of the rail bottom (4 cm of a 10 cm rail in total)
+  for (var ri = 0; ri < RAILS; ri++) railX.push(-W / 2 + RW / 2 + ri * (W - RW) / (RAILS - 1));
+  railX.forEach(function (x) { box(roof, RW, RH, LR, M.alu, x, RH / 2 - 0.028, -LR / 2); });
+  var SL = { w: 0.082, h: 0.06, pitch: 0.72 };
+  var nSl = Math.max(3, Math.round((LR - SL.w) / SL.pitch) + 1);
+  var pitch = (LR - SL.w) / (nSl - 1);
+  var modules = [], ledMeshes = [];
+  // spot LED modules under every other slat, three per section, like the reference photo
+  var ledBody = new THREE.BoxGeometry(0.34, 0.014, 0.062);
+  var ledLens = new THREE.BoxGeometry(0.3, 0.004, 0.042);
+  for (var mI = 0; mI < RAILS - 1; mI++) {
+    var x0 = railX[mI] + RW / 2 - COVER, x1 = railX[mI + 1] - RW / 2 + COVER, mw = x1 - x0, mx = (x0 + x1) / 2;
+    var slats = [], cloths = [];
+    for (var k = 0; k < nSl; k++) {
+      var sl = box(roof, mw, SL.h, SL.w, M.alu, mx, -0.06, 0);
+      if (k % 2 === 1) {
+        [-0.33, 0, 0.33].forEach(function (f) {
+          var bodyM = new THREE.Mesh(ledBody, M.ledBody);
+          bodyM.position.set(f * mw, -SL.h / 2 - 0.007, 0); sl.add(bodyM);
+          var lens = new THREE.Mesh(ledLens, M.led);
+          lens.position.set(f * mw, -SL.h / 2 - 0.016, 0); sl.add(lens); ledMeshes.push(lens);
+        });
+      }
+      slats.push(sl);
+    }
+    for (var c = 0; c < nSl - 1; c++) {
+      var geo = new THREE.BufferGeometry(), SEG = 8;
+      var pos = new Float32Array((SEG + 1) * 2 * 3), idx = [];
+      for (var q = 0; q < SEG; q++) { var a = q * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setIndex(idx);
+      var cm = new THREE.Mesh(geo, M.fabric); cm.castShadow = true; cm.receiveShadow = true;
+      cm.userData = { x0: x0, x1: x1, seg: SEG };
+      roof.add(cm); cloths.push(cm);
+    }
+    modules.push({ slats: slats, cloths: cloths });
+  }
+  function setRoof(open) {                    // 0 = fabric drawn (covered), 1 = gathered at the back
+    var sp = pitch + (0.09 - pitch) * open;
+    var sag = Math.max(0.008, 0.5 * Math.sqrt(Math.max(0, pitch * pitch - sp * sp)));
+    var zBack = -(LR - SL.w / 2);
+    modules.forEach(function (m) {
+      for (var i = 0; i < nSl; i++) m.slats[i].position.z = zBack + (nSl - 1 - i) * sp;
+      m.cloths.forEach(function (cm, i) {
+        var za = m.slats[i].position.z, zb = m.slats[i + 1].position.z, u = cm.userData;
+        var p = cm.geometry.attributes.position;
+        for (var j = 0; j <= u.seg; j++) {
+          var t = j / u.seg, z = za + (zb - za) * t, y = -0.03 - sag * Math.sin(Math.PI * t);
+          p.setXYZ(j * 2, u.x0, y, z); p.setXYZ(j * 2 + 1, u.x1, y, z);
+        }
+        p.needsUpdate = true; cm.geometry.computeVertexNormals(); cm.geometry.computeBoundingSphere();
+      });
+    });
+  }
+  function setGiy(open) {                     // panes slide toward the motor box and stack behind the fixed one
+    giyOpen = open;
+    panes.forEach(function (g) { g.position.y = g.userData.y0 + g.userData.s * open * g.userData.r * rowH; });
+  }
+
+  // warm light under the roof, used when the LEDs are on
+  var ledLights = [];
+  [-7.5, 0, 7.5].forEach(function (x) {
+    [-2.8, -7.2].forEach(function (z) {
+      var pl = new THREE.PointLight(0xffc27a, 0, 11, 1.6);
+      pl.position.set(x, HF + 0.3 + (RISE * -z / RUN) - 0.35, z); scene.add(pl); ledLights.push(pl);
+    });
+  });
+
+  /* ---------- furniture and a person for scale ---------- */
+  var furn = new THREE.Group(); scene.add(furn);
+  function tableSet(x, z) {
+    var top = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.04, 20), M.wood);
+    top.position.set(x, 0.74, z); top.castShadow = true; furn.add(top);
+    box(furn, 0.08, 0.72, 0.08, M.alu, x, 0.36, z);
+    [[0.8, 0, 0], [-0.8, 0, Math.PI], [0, 0.8, -Math.PI / 2], [0, -0.8, Math.PI / 2]].forEach(function (c) {
+      var ch = new THREE.Group();
+      box(ch, 0.46, 0.44, 0.46, M.seat, 0, 0.22, 0);
+      box(ch, 0.08, 0.42, 0.46, M.seat, 0.19, 0.64, 0);
+      ch.position.set(x + c[0], 0, z + c[1]); ch.rotation.y = c[2]; furn.add(ch);
+    });
+  }
+  [-8, -4, 4, 8].forEach(function (x) { tableSet(x, -2.6); tableSet(x, -6.2); });
+  [-6, -2, 2, 6].forEach(function (x) { tableSet(x, -11.4); });
+  var man = new THREE.Group();
+  var body = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.16, 1.45, 12), M.person);
+  body.position.y = 0.725; body.castShadow = true; man.add(body);
+  var head = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 10), std(0xc9a58a, 0.8));
+  head.position.y = 1.62; head.castShadow = true; man.add(head);
+  man.position.set(doorBay.x + 2.2, -PLAT, 1.6); scene.add(man);
+
+  /* ---------- dimensions ---------- */
+  var dims = new THREE.Group(); scene.add(dims);
+  var lineMat = new THREE.LineBasicMaterial({ color: 0xd9480f, depthTest: false });
+  function label(text, p, scale) {
+    var tex = canvasTex(256, 96, function (g, w, h) {
+      g.fillStyle = 'rgba(255,255,255,.94)';
+      g.beginPath(); g.moveTo(18, 8); g.lineTo(w - 18, 8); g.quadraticCurveTo(w - 6, 8, w - 6, 20); g.lineTo(w - 6, h - 20);
+      g.quadraticCurveTo(w - 6, h - 8, w - 18, h - 8); g.lineTo(18, h - 8); g.quadraticCurveTo(6, h - 8, 6, h - 20);
+      g.lineTo(6, 20); g.quadraticCurveTo(6, 8, 18, 8); g.fill();
+      g.strokeStyle = '#d9480f'; g.lineWidth = 4; g.stroke();
+      g.fillStyle = '#2a211c'; g.font = '700 50px "Segoe UI", Arial, sans-serif';
+      g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, w / 2, h / 2 + 2, w - 28);
+    });
+    var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false }));
+    var k = scale || 1; sp.scale.set(1.5 * k, 0.5625 * k, 1); sp.position.copy(p); sp.renderOrder = 20; dims.add(sp);
+  }
+  function dim(a, b, text, scale) {
+    var A = new THREE.Vector3(a[0], a[1], a[2]), Bv = new THREE.Vector3(b[0], b[1], b[2]);
+    var ln = new THREE.Line(new THREE.BufferGeometry().setFromPoints([A, Bv]), lineMat); ln.renderOrder = 19; dims.add(ln);
+    [A, Bv].forEach(function (p) {
+      var d = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 6), new THREE.MeshBasicMaterial({ color: 0xd9480f, depthTest: false }));
+      d.position.copy(p); d.renderOrder = 19; dims.add(d);
+    });
+    label(text, A.clone().add(Bv).multiplyScalar(0.5), scale);
+  }
+  var xl = -W / 2 - 0.45, xr = W / 2 + 0.45;
+  dim([-W / 2, HF + 0.55, 0], [W / 2, HF + 0.55, 0], '21 m', 1.5);
+  dim([xl, 0.05, 0], [xl, 0.05, -L], '10 m', 1.4);
+  dim([xl, 0.05, -L], [xl, 0.05, -L - B], '3 m', 1.2);
+  dim([xr, 0, 0.15], [xr, HF, 0.15], '3.20 m', 1.2);
+  dim([xl, 0, 0.15], [xl, HG, 0.15], '2.90 m', 1.2);
+  dim([xr, 0, -L], [xr, HB, -L], '4.20 m', 1.2);
+  bays.forEach(function (b) {
+    dim([b.x - b.w / 2, -0.12, 0.45], [b.x + b.w / 2, -0.12, 0.45], b.kind === 'g' ? '3 m' : DOOR.toFixed(2) + ' m', 0.85);
+  });
+
+  /* ---------- views ---------- */
+  var VIEWS = {
+    corner: { p: [-21, 10, 17], t: [0, 1.6, -5.5] },
+    front: { p: [1.5, 2.6, 24], t: [0, 2.6, -6] },
+    top: { p: [0, 38, 0.5], t: [0, 0, -6] },
+    inside: { p: [7.5, 1.7, -11.6], t: [-2.5, 2.1, 0] }
+  };
+  var tween = null;
+  function go(name, instant) {
+    var v = VIEWS[name]; if (!v) return;
+    var toP = new THREE.Vector3().fromArray(v.p), toT = new THREE.Vector3().fromArray(v.t);
+    if (instant) { camera.position.copy(toP); controls.target.copy(toT); controls.update(); return; }
+    tween = { p0: camera.position.clone(), t0: controls.target.clone(), p1: toP, t1: toT, s: performance.now() };
+  }
+  go('corner', true);
+
+  /* ---------- controls ---------- */
+  function $(id) { return document.getElementById(id); }
+  function word(v) { return v <= 2 ? 'داخراو' : v >= 98 ? 'کراوە' : v + '%'; }
+  $('roof').addEventListener('input', function () { setRoof(this.value / 100); $('roof-out').textContent = word(+this.value); });
+  $('giy').addEventListener('input', function () { setGiy(this.value / 100); $('giy-out').textContent = word(+this.value); });
+  function toggle(btn, fn) {
+    btn.addEventListener('click', function () {
+      var on = btn.getAttribute('aria-pressed') !== 'true';
+      btn.setAttribute('aria-pressed', String(on)); fn(on);
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-dir]'), function (b) {
+    b.addEventListener('click', function () {
+      giyDir = b.getAttribute('data-dir'); buildGiy(giyDir);
+      Array.prototype.forEach.call(document.querySelectorAll('[data-dir]'), function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+    });
+  });
+  var hemi = scene.children.filter(function (o) { return o.isHemisphereLight; })[0];
+  var DAY = { bg: 0xcdd5db, hemi: 0.85, sun: 0.95, exp: 1.05 }, NIGHT = { bg: 0x1b2333, hemi: 0.12, sun: 0.06, exp: 1.2 };
+  var ledsOn = true, night = false;
+  function applyLight() {
+    var L0 = night ? NIGHT : DAY;
+    scene.background.setHex(L0.bg); scene.fog.color.setHex(L0.bg);
+    hemi.intensity = L0.hemi; sun.intensity = L0.sun; renderer.toneMappingExposure = L0.exp;
+    M.led.emissiveIntensity = ledsOn ? (night ? 3 : 1.8) : 0;
+    M.led.color.setHex(ledsOn ? 0xfff1d6 : 0x8d8a84);
+    ledLights.forEach(function (p) { p.intensity = ledsOn ? (night ? 1.5 : 0.35) : 0; });
+    stage.style.background = '#' + L0.bg.toString(16).padStart(6, '0');
+  }
+  toggle($('leds'), function (on) { ledsOn = on; applyLight(); });
+  toggle($('night'), function (on) { night = on; applyLight(); });
+  toggle($('dims'), function (on) { dims.visible = on; });
+  toggle($('furn'), function (on) { furn.visible = on; man.visible = on; });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-fab]'), function (b) {
+    b.addEventListener('click', function () {
+      M.fabric.color.set(b.getAttribute('data-fab'));
+      Array.prototype.forEach.call(document.querySelectorAll('[data-fab]'), function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-view]'), function (b) {
+    b.addEventListener('click', function () { go(b.getAttribute('data-view')); });
+  });
+  controls.addEventListener('start', function () { tween = null; });
+
+  setRoof(0); buildGiy('up'); applyLight();
+
+  /* ---------- photo and video ---------- */
+  var downloadsP = (window.claude && window.claude.use) ? window.claude.use('downloads') : Promise.resolve(null);
+  var toastT = 0;
+  function toast(msg) {
+    var t = $('toast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, 3500);
+  }
+  function stamp() {
+    var d = new Date(), p = function (n) { return String(n).padStart(2, '0'); };
+    return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '-' + p(d.getHours()) + p(d.getMinutes()) + p(d.getSeconds());
+  }
+  function offer(blob, filename) {
+    return downloadsP.then(function (dl) {
+      if (dl) {
+        return dl.save({ filename: filename, data: blob }).then(function () { toast('پاشەکەوت کرا: ' + filename); }, function (e) {
+          if (e && e.code === 'declined') toast('پاشەکەوت نەکرا.');
+          else if (e && e.code === 'rate_limited') toast('کەمێک چاوەڕێ بکە و دووبارە هەوڵ بدەرەوە.');
+          else toast('لێرە ناتوانرێت فایل پاشەکەوت بکرێت.');
+        });
+      }
+      var a = document.createElement('a');                       // outside claude.ai (e.g. opened as a local file)
+      a.href = URL.createObjectURL(blob); a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    });
+  }
+  $('shot').addEventListener('click', function () {
+    controls.update(); renderer.render(scene, camera);
+    renderer.domElement.toBlob(function (blob) {
+      if (!blob) { toast('ڕەسمەکە دروست نەبوو.'); return; }
+      offer(blob, 'sweet-sarayi-' + stamp() + '.png');
+    }, 'image/png');
+  });
+
+  var rec = null, recChunks = [], recStart = 0, recTimer = 0;
+  var canRec = !!(window.MediaRecorder && renderer.domElement.captureStream);
+  if (!canRec) $('rec').hidden = true;
+  function pickType() {
+    var list = ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+    for (var i = 0; i < list.length; i++) if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(list[i])) return list[i];
+    return '';
+  }
+  function stopRec() {
+    if (rec && rec.state !== 'inactive') rec.stop();
+  }
+  $('rec').addEventListener('click', function () {
+    if (rec) { stopRec(); return; }
+    var type = pickType();
+    try {
+      rec = new MediaRecorder(renderer.domElement.captureStream(30), type ? { mimeType: type, videoBitsPerSecond: 8e6 } : undefined);
+    } catch (e) { rec = null; toast('ڤیدیۆ لەم وێبگەڕەدا تۆمار ناکرێت.'); return; }
+    recChunks = [];
+    rec.ondataavailable = function (e) { if (e.data && e.data.size) recChunks.push(e.data); };
+    rec.onstop = function () {
+      var mime = rec.mimeType || type || 'video/webm', ext = mime.indexOf('mp4') >= 0 ? 'mp4' : 'webm';
+      var blob = new Blob(recChunks, { type: mime });
+      rec = null; clearInterval(recTimer);
+      $('rec').setAttribute('aria-pressed', 'false'); $('rec-label').textContent = 'ڕیکۆرد'; $('recbadge').hidden = true;
+      if (blob.size) offer(blob, 'sweet-sarayi-' + stamp() + '.' + ext);
+    };
+    rec.start(500);
+    recStart = performance.now();
+    $('rec').setAttribute('aria-pressed', 'true'); $('rec-label').textContent = 'وەستاندن'; $('recbadge').hidden = false;
+    recTimer = setInterval(function () {
+      var s = Math.floor((performance.now() - recStart) / 1000);
+      $('recbadge').textContent = '● REC ' + String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+      if (s >= 300) stopRec();
+    }, 250);
+    toast('تۆمارکردن دەستی پێکرد. دیمەنەکە بسووڕێنە، پاشان «وەستاندن» دابگرە.');
+  });
+
+  function resize() {
+    var w = stage.clientWidth, h = stage.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h; camera.fov = w < h ? 58 : 45; camera.updateProjectionMatrix();
+  }
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
+  window.addEventListener('resize', resize);
+  resize();
+
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (tween) {
+      var k = Math.min(1, (now - tween.s) / 800), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      camera.position.lerpVectors(tween.p0, tween.p1, e);
+      controls.target.lerpVectors(tween.t0, tween.t1, e);
+      if (k >= 1) tween = null;
+    }
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  requestAnimationFrame(frame);
+  window.__scene = { go: go, setRoof: setRoof, setGiy: setGiy, door: DOOR };
+})();
+</script>
